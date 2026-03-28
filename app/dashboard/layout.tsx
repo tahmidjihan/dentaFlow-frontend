@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
-
+import '../globals.css';
+import Sidebar from '../../components/sidebar';
 const manrope = Manrope({
   variable: '--font-manrope',
   subsets: ['latin'],
@@ -33,7 +34,11 @@ export default function DoctorLayout({
         />
       </head>
       <body className='min-h-full bg-background text-on-surface antialiased'>
-        {children}
+        <div className='min-h-screen flex'>
+          {/* Sidebar Navigation */}
+          <Sidebar />
+          {children}
+        </div>
       </body>
     </html>
   );
