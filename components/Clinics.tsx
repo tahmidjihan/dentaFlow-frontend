@@ -1,42 +1,5 @@
 import ClinicCard from "./ClinicCard";
-
-const clinics = [
-  {
-    name: "The Chelsea Mews",
-    address: "24 King's Road, London",
-    phone: "+44 20 7946 0123",
-    specialty: "Primary Care",
-    image: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop",
-  },
-  {
-    name: "Mayfair Wellness",
-    address: "12 Berkeley Square, London",
-    phone: "+44 20 7946 0888",
-    specialty: "Dermatology",
-    image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop",
-  },
-  {
-    name: "Harley Studio",
-    address: "102 Harley Street, London",
-    phone: "+44 20 7946 0444",
-    specialty: "Dental Excellence",
-    image: "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    name: "Notting Hill Haven",
-    address: "88 Portobello Road, London",
-    phone: "+44 20 7946 0999",
-    specialty: "Holistic Health",
-    image: "https://images.unsplash.com/photo-1504813184591-01572f98c85f?q=80&w=2070&auto=format&fit=crop",
-  },
-  {
-    name: "South Kensington Suite",
-    address: "42 Exhibition Road, London",
-    phone: "+44 20 7946 0222",
-    specialty: "Specialist Care",
-    image: "https://images.unsplash.com/photo-1516574167959-90b74f79ed59?q=80&w=2070&auto=format&fit=crop",
-  },
-];
+import clinics from "@/data/clinics.json";
 
 export default function Clinics() {
   return (
@@ -73,7 +36,15 @@ export default function Clinics() {
       {/* Clinic Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
         {clinics.map((clinic) => (
-          <ClinicCard key={clinic.name} {...clinic} />
+          <ClinicCard
+            key={clinic.id}
+            id={clinic.id}
+            name={clinic.name}
+            address={`${clinic.address.street}, ${clinic.address.city}`}
+            phone={clinic.contact.phone}
+            specialty={clinic.specialty}
+            image={clinic.images.reception}
+          />
         ))}
 
         {/* Map Placeholder */}

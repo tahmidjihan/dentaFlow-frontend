@@ -1,0 +1,215 @@
+[
+  {
+    "id": "the-sanctuary-highwood",
+    "name": "The Sanctuary at Highwood",
+    "tagline": "Our Signature Clinic",
+    "description": "Experience clinical excellence in a space designed for tranquility. Our flagship location combines advanced medical technology with human-centric care.",
+    "address": {
+      "street": "4242 Highwood Drive, Kensington",
+      "city": "London",
+      "postcode": "SW7 2AZ"
+    },
+    "contact": {
+      "email": "care@nudemedical.co.uk",
+      "phone": "+44 (0) 20 7946 0123"
+    },
+    "images": {
+      "reception": "https://lh3.googleusercontent.com/aida-public/AB6AXuDbxp8yrYcNj6SGrXGM3eZr-aFVsc3lGMZEqOCa1Ti_wCnCFZ36i6_ayAVqBxCKzEqPw0l5E9Sq8qPiN4pWIBFGh8WXgOdL8Dkr8eHwfkCuJUl6ZeFPZqh9bXNYYX7hKLsZqVwPDYbSA1ZtkM-vsfSxwJSXzb7w0gFz3ImYs_H0hbrGQ3aC7d9RDJQ4j5YmOFoZ9GzNGlKhX02lnz0Ty9U4ag5RAFLVNC8fb11gPMCZKOOVg_cw-7bSyjnAWPS4aQlecZSPTBWGIg8",
+      "map": "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDlvjsk1y4b_Eji_sOG6ZS-_4fIOI-brqBIzSbn9G0rs3A-jDcgI1fjFOJmRCDFadIE8NcYt5AnfALI9XZ6yKjw6rVM1Vj4qEIbXCWSkyCciCG3R6eYfB6_wM6xHFlU2F1lAzIRWCDkJctoePRrsVXjVoSU0VCGrixZmg9EQjVxtoxvbdk0tyE7nIk1VdCfCnYHkM_dskYSErJKRE7WQngmyfaB03jW4WIP6GD_d6NHg42QT_L3finDOFB24VvtmrGT3FvNt20TU"
+    },
+    "practitioners": [
+      {
+        "id": "dr-julian-vane",
+        "name": "Dr. Julian Vane",
+        "specialty": "Senior Clinical Lead"
+      },
+      {
+        "id": "dr-sarah-mora",
+        "name": "Dr. Sarah Mora",
+        "specialty": "Aesthetic Specialist"
+      },
+      {
+        "id": "dr-elias-thorne",
+        "name": "Dr. Elias Thorne",
+        "specialty": "Diagnostic Consultant"
+      }
+    ],
+    "deposit": 20,
+    "specialty": "Primary Care"
+  },
+  {
+    "id": "the-chelsea-mews",
+    "name": "The Chelsea Mews",
+    "tagline": "Historic Elegance",
+    "description": "Nestled in a charming Georgian townhouse, The Chelsea Mews blends heritage architecture with contemporary clinical design. A sanctuary where tradition meets innovation.",
+    "address": {
+      "street": "24 King's Road",
+      "city": "London",
+      "postcode": "SW3 4UD"
+    },
+    "contact": {
+      "email": "chelsea@nudemedical.co.uk",
+      "phone": "+44 (0) 20 7946 0124"
+    },
+    "images": {
+      "reception": "https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop",
+      "map": "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDlvjsk1y4b_Eji_sOG6ZS-_4fIOI-brqBIzSbn9G0rs3A-jDcgI1fjFOJmRCDFadIE8NcYt5AnfALI9XZ6yKjw6rVM1Vj4qEIbXCWSkyCciCG3R6eYfB6_wM6xHFlU2F1lAzIRWCDkJctoePRrsVXjVoSU0VCGrixZmg9EQjVxtoxvbdk0tyE7nIk1VdCfCnYHkM_dskYSErJKRE7WQngmyfaB03jW4WIP6GD_d6NHg42QT_L3finDOFB24VvtmrGT3FvNt20TU"
+    },
+    "practitioners": [
+      {
+        "id": "dr-emma-charlotte",
+        "name": "Dr. Emma Charlotte",
+        "specialty": "Lead Physician"
+      },
+      {
+        "id": "dr-james-pemberton",
+        "name": "Dr. James Pemberton",
+        "specialty": "Orthodontic Specialist"
+      }
+    ],
+    "deposit": 25,
+    "specialty": "Primary Care"
+  },
+  {
+    "id": "mayfair-wellness",
+    "name": "Mayfair Wellness",
+    "tagline": "Luxury Dermatology",
+    "description": "An oasis of calm in the heart of Mayfair, our wellness centre offers cutting-edge dermatological treatments in surroundings of refined elegance.",
+    "address": {
+      "street": "12 Berkeley Square",
+      "city": "London",
+      "postcode": "W1J 6BR"
+    },
+    "contact": {
+      "email": "mayfair@nudemedical.co.uk",
+      "phone": "+44 (0) 20 7946 0888"
+    },
+    "images": {
+      "reception": "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=2053&auto=format&fit=crop",
+      "map": "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDlvjsk1y4b_Eji_sOG6ZS-_4fIOI-brqBIzSbn9G0rs3A-jDcgI1fjFOJmRCDFadIE8NcYt5AnfALI9XZ6yKjw6rVM1Vj4qEIbXCWSkyCciCG3R6eYfB6_wM6xHFlU2F1lAzIRWCDkJctoePRrsVXjVoSU0VCGrixZmg9EQjVxtoxvbdk0tyE7nIk1VdCfCnYHkM_dskYSErJKRE7WQngmyfaB03jW4WIP6GD_d6NHg42QT_L3finDOFB24VvtmrGT3FvNt20TU"
+    },
+    "practitioners": [
+      {
+        "id": "dr-olivia-beaumont",
+        "name": "Dr. Olivia Beaumont",
+        "specialty": "Consultant Dermatologist"
+      },
+      {
+        "id": "dr-marcus-chen",
+        "name": "Dr. Marcus Chen",
+        "specialty": "Aesthetic Medicine"
+      },
+      {
+        "id": "dr-sophie-laurent",
+        "name": "Dr. Sophie Laurent",
+        "specialty": "Skin Therapist"
+      }
+    ],
+    "deposit": 30,
+    "specialty": "Dermatology"
+  },
+  {
+    "id": "harley-studio",
+    "name": "Harley Studio",
+    "tagline": "Dental Excellence",
+    "description": "Located on the world-renowned Harley Street, our dental studio represents the pinnacle of cosmetic and restorative dentistry.",
+    "address": {
+      "street": "102 Harley Street",
+      "city": "London",
+      "postcode": "W1G 7JA"
+    },
+    "contact": {
+      "email": "harley@nudemedical.co.uk",
+      "phone": "+44 (0) 20 7946 0444"
+    },
+    "images": {
+      "reception": "https://images.unsplash.com/photo-1516549655169-df83a0774514?q=80&w=2070&auto=format&fit=crop",
+      "map": "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDlvjsk1y4b_Eji_sOG6ZS-_4fIOI-brqBIzSbn9G0rs3A-jDcgI1fjFOJmRCDFadIE8NcYt5AnfALI9XZ6yKjw6rVM1Vj4qEIbXCWSkyCciCG3R6eYfB6_wM6xHFlU2F1lAzIRWCDkJctoePRrsVXjVoSU0VCGrixZmg9EQjVxtoxvbdk0tyE7nIk1VdCfCnYHkM_dskYSErJKRE7WQngmyfaB03jW4WIP6GD_d6NHg42QT_L3finDOFB24VvtmrGT3FvNt20TU"
+    },
+    "practitioners": [
+      {
+        "id": "dr-alexander-ross",
+        "name": "Dr. Alexander Ross",
+        "specialty": "Implantologist"
+      },
+      {
+        "id": "dr-isabella-ford",
+        "name": "Dr. Isabella Ford",
+        "specialty": "Cosmetic Dentist"
+      }
+    ],
+    "deposit": 35,
+    "specialty": "Dental Excellence"
+  },
+  {
+    "id": "notting-hill-haven",
+    "name": "Notting Hill Haven",
+    "tagline": "Holistic Health",
+    "description": "A vibrant clinic in the heart of Notting Hill, where holistic approaches meet evidence-based medicine for whole-body wellness.",
+    "address": {
+      "street": "88 Portobello Road",
+      "city": "London",
+      "postcode": "W11 2QD"
+    },
+    "contact": {
+      "email": "nottinghill@nudemedical.co.uk",
+      "phone": "+44 (0) 20 7946 0999"
+    },
+    "images": {
+      "reception": "https://images.unsplash.com/photo-1504813184591-01572f98c85f?q=80&w=2070&auto=format&fit=crop",
+      "map": "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDlvjsk1y4b_Eji_sOG6ZS-_4fIOI-brqBIzSbn9G0rs3A-jDcgI1fjFOJmRCDFadIE8NcYt5AnfALI9XZ6yKjw6rVM1Vj4qEIbXCWSkyCciCG3R6eYfB6_wM6xHFlU2F1lAzIRWCDkJctoePRrsVXjVoSU0VCGrixZmg9EQjVxtoxvbdk0tyE7nIk1VdCfCnYHkM_dskYSErJKRE7WQngmyfaB03jW4WIP6GD_d6NHg42QT_L3finDOFB24VvtmrGT3FvNt20TU"
+    },
+    "practitioners": [
+      {
+        "id": "dr-natasha-wells",
+        "name": "Dr. Natasha Wells",
+        "specialty": "Integrative Medicine"
+      },
+      {
+        "id": "dr-benjamin-cross",
+        "name": "Dr. Benjamin Cross",
+        "specialty": "Nutritionist"
+      },
+      {
+        "id": "dr-lily-montague",
+        "name": "Dr. Lily Montague",
+        "specialty": "Acupuncturist"
+      }
+    ],
+    "deposit": 20,
+    "specialty": "Holistic Health"
+  },
+  {
+    "id": "south-kensington-suite",
+    "name": "South Kensington Suite",
+    "tagline": "Specialist Care",
+    "description": "Adjacent to the museums of South Kensington, our suite offers specialised medical services with a focus on diagnostic excellence.",
+    "address": {
+      "street": "42 Exhibition Road",
+      "city": "London",
+      "postcode": "SW7 2PA"
+    },
+    "contact": {
+      "email": "southkensington@nudemedical.co.uk",
+      "phone": "+44 (0) 20 7946 0222"
+    },
+    "images": {
+      "reception": "https://images.unsplash.com/photo-1516574167959-90b74f79ed59?q=80&w=2070&auto=format&fit=crop",
+      "map": "https://lh3.googleusercontent.com/aida-public/AB6AXuDuDlvjsk1y4b_Eji_sOG6ZS-_4fIOI-brqBIzSbn9G0rs3A-jDcgI1fjFOJmRCDFadIE8NcYt5AnfALI9XZ6yKjw6rVM1Vj4qEIbXCWSkyCciCG3R6eYfB6_wM6xHFlU2F1lAzIRWCDkJctoePRrsVXjVoSU0VCGrixZmg9EQjVxtoxvbdk0tyE7nIk1VdCfCnYHkM_dskYSErJKRE7WQngmyfaB03jW4WIP6GD_d6NHg42QT_L3finDOFB24VvtmrGT3FvNt20TU"
+    },
+    "practitioners": [
+      {
+        "id": "dr-victoria-stirling",
+        "name": "Dr. Victoria Stirling",
+        "specialty": "Diagnostic Radiologist"
+      },
+      {
+        "id": "dr-henry-blackwood",
+        "name": "Dr. Henry Blackwood",
+        "specialty": "Cardiologist"
+      }
+    ],
+    "deposit": 25,
+    "specialty": "Specialist Care"
+  }
+]

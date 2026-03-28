@@ -9,7 +9,9 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const getLinkClass = (href: string) => {
-    const isActive = pathname === href;
+    const isActive =
+      pathname === href ||
+      (href === '/clinics' && pathname?.startsWith('/clinics/'));
     return isActive
       ? 'text-primary font-semibold border-b-2 border-primary pb-1'
       : 'text-secondary hover:text-on-surface transition-colors';
@@ -73,7 +75,7 @@ export default function Navbar() {
             </Link>
             <Link
               className={
-                pathname === '/clinics'
+                pathname === '/clinics' || pathname?.startsWith('/clinics/')
                   ? 'text-primary font-semibold'
                   : 'text-secondary'
               }

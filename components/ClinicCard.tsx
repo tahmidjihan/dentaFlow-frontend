@@ -1,4 +1,7 @@
+import Link from 'next/link';
+
 interface ClinicCardProps {
+  id: string;
   name: string;
   address: string;
   phone: string;
@@ -6,7 +9,7 @@ interface ClinicCardProps {
   image: string;
 }
 
-export default function ClinicCard({ name, address, phone, specialty, image }: ClinicCardProps) {
+export default function ClinicCard({ id, name, address, phone, specialty, image }: ClinicCardProps) {
   return (
     <div className="group flex flex-col space-y-6">
       <div className="relative aspect-[4/5] overflow-hidden rounded-xl bg-surface-container-low">
@@ -35,9 +38,12 @@ export default function ClinicCard({ name, address, phone, specialty, image }: C
           <span className="material-symbols-outlined text-sm">call</span>
           <span className="font-body text-sm">{phone}</span>
         </div>
-        <button className="w-full py-4 rounded-lg bg-surface-container-lowest border border-outline-variant/20 font-headline font-bold text-sm tracking-tight text-on-surface hover:bg-secondary-container/30 transition-all duration-300 editorial-shadow">
+        <Link
+          href={`/clinics/${id}`}
+          className="block w-full py-4 rounded-lg bg-surface-container-lowest border border-outline-variant/20 font-headline font-bold text-sm tracking-tight text-on-surface hover:bg-secondary-container/30 transition-all duration-300 editorial-shadow text-center"
+        >
           View Clinic
-        </button>
+        </Link>
       </div>
     </div>
   );
