@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import { useSignIn, useSignUp } from '@/lib/hooks/use-auth';
 import type { Role } from '@/types/database';
 
 type AuthMode = 'login' | 'signup';
@@ -14,28 +17,109 @@ interface AuthPageProps {
 }
 
 export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
+  const router = useRouter();
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role>('USER');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Form state
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    name: '',
+  });
+
+  const signInMutation = useSignIn();
+  const signUpMutation = useSignUp();
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission based on mode
-    console.log('Form submitted in mode:', mode, 'with role:', selectedRole);
+
+    if (!formData.email || !formData.password) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    signInMutation.mutate(
+      { email: formData.email, password: formData.password },
+      {
+        onSuccess: () => {
+          toast.success('Login successful!');
+          router.push('/dashboard');
+        },
+        onError: (error: any) => {
+          console.error('Login error:', error);
+        },
+      },
+    );
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.email || !formData.password || !formData.name) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
+
+    signUpMutation.mutate(
+      {
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        role: selectedRole,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Account created successfully!');
+          router.push('/dashboard');
+        },
+        onError: (error: any) => {
+          console.error('Signup error:', error);
+        },
+      },
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    if (mode === 'login') {
+      handleLogin(e);
+    } else {
+      handleSignup(e);
+    }
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
-  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(!showConfirmPassword);
+  const toggleConfirmPasswordVisibility = () =>
+    setShowConfirmPassword(!showConfirmPassword);
 
   const SignupForm = () => (
     <form className='space-y-6' onSubmit={handleSubmit}>
       <Input
-        id='fullName'
+        id='name'
         label='Full Name'
         placeholder='John Doe'
         type='text'
         icon='person'
+        value={formData.name}
+        onChange={handleInputChange}
         required
       />
 
@@ -45,6 +129,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         placeholder='name@example.com'
         type='email'
         icon='mail'
+        value={formData.email}
+        onChange={handleInputChange}
         required
       />
 
@@ -55,6 +141,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         type={showPassword ? 'text' : 'password'}
         icon={showPassword ? 'visibility_off' : 'visibility'}
         onIconClick={togglePasswordVisibility}
+        value={formData.password}
+        onChange={handleInputChange}
         helperText='Must be at least 8 characters long'
         required
         minLength={8}
@@ -67,6 +155,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         type={showConfirmPassword ? 'text' : 'password'}
         icon={showConfirmPassword ? 'visibility_off' : 'visibility'}
         onIconClick={toggleConfirmPasswordVisibility}
+        value={formData.confirmPassword}
+        onChange={handleInputChange}
         required
         minLength={8}
       />
@@ -116,9 +206,10 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
           variant='primary'
           size='lg'
           fullWidth
-          icon='arrow_forward'
+          icon={signUpMutation.isPending ? 'progress_activity' : 'arrow_forward'}
+          disabled={signUpMutation.isPending}
         >
-          Create Account
+          {signUpMutation.isPending ? 'Creating Account...' : 'Create Account'}
         </Button>
       </div>
     </form>
@@ -132,6 +223,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         placeholder='name@example.com'
         type='email'
         icon='mail'
+        value={formData.email}
+        onChange={handleInputChange}
         required
       />
 
@@ -142,6 +235,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         type={showPassword ? 'text' : 'password'}
         icon={showPassword ? 'visibility_off' : 'visibility'}
         onIconClick={togglePasswordVisibility}
+        value={formData.password}
+        onChange={handleInputChange}
         required
       />
 
@@ -163,9 +258,10 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
           variant='primary'
           size='lg'
           fullWidth
-          icon='arrow_forward'
+          icon={signInMutation.isPending ? 'progress_activity' : 'arrow_forward'}
+          disabled={signInMutation.isPending}
         >
-          Secure Login
+          {signInMutation.isPending ? 'Signing in...' : 'Secure Login'}
         </Button>
       </div>
     </form>

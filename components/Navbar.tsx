@@ -1,12 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/Button';
+import { useSession, useSignOut } from '@/lib/hooks/use-auth';
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated } = useSession();
+  const signOutMutation = useSignOut();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const getLinkClass = (href: string) => {
@@ -16,6 +20,14 @@ export default function Navbar() {
     return isActive
       ? 'text-primary font-semibold border-b-2 border-primary pb-1'
       : 'text-secondary hover:text-on-surface transition-colors';
+  };
+
+  const handleSignOut = () => {
+    signOutMutation.mutate(undefined, {
+      onSuccess: () => {
+        router.push('/');
+      },
+    });
   };
 
   return (
@@ -42,12 +54,40 @@ export default function Navbar() {
         </div>
 
         <div className='flex items-center gap-4'>
-          <Link
-            href={'/auth/login'}
-            className='hidden md:block text-secondary font-headline text-sm font-medium hover:opacity-80 transition-opacity'
-          >
-            Login
-          </Link>
+          {isAuthenticated && user ? (
+            <>
+              <div className='hidden md:flex items-center gap-3'>
+                <span className='text-sm font-medium text-on-surface'>
+                  {user.name}
+                </span>
+                {user.role === 'ADMIN' && (
+                  <span className='text-xs px-2 py-1 bg-primary-container text-on-primary rounded'>
+                    Admin
+                  </span>
+                )}
+                {user.role === 'DOCTOR' && (
+                  <span className='text-xs px-2 py-1 bg-secondary-container text-on-secondary rounded'>
+                    Doctor
+                  </span>
+                )}
+              </div>
+              <Button
+                size='sm'
+                variant='outline'
+                onClick={handleSignOut}
+                disabled={signOutMutation.isPending}
+              >
+                {signOutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+              </Button>
+            </>
+          ) : (
+            <Link
+              href={'/auth/login'}
+              className='hidden md:block text-secondary font-headline text-sm font-medium hover:opacity-80 transition-opacity'
+            >
+              Login
+            </Link>
+          )}
           <Button size='sm' variant='primary'>
             Book Appointment
           </Button>
@@ -111,19 +151,43 @@ export default function Navbar() {
             >
               Dashboard
             </Link>
-            <Link
-              className={
-                pathname === '/admin'
-                  ? 'text-primary font-semibold'
-                  : 'text-secondary'
-              }
-              href='/admin'
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Admin
-            </Link>
-            <button className='text-secondary text-left'>Login</button>
-            <Button size='sm' variant='primary'>
+            {isAuthenticated && user ? (
+              <>
+                <div className='flex items-center gap-2 py-2'>
+                  <span className='text-on-surface'>
+                    {user.name}
+                  </span>
+                  {user.role === 'ADMIN' && (
+                    <span className='text-xs px-2 py-1 bg-primary-container text-on-primary rounded'>
+                      Admin
+                    </span>
+                  )}
+                  {user.role === 'DOCTOR' && (
+                    <span className='text-xs px-2 py-1 bg-secondary-container text-on-secondary rounded'>
+                      Doctor
+                    </span>
+                  )}
+                </div>
+                <Button
+                  size='sm'
+                  variant='outline'
+                  onClick={handleSignOut}
+                  disabled={signOutMutation.isPending}
+                  fullWidth
+                >
+                  {signOutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+                </Button>
+              </>
+            ) : (
+              <Link
+                className='text-secondary'
+                href='/auth/login'
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
+            <Button size='sm' variant='primary' fullWidth>
               Book Appointment
             </Button>
           </div>
