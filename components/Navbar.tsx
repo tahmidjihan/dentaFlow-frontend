@@ -33,11 +33,11 @@ export default function Navbar() {
           <Link className={getLinkClass('/clinics')} href='/clinics'>
             Clinics
           </Link>
+          <Link className={getLinkClass('/doctors')} href='/doctors'>
+            Doctors
+          </Link>
           <Link className={getLinkClass('/dashboard')} href='/dashboard'>
             Dashboard
-          </Link>
-          <Link className={getLinkClass('/admin')} href='/admin'>
-            Admin
           </Link>
         </div>
 
@@ -88,6 +88,17 @@ export default function Navbar() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Clinics
+            </Link>
+            <Link
+              className={
+                pathname === '/doctors'
+                  ? 'text-primary font-semibold'
+                  : 'text-secondary'
+              }
+              href='/doctors'
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Doctors
             </Link>
             <Link
               className={
