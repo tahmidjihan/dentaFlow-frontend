@@ -4,11 +4,12 @@
     "name": "The Sanctuary at Highwood",
     "tagline": "Our Signature Clinic",
     "description": "Experience clinical excellence in a space designed for tranquility. Our flagship location combines advanced medical technology with human-centric care.",
-    "address": {
-      "street": "4242 Highwood Drive, Kensington",
-      "city": "London",
-      "postcode": "SW7 2AZ"
-    },
+    "address": "4242 Highwood Drive, Kensington",
+    "addressLine2": "",
+    "city": "London",
+    "state": "England",
+    "postalCode": "SW7 2AZ",
+    "country": "United Kingdom",
     "contact": {
       "email": "care@nudemedical.co.uk",
       "phone": "+44 (0) 20 7946 0123"
@@ -42,11 +43,12 @@
     "name": "The Chelsea Mews",
     "tagline": "Historic Elegance",
     "description": "Nestled in a charming Georgian townhouse, The Chelsea Mews blends heritage architecture with contemporary clinical design. A sanctuary where tradition meets innovation.",
-    "address": {
-      "street": "24 King's Road",
-      "city": "London",
-      "postcode": "SW3 4UD"
-    },
+    "address": "24 King's Road",
+    "addressLine2": "",
+    "city": "London",
+    "state": "England",
+    "postalCode": "SW3 4UD",
+    "country": "United Kingdom",
     "contact": {
       "email": "chelsea@nudemedical.co.uk",
       "phone": "+44 (0) 20 7946 0124"
@@ -75,11 +77,12 @@
     "name": "Mayfair Wellness",
     "tagline": "Luxury Dermatology",
     "description": "An oasis of calm in the heart of Mayfair, our wellness centre offers cutting-edge dermatological treatments in surroundings of refined elegance.",
-    "address": {
-      "street": "12 Berkeley Square",
-      "city": "London",
-      "postcode": "W1J 6BR"
-    },
+    "address": "12 Berkeley Square",
+    "addressLine2": "Suite 300",
+    "city": "London",
+    "state": "England",
+    "postalCode": "W1J 6BR",
+    "country": "United Kingdom",
     "contact": {
       "email": "mayfair@nudemedical.co.uk",
       "phone": "+44 (0) 20 7946 0888"
@@ -113,11 +116,12 @@
     "name": "Harley Studio",
     "tagline": "Dental Excellence",
     "description": "Located on the world-renowned Harley Street, our dental studio represents the pinnacle of cosmetic and restorative dentistry.",
-    "address": {
-      "street": "102 Harley Street",
-      "city": "London",
-      "postcode": "W1G 7JA"
-    },
+    "address": "102 Harley Street",
+    "addressLine2": "",
+    "city": "London",
+    "state": "England",
+    "postalCode": "W1G 7JA",
+    "country": "United Kingdom",
     "contact": {
       "email": "harley@nudemedical.co.uk",
       "phone": "+44 (0) 20 7946 0444"
@@ -139,18 +143,19 @@
       }
     ],
     "deposit": 35,
-    "specialty": "Dental Excellence"
+    "specialty": "Dental"
   },
   {
     "id": "notting-hill-haven",
     "name": "Notting Hill Haven",
     "tagline": "Holistic Health",
     "description": "A vibrant clinic in the heart of Notting Hill, where holistic approaches meet evidence-based medicine for whole-body wellness.",
-    "address": {
-      "street": "88 Portobello Road",
-      "city": "London",
-      "postcode": "W11 2QD"
-    },
+    "address": "88 Portobello Road",
+    "addressLine2": "",
+    "city": "London",
+    "state": "England",
+    "postalCode": "W11 2QD",
+    "country": "United Kingdom",
     "contact": {
       "email": "nottinghill@nudemedical.co.uk",
       "phone": "+44 (0) 20 7946 0999"
@@ -184,11 +189,12 @@
     "name": "South Kensington Suite",
     "tagline": "Specialist Care",
     "description": "Adjacent to the museums of South Kensington, our suite offers specialised medical services with a focus on diagnostic excellence.",
-    "address": {
-      "street": "42 Exhibition Road",
-      "city": "London",
-      "postcode": "SW7 2PA"
-    },
+    "address": "42 Exhibition Road",
+    "addressLine2": "Floor 2",
+    "city": "London",
+    "state": "England",
+    "postalCode": "SW7 2PA",
+    "country": "United Kingdom",
     "contact": {
       "email": "southkensington@nudemedical.co.uk",
       "phone": "+44 (0) 20 7946 0222"

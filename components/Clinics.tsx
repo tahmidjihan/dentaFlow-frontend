@@ -40,9 +40,10 @@ export default function Clinics() {
         {clinics.map((clinic) => (
           <ClinicCard
             key={clinic.id}
+            mode="public"
             id={clinic.id}
             name={clinic.name}
-            address={`${clinic.address.street}, ${clinic.address.city}`}
+            address={`${clinic.address}, ${clinic.city}`}
             phone={clinic.contact.phone}
             specialty={clinic.specialty}
             image={clinic.images.reception}

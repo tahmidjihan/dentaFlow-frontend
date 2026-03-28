@@ -108,3 +108,24 @@ export interface ClinicWithDetails extends Clinic {
   doctors: Doctor[];
   appointments: Appointment[];
 }
+
+// Clinic management types for doctor dashboard
+export interface ClinicMembership {
+  clinicId: string;
+  doctorId: string;
+  role: 'OWNER' | 'MEMBER';
+  joinedAt: string;
+}
+
+export interface ClinicExtended extends Clinic {
+  description?: string;
+  address: string;
+  addressLine2?: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode: string;
+  specialty: string;
+  doctorCount: number;
+  members?: ClinicMembership[];
+}

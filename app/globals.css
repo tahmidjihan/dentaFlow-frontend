@@ -62,6 +62,32 @@
   --error-container: #ffdad6;
   --on-error: #ffffff;
   --on-error-container: #93000a;
+
+  /* Shadcn/ui compatible variables */
+  --border: #e4e2e0;
+  --input: #e4e2e0;
+  --ring: #55624c;
+  --radius: 0.5rem;
+
+  /* Muted colors */
+  --muted: #efedec;
+  --muted-foreground: #685d4d;
+
+  /* Accent colors */
+  --accent: #e4e2e0;
+  --accent-foreground: #1b1c1b;
+
+  /* Popover colors */
+  --popover: #ffffff;
+  --popover-foreground: #1b1c1b;
+
+  /* Card colors */
+  --card: #ffffff;
+  --card-foreground: #1b1c1b;
+
+  /* Destructive colors */
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
 }
 
 @theme inline {
@@ -111,6 +137,21 @@
   --color-error-container: var(--error-container);
   --color-on-error: var(--on-error);
   --color-on-error-container: var(--on-error-container);
+
+  /* Shadcn/ui colors */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
 
   --font-headline: var(--font-manrope), 'Manrope', sans-serif;
   --font-body: var(--font-inter), 'Inter', sans-serif;

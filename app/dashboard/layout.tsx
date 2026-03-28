@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
 import '../globals.css';
-import Sidebar from '../../components/sidebar';
+import Sidebar from '@/components/Sidebar';
+
 const manrope = Manrope({
   variable: '--font-manrope',
   subsets: ['latin'],
@@ -13,11 +14,11 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Admin Panel | DentaFlow',
-  description: 'Admin panel for managing appointments, clinics, and users',
+  title: 'Dashboard | DentaFlow',
+  description: 'Dashboard for managing appointments, clinics, and users',
 };
 
-export default function DoctorLayout({
+export default function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -33,10 +34,13 @@ export default function DoctorLayout({
           rel='stylesheet'
         />
       </head>
-      <body className='min-h-full bg-background text-on-surface antialiased'>
+      <body
+        className='min-h-full bg-background text-on-surface antialiased'
+        suppressHydrationWarning
+      >
         <div className='min-h-screen flex'>
-          {/* Sidebar Navigation */}
-          <Sidebar />
+          {/* Sidebar Navigation - Desktop */}
+          <Sidebar role='DOCTOR' />
           {children}
         </div>
       </body>

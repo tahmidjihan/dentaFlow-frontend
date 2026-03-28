@@ -52,9 +52,10 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                       Location
                     </p>
                     <p className='text-secondary font-light'>
-                      {clinic.address.street}
+                      {clinic.address}
                       <br />
-                      {clinic.address.city}, {clinic.address.postcode}
+                      {clinic.addressLine2 && <>{clinic.addressLine2}<br /></>}
+                      {clinic.city}, {clinic.postalCode}
                     </p>
                   </div>
                 </div>

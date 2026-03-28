@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import DashboardHeader from '@/components/DashboardHeader';
 
 interface Appointment {
   id: string;
@@ -76,54 +77,18 @@ export default function DoctorPage() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
   return (
-    <main className='flex-1 md:ml-64 p-4 md:p-12'>
+    <>
+      <DashboardHeader title="Appointments" />
+      <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
       {/* Stats Overview */}
-      <section className='grid grid-cols-1 md:grid-cols-4 gap-6 mb-12'>
-        <div className='bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm shadow-on-background/5'>
-          <p className='text-[10px] uppercase tracking-widest text-outline font-bold mb-4'>
-            Total Bookings
-          </p>
-          <div className='flex items-end justify-between'>
-            <h3 className='text-3xl font-bold text-on-surface'>1,284</h3>
-            <span className='text-primary text-xs font-bold bg-primary/10 px-2 py-1 rounded'>
-              +12%
-            </span>
-          </div>
-        </div>
-        <div className='bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm shadow-on-background/5'>
-          <p className='text-[10px] uppercase tracking-widest text-outline font-bold mb-4'>
-            Active Clinics
-          </p>
-          <div className='flex items-end justify-between'>
-            <h3 className='text-3xl font-bold text-on-surface'>12</h3>
-            <span className='text-outline text-xs font-bold'>Stable</span>
-          </div>
-        </div>
-        <div className='bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm shadow-on-background/5'>
-          <p className='text-[10px] uppercase tracking-widest text-outline font-bold mb-4'>
-            Pending Review
-          </p>
-          <div className='flex items-end justify-between'>
-            <h3 className='text-3xl font-bold text-on-surface'>48</h3>
-            <span className='text-error text-xs font-bold bg-error-container px-2 py-1 rounded'>
-              Action Required
-            </span>
-          </div>
-        </div>
-        <div className='bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm shadow-on-background/5'>
-          <p className='text-[10px] uppercase tracking-widest text-outline font-bold mb-4'>
-            System Health
-          </p>
-          <div className='flex items-end justify-between'>
-            <h3 className='text-3xl font-bold text-on-surface'>99.9%</h3>
-            <div className='flex items-center gap-1 text-primary'>
-              <span className='w-2 h-2 rounded-full bg-primary animate-pulse'></span>
-              <span className='text-xs font-bold'>Online</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
+      <header className='mb-16'>
+        <p className='font-label text-xs uppercase tracking-widest text-secondary mb-3'>
+          Welcome back
+        </p>
+        <h1 className='font-headline text-5xl font-extrabold tracking-tighter text-on-background max-w-2xl'>
+          Manage your appointments,
+        </h1>
+      </header>
       {/* Appointments Table Container */}
       <section className='bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden'>
         <div className='p-8 border-b border-outline-variant/10 flex justify-between items-center bg-surface-container-low/30'>
@@ -266,5 +231,6 @@ export default function DoctorPage() {
         </div>
       </section>
     </main>
+    </>
   );
 }
