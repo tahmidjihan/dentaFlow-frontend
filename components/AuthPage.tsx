@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import type { Role } from '@/types/database';
 
 type AuthMode = 'login' | 'signup';
 
@@ -16,11 +17,12 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<Role>('USER');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission based on mode
-    console.log('Form submitted in mode:', mode);
+    console.log('Form submitted in mode:', mode, 'with role:', selectedRole);
   };
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -69,6 +71,45 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         minLength={8}
       />
 
+      {/* Role Selection */}
+      <div className='space-y-3'>
+        <label className='block font-label text-xs font-semibold text-on-surface-variant uppercase tracking-widest ml-1'>
+          I am a
+        </label>
+        <div className='grid grid-cols-2 gap-3'>
+          <button
+            type='button'
+            onClick={() => setSelectedRole('USER')}
+            className={`p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+              selectedRole === 'USER'
+                ? 'border-primary bg-primary-fixed/20 text-primary'
+                : 'border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:border-primary/50'
+            }`}
+          >
+            <span className='material-symbols-outlined text-3xl'>person</span>
+            <span className='font-headline text-sm font-semibold'>Patient</span>
+          </button>
+          <button
+            type='button'
+            onClick={() => setSelectedRole('DOCTOR')}
+            className={`p-4 rounded-lg border-2 transition-all duration-200 flex flex-col items-center gap-2 ${
+              selectedRole === 'DOCTOR'
+                ? 'border-primary bg-primary-fixed/20 text-primary'
+                : 'border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:border-primary/50'
+            }`}
+          >
+            <span className='material-symbols-outlined text-3xl'>medical_services</span>
+            <span className='font-headline text-sm font-semibold'>Doctor</span>
+          </button>
+        </div>
+        {selectedRole === 'DOCTOR' && (
+          <p className='text-xs text-on-surface-variant flex items-center gap-1'>
+            <span className='material-symbols-outlined text-sm'>info</span>
+            Doctor accounts require clinic verification
+          </p>
+        )}
+      </div>
+
       <div className='pt-4'>
         <Button
           type='submit'
@@ -103,6 +144,39 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         onIconClick={togglePasswordVisibility}
         required
       />
+
+      {/* Role Selection for Login */}
+      <div className='space-y-3 pt-2'>
+        <label className='block font-label text-xs font-semibold text-on-surface-variant uppercase tracking-widest ml-1'>
+          Login as
+        </label>
+        <div className='grid grid-cols-2 gap-3'>
+          <button
+            type='button'
+            onClick={() => setSelectedRole('USER')}
+            className={`p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
+              selectedRole === 'USER'
+                ? 'border-primary bg-primary-fixed/20 text-primary'
+                : 'border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:border-primary/50'
+            }`}
+          >
+            <span className='material-symbols-outlined text-xl'>person</span>
+            <span className='font-headline text-sm font-semibold'>Patient</span>
+          </button>
+          <button
+            type='button'
+            onClick={() => setSelectedRole('DOCTOR')}
+            className={`p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
+              selectedRole === 'DOCTOR'
+                ? 'border-primary bg-primary-fixed/20 text-primary'
+                : 'border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:border-primary/50'
+            }`}
+          >
+            <span className='material-symbols-outlined text-xl'>medical_services</span>
+            <span className='font-headline text-sm font-semibold'>Doctor</span>
+          </button>
+        </div>
+      </div>
 
       <div className='flex items-center gap-3 pt-2'>
         <label className='flex items-center gap-2 cursor-pointer group'>
