@@ -47,7 +47,10 @@ export default function Dropdown({
 
   return (
     <div ref={dropdownRef} className={`relative inline-block ${className}`}>
-      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+      <div onClick={(e) => {
+        e.stopPropagation();
+        setIsOpen(!isOpen);
+      }} className="cursor-pointer">{trigger}</div>
 
       {isOpen && (
         <div
@@ -59,13 +62,17 @@ export default function Dropdown({
             {options.map((option) => (
               <li key={option.value}>
                 <button
-                  onClick={() => handleSelect(option)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelect(option);
+                  }}
                   className={`w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors ${
                     option.disabled
                       ? 'text-outline/40 cursor-not-allowed'
                       : 'text-on-surface hover:bg-surface-container-high'
                   }`}
                   disabled={option.disabled}
+                  type="button"
                 >
                   {option.icon && (
                     <span className="material-symbols-outlined text-base">

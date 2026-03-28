@@ -1,12 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import Dropdown from '@/components/ui/Dropdown';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import Button from '@/components/ui/Button';
 
 type UserRole = 'DOCTOR' | 'ADMIN' | 'USER';
@@ -94,6 +101,20 @@ export function Sidebar({
     return false;
   };
 
+  const handleProfileSelect = (option: {
+    value: string;
+    label: string;
+    icon?: string;
+  }) => {
+    if (option.value === 'logout') {
+      alert(
+        'Demo: Logout clicked! This would log you out in a real application.',
+      );
+    } else {
+      alert(`Demo: Navigating to ${option.label}...`);
+    }
+  };
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -168,8 +189,8 @@ export function Sidebar({
 
           {/* User Profile */}
           <div className='p-4'>
-            <Dropdown
-              trigger={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant='ghost'
                   className='w-full justify-start gap-3 h-auto py-3 px-3'
@@ -179,7 +200,7 @@ export function Sidebar({
                   </span>
                   <div className='flex-1 text-left'>
                     <p className='text-sm font-semibold text-on-surface'>
-                      {role === 'ADMIN' ? 'Admin User' : 'Dr. John Doe'}
+                      {role === 'ADMIN' ? 'Admin User' : 'Doctor User'}
                     </p>
                     <p className='text-xs text-on-surface-variant'>
                       {role === 'ADMIN' ? 'Administrator' : 'Doctor'}
@@ -189,19 +210,21 @@ export function Sidebar({
                     expand_more
                   </span>
                 </Button>
-              }
-              options={[
-                { value: 'profile', label: 'Profile Settings', icon: 'person' },
-                {
-                  value: 'settings',
-                  label: 'Account Settings',
-                  icon: 'settings',
-                },
-                { value: 'logout', label: 'Log out', icon: 'logout' },
-              ]}
-              onSelect={(option) => console.log(`Selected: ${option.value}`)}
-              align='right'
-            />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align='end' className='w-56'>
+                <DropdownMenuItem
+                  onClick={() =>
+                    handleProfileSelect({ value: 'logout', label: 'Log out' })
+                  }
+                  className='text-error focus:text-error focus:bg-error/10'
+                >
+                  <span className='material-symbols-outlined mr-2 h-4 w-4'>
+                    logout
+                  </span>
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </aside>
