@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
 import '../globals.css';
-import Sidebar from '@/components/Sidebar';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -38,11 +37,7 @@ export default function DashboardLayout({
         className='min-h-full bg-background text-on-surface antialiased'
         suppressHydrationWarning
       >
-        <div className='min-h-screen flex'>
-          {/* Sidebar Navigation - Desktop */}
-          <Sidebar role='DOCTOR' />
-          {children}
-        </div>
+        {children}
       </body>
     </html>
   );

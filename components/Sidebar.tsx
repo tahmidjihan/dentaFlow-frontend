@@ -27,32 +27,20 @@ interface SidebarProps {
 const navItems: NavItem[] = [
   // Admin Navigation
   {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: 'dashboard',
-    roles: ['ADMIN'],
-  },
-  {
     title: 'Users',
-    href: '/dashboard/users',
+    href: '/dashboard/admin/users',
     icon: 'group',
     roles: ['ADMIN'],
   },
   {
     title: 'Doctors',
-    href: '/dashboard/doctors',
+    href: '/dashboard/admin/doctors',
     icon: 'medical_services',
     roles: ['ADMIN'],
   },
   {
-    title: 'Clinics',
-    href: '/dashboard/clinics',
-    icon: 'business',
-    roles: ['ADMIN'],
-  },
-  {
     title: 'Appointments',
-    href: '/dashboard/appointments',
+    href: '/dashboard/admin/appointments',
     icon: 'calendar_today',
     roles: ['ADMIN'],
   },
@@ -75,43 +63,35 @@ const navItems: NavItem[] = [
     icon: 'group',
     roles: ['DOCTOR'],
   },
-  // Common Navigation
-  {
-    title: 'Settings',
-    href: '/dashboard/settings',
-    icon: 'settings',
-    roles: ['ADMIN', 'DOCTOR', 'USER'],
-  },
 ];
 
 export function Sidebar({
-  role = 'DOCTOR',
+  role = 'ADMIN',
   isOpen = true,
   onClose,
 }: SidebarProps) {
   const pathname = usePathname();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const filteredNavItems = navItems.filter(
     (item) => !item.roles || item.roles.includes(role),
   );
 
-  const profileOptions = [
-    { value: 'profile', label: 'Profile Settings', icon: 'person' },
-    { value: 'settings', label: 'Account Settings', icon: 'settings' },
-    { value: 'logout', label: 'Log out', icon: 'logout' },
-  ];
+  // Improved isActive check that handles exact matches and nested routes properly
+  const checkIsActive = (href: string) => {
+    // Exact match
+    if (pathname === href) return true;
 
-  const handleProfileSelect = (option: {
-    value: string;
-    label: string;
-    icon?: string;
-  }) => {
-    if (option.value === 'logout') {
-      console.log('Logging out...');
-    } else {
-      console.log(`Navigating to ${option.value}...`);
+    // For nested routes, check if pathname starts with href + '/'
+    // but make sure it's not just a prefix match (e.g., /dashboard/admin should not match /dashboard/administrator)
+    if (pathname.startsWith(href + '/')) {
+      // Get the remaining path after the href
+      const remainingPath = pathname.slice(href.length + 1);
+      // Only consider it active if the remaining path doesn't contain another '/'
+      // This ensures /dashboard/admin matches /dashboard/admin/users but not /dashboard/admin/users/something
+      return !remainingPath.includes('/');
     }
+
+    return false;
   };
 
   return (
@@ -155,7 +135,7 @@ export function Sidebar({
           <ScrollArea className='flex-1 px-3 py-4'>
             <nav className='space-y-1'>
               {filteredNavItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = checkIsActive(item.href);
 
                 return (
                   <Link
@@ -199,7 +179,7 @@ export function Sidebar({
                   </span>
                   <div className='flex-1 text-left'>
                     <p className='text-sm font-semibold text-on-surface'>
-                      Dr. John Doe
+                      {role === 'ADMIN' ? 'Admin User' : 'Dr. John Doe'}
                     </p>
                     <p className='text-xs text-on-surface-variant'>
                       {role === 'ADMIN' ? 'Administrator' : 'Doctor'}
@@ -210,8 +190,16 @@ export function Sidebar({
                   </span>
                 </Button>
               }
-              options={profileOptions}
-              onSelect={handleProfileSelect}
+              options={[
+                { value: 'profile', label: 'Profile Settings', icon: 'person' },
+                {
+                  value: 'settings',
+                  label: 'Account Settings',
+                  icon: 'settings',
+                },
+                { value: 'logout', label: 'Log out', icon: 'logout' },
+              ]}
+              onSelect={(option) => console.log(`Selected: ${option.value}`)}
               align='right'
             />
           </div>

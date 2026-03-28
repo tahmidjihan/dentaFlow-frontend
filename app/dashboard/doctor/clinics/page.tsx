@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import DashboardHeader from '@/components/DashboardHeader';
+import DashboardWrapper from '@/components/DashboardWrapper';
 import ClinicCard from '@/components/ClinicCard';
 import CreateClinicModal, { CreateClinicFormData } from '@/components/CreateClinicModal';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
@@ -153,8 +153,7 @@ export default function ClinicsPage() {
   };
 
   return (
-    <>
-      <DashboardHeader title="Clinics" />
+    <DashboardWrapper role="DOCTOR" mobileTitle="Clinics">
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
       {/* Header */}
       <header className='mb-12'>
@@ -327,6 +326,6 @@ export default function ClinicsPage() {
         </>
       )}
     </main>
-    </>
+    </DashboardWrapper>
   );
 }

@@ -1,32 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
+import React from 'react';
+import { Menu } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
-interface DashboardHeaderProps {
-  title?: string;
+interface MobileHeaderProps {
+  title: string;
+  onMenuClick: () => void;
 }
 
-export default function DashboardHeader({ title = 'Dashboard' }: DashboardHeaderProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+export default function MobileHeader({ title, onMenuClick }: MobileHeaderProps) {
   return (
     <>
-      <Sidebar
-        role="DOCTOR"
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-
       {/* Mobile Header */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-surface border-b border-outline-variant/20 z-30 flex items-center justify-between px-4">
         <Button
           variant="ghost"
           className="h-10 w-10 p-0"
-          onClick={() => setIsSidebarOpen(true)}
+          onClick={onMenuClick}
         >
-          <span className="material-symbols-outlined">menu</span>
+          <Menu className="h-5 w-5" />
         </Button>
         <span className="text-lg font-headline font-bold text-on-surface">
           {title}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import DashboardHeader from '@/components/DashboardHeader';
+import DashboardWrapper from '@/components/DashboardWrapper';
 
 interface Appointment {
   id: string;
@@ -77,8 +77,7 @@ export default function DoctorPage() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
 
   return (
-    <>
-      <DashboardHeader title="Appointments" />
+    <DashboardWrapper role="DOCTOR" mobileTitle="Appointments">
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
       {/* Stats Overview */}
       <header className='mb-16'>
@@ -231,6 +230,6 @@ export default function DoctorPage() {
         </div>
       </section>
     </main>
-    </>
+    </DashboardWrapper>
   );
 }

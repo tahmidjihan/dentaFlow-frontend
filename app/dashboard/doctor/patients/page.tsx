@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import DashboardHeader from '@/components/DashboardHeader';
+import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
 
 interface Patient {
@@ -116,8 +116,7 @@ export default function PatientsPage() {
   });
 
   return (
-    <>
-      <DashboardHeader title='My Patients' />
+    <DashboardWrapper role="DOCTOR" mobileTitle="My Patients">
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -408,6 +407,6 @@ export default function PatientsPage() {
           </div>
         </section>
       </main>
-    </>
+    </DashboardWrapper>
   );
 }
