@@ -84,12 +84,16 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function Sidebar({ role = 'DOCTOR', isOpen = true, onClose }: SidebarProps) {
+export function Sidebar({
+  role = 'DOCTOR',
+  isOpen = true,
+  onClose,
+}: SidebarProps) {
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const filteredNavItems = navItems.filter(
-    (item) => !item.roles || item.roles.includes(role)
+    (item) => !item.roles || item.roles.includes(role),
   );
 
   const profileOptions = [
@@ -98,7 +102,11 @@ export function Sidebar({ role = 'DOCTOR', isOpen = true, onClose }: SidebarProp
     { value: 'logout', label: 'Log out', icon: 'logout' },
   ];
 
-  const handleProfileSelect = (option: { value: string; label: string; icon?: string }) => {
+  const handleProfileSelect = (option: {
+    value: string;
+    label: string;
+    icon?: string;
+  }) => {
     if (option.value === 'logout') {
       console.log('Logging out...');
     } else {
@@ -111,7 +119,7 @@ export function Sidebar({ role = 'DOCTOR', isOpen = true, onClose }: SidebarProp
       {/* Mobile Overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className='fixed inset-0 bg-black/50 z-40 md:hidden'
           onClick={onClose}
         />
       )}
@@ -120,34 +128,34 @@ export function Sidebar({ role = 'DOCTOR', isOpen = true, onClose }: SidebarProp
       <aside
         className={cn(
           'fixed top-0 left-0 z-50 h-full w-64 bg-surface border-r border-outline-variant/20 transition-transform duration-300 ease-in-out md:translate-x-0',
-          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className='flex flex-col h-full'>
           {/* Logo */}
-          <div className="flex items-center justify-between h-16 px-6 border-b border-outline-variant/10">
+          <div className='flex items-center justify-between h-16 px-6 border-b border-outline-variant/10'>
             <Link
-              href="/"
-              className="text-xl font-headline font-extrabold tracking-tighter text-on-surface"
+              href='/'
+              className='text-xl font-headline font-extrabold tracking-tighter text-on-surface'
             >
               DentaFlow
             </Link>
             {onClose && (
               <Button
-                variant="ghost"
-                className="md:hidden h-8 w-8 p-0"
+                variant='ghost'
+                className='md:hidden h-8 w-8 p-0'
                 onClick={onClose}
               >
-                <span className="material-symbols-outlined text-sm">close</span>
+                <span className='material-symbols-outlined text-sm'>close</span>
               </Button>
             )}
           </div>
 
           {/* Navigation */}
-          <ScrollArea className="flex-1 px-3 py-4">
-            <nav className="space-y-1">
+          <ScrollArea className='flex-1 px-3 py-4'>
+            <nav className='space-y-1'>
               {filteredNavItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const isActive = pathname === item.href;
 
                 return (
                   <Link
@@ -158,13 +166,15 @@ export function Sidebar({ role = 'DOCTOR', isOpen = true, onClose }: SidebarProp
                       'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all',
                       isActive
                         ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                        : 'text-on-surface-variant hover:bg-surface-container-high'
+                        : 'text-on-surface-variant hover:bg-surface-container-high',
                     )}
                   >
-                    <span className={cn(
-                      'material-symbols-outlined text-base',
-                      isActive ? 'text-primary' : 'text-outline'
-                    )}>
+                    <span
+                      className={cn(
+                        'material-symbols-outlined text-base',
+                        isActive ? 'text-primary' : 'text-outline',
+                      )}
+                    >
                       {item.icon}
                     </span>
                     {item.title}
@@ -174,33 +184,35 @@ export function Sidebar({ role = 'DOCTOR', isOpen = true, onClose }: SidebarProp
             </nav>
           </ScrollArea>
 
-          <Separator className="bg-outline-variant/20" />
+          <Separator className='bg-outline-variant/20' />
 
           {/* User Profile */}
-          <div className="p-4">
+          <div className='p-4'>
             <Dropdown
               trigger={
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start gap-3 h-auto py-3 px-3"
+                  variant='ghost'
+                  className='w-full justify-start gap-3 h-auto py-3 px-3'
                 >
-                  <span className="material-symbols-outlined text-2xl text-outline">
+                  <span className='material-symbols-outlined text-2xl text-outline'>
                     account_circle
                   </span>
-                  <div className="flex-1 text-left">
-                    <p className="text-sm font-semibold text-on-surface">Dr. John Doe</p>
-                    <p className="text-xs text-on-surface-variant">
+                  <div className='flex-1 text-left'>
+                    <p className='text-sm font-semibold text-on-surface'>
+                      Dr. John Doe
+                    </p>
+                    <p className='text-xs text-on-surface-variant'>
                       {role === 'ADMIN' ? 'Administrator' : 'Doctor'}
                     </p>
                   </div>
-                  <span className="material-symbols-outlined text-sm text-outline">
+                  <span className='material-symbols-outlined text-sm text-outline'>
                     expand_more
                   </span>
                 </Button>
               }
               options={profileOptions}
               onSelect={handleProfileSelect}
-              align="right"
+              align='right'
             />
           </div>
         </div>
