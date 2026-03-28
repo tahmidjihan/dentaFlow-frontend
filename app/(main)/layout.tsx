@@ -3,6 +3,8 @@ import { Manrope, Inter } from 'next/font/google';
 import '../globals.css';
 import Footer from '@/components/ui/Footer';
 import Navbar from '../../components/Navbar';
+import { Providers } from '@/components/providers';
+import { Toaster } from 'sonner';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -40,9 +42,12 @@ export default function RootLayout({
         className='min-h-full bg-surface text-on-surface antialiased'
         suppressHydrationWarning
       >
-        <Navbar />
-        {children}
-        <Footer />
+        <Providers>
+          <Navbar />
+          {children}
+          <Footer />
+          <Toaster position='top-right' richColors />
+        </Providers>
       </body>
     </html>
   );

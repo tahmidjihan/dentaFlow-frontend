@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
 import '../globals.css';
+import { Providers } from '@/components/providers';
+import { Toaster } from 'sonner';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -37,7 +39,10 @@ export default function DashboardLayout({
         className='min-h-full bg-background text-on-surface antialiased'
         suppressHydrationWarning
       >
-        {children}
+        <Providers>
+          {children}
+          <Toaster position='top-right' richColors />
+        </Providers>
       </body>
     </html>
   );
