@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import {
@@ -100,45 +101,6 @@ export default function Dashboard() {
 
   return (
     <>
-      {/* Top Navigation Bar */}
-      <nav className='fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm shadow-on-surface/5'>
-        <div className='flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto'>
-          <Link href="/" className='text-2xl font-bold tracking-tighter text-on-surface font-headline'>
-            DentaWave
-          </Link>
-          <div className='hidden md:flex gap-8 items-center'>
-            <Link
-              href='/'
-              className="font-headline tracking-tight text-sm font-medium text-secondary hover:text-on-surface transition-colors"
-            >
-              Home
-            </Link>
-            <Link
-              href='/clinics'
-              className="font-headline tracking-tight text-sm font-medium text-secondary hover:text-on-surface transition-colors"
-            >
-              Clinics
-            </Link>
-            <Link
-              href='/dashboard'
-              className="font-headline tracking-tight text-sm font-medium text-primary font-semibold border-b-2 border-primary pb-1"
-            >
-              Dashboard
-            </Link>
-          </div>
-          <div className='flex items-center gap-4'>
-            <Button size='sm' variant='primary'>
-              Book Appointment
-            </Button>
-            <div className='w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/20 flex items-center justify-center'>
-              <span className='material-symbols-outlined text-on-surface-variant'>
-                person
-              </span>
-            </div>
-          </div>
-        </div>
-      </nav>
-
       <main className='pt-32 pb-20 px-8 max-w-screen-2xl mx-auto min-h-screen'>
         {/* Header Section */}
         <header className='mb-16'>
@@ -238,9 +200,7 @@ export default function Dashboard() {
                   <TableCell className='text-sm text-secondary'>
                     {appointment.date}
                   </TableCell>
-                  <TableCell>
-                    {getStatusBadge(appointment.status)}
-                  </TableCell>
+                  <TableCell>{getStatusBadge(appointment.status)}</TableCell>
                   <TableCell align='right'>
                     {appointment.status === 'paid' ? (
                       <button className='text-xs font-label uppercase tracking-widest text-primary font-bold hover:underline decoration-primary/30 underline-offset-4'>
@@ -257,93 +217,7 @@ export default function Dashboard() {
             </TableBody>
           </Table>
         </div>
-
-        {/* Featured Section (Bento Bottom) */}
-        <section className='mt-24 grid grid-cols-1 md:grid-cols-2 gap-12'>
-          <div className='relative overflow-hidden group'>
-            <div className='w-full aspect-video bg-surface-container-high flex items-center justify-center'>
-              <span className='material-symbols-outlined text-6xl text-outline/30'>
-                local_hospital
-              </span>
-            </div>
-            <div className='absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent p-8 flex flex-col justify-end'>
-              <h3 className='font-headline text-2xl font-bold text-on-background mb-2'>
-                Explore Our Clinic
-              </h3>
-              <p className='text-secondary text-sm mb-4'>
-                Experience the Clinical Sanctuary in the heart of the city.
-              </p>
-              <Link
-                href='/clinics'
-                className='text-xs font-label font-bold uppercase tracking-widest text-primary flex items-center gap-2'
-              >
-                View Virtual Tour
-                <span className='material-symbols-outlined text-sm'>
-                  arrow_forward
-                </span>
-              </Link>
-            </div>
-          </div>
-
-          <div className='flex flex-col justify-center space-y-6'>
-            <p className='font-label text-xs uppercase tracking-widest text-primary font-bold'>
-              Health Tips
-            </p>
-            <h3 className='font-headline text-3xl font-extrabold tracking-tight'>
-              The intersection of biology and design.
-            </h3>
-            <p className='text-secondary leading-relaxed'>
-              Our doctors believe that a calm environment leads to better health
-              outcomes. Explore our curated patient resources to prepare for your
-              next visit.
-            </p>
-            <div className='grid grid-cols-2 gap-4'>
-              <div className='p-4 bg-surface-container-low'>
-                <p className='font-headline font-bold text-lg'>01</p>
-                <p className='text-xs text-secondary'>Pre-Op Guide</p>
-              </div>
-              <div className='p-4 bg-surface-container-low'>
-                <p className='font-headline font-bold text-lg'>02</p>
-                <p className='text-xs text-secondary'>Aftercare Plan</p>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
-
-      {/* Footer */}
-      <footer className='w-full py-12 px-8 mt-auto bg-surface border-t border-on-surface/10'>
-        <div className='flex flex-col md:flex-row justify-between items-center gap-6 max-w-screen-2xl mx-auto'>
-          <div className='flex flex-col gap-2'>
-            <span className='font-headline font-bold text-on-surface'>
-              DentaWave
-            </span>
-            <p className='font-body text-xs uppercase tracking-widest text-secondary/50'>
-              © 2026 DentaWave. All rights reserved.
-            </p>
-          </div>
-          <div className='flex gap-8'>
-            <Link
-              href='/privacy'
-              className="font-body text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
-            >
-              Privacy Policy
-            </Link>
-            <Link
-              href='/terms'
-              className="font-body text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
-            >
-              Terms of Service
-            </Link>
-            <Link
-              href='/contact'
-              className="font-body text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
-            >
-              Contact Us
-            </Link>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

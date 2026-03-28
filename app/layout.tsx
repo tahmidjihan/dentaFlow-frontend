@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
 import './globals.css';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -34,8 +36,13 @@ export default function RootLayout({
           rel='stylesheet'
         />
       </head>
-      <body className='min-h-full flex flex-col bg-surface text-on-surface'>
+      <body
+        className='min-h-full flex flex-col bg-surface text-on-surface'
+        suppressHydrationWarning
+      >
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );

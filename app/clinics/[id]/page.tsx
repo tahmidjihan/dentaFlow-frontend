@@ -24,7 +24,6 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
 
   return (
     <>
-      <Navbar />
       <main className='pt-32 pb-24 px-8 max-w-screen-2xl mx-auto min-h-screen'>
         <div className='flex flex-col lg:flex-row gap-16 lg:gap-24'>
           {/* Left Side: Clinic Details (Editorial Layout) */}
@@ -150,7 +149,6 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
           </div>
         </div>
       </main>
-      <Footer />
     </>
   );
 }
