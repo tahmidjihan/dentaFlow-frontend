@@ -3,81 +3,9 @@
 import { useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: 'USER' | 'DOCTOR' | 'ADMIN';
-  status: 'Active' | 'Suspended' | 'Pending';
-  joinedDate: string;
-  lastActive: string;
-  avatar?: string;
-  initials?: string;
-}
-
-const users: User[] = [
-  {
-    id: '1',
-    name: 'Eleanor Maxwell',
-    email: 'eleanor.maxwell@email.com',
-    role: 'USER',
-    status: 'Active',
-    joinedDate: 'Jan 15, 2024',
-    lastActive: '2 hours ago',
-    initials: 'EM',
-  },
-  {
-    id: '2',
-    name: 'Dr. Julian Vance',
-    email: 'julian.vance@dentaflow.com',
-    role: 'DOCTOR',
-    status: 'Active',
-    joinedDate: 'Dec 01, 2023',
-    lastActive: '5 minutes ago',
-    initials: 'JV',
-  },
-  {
-    id: '3',
-    name: 'Marcus Thorne',
-    email: 'marcus.thorne@email.com',
-    role: 'USER',
-    status: 'Active',
-    joinedDate: 'Feb 20, 2024',
-    lastActive: '1 day ago',
-    initials: 'MT',
-  },
-  {
-    id: '4',
-    name: 'Dr. Sarah Chen',
-    email: 'sarah.chen@dentaflow.com',
-    role: 'DOCTOR',
-    status: 'Pending',
-    joinedDate: 'Oct 20, 2024',
-    lastActive: 'Never',
-    initials: 'SC',
-  },
-  {
-    id: '5',
-    name: 'Admin User',
-    email: 'admin@dentaflow.com',
-    role: 'ADMIN',
-    status: 'Active',
-    joinedDate: 'Jan 01, 2023',
-    lastActive: 'Now',
-    initials: 'AU',
-  },
-  {
-    id: '6',
-    name: 'Tobias Hart',
-    email: 'tobias.hart@email.com',
-    role: 'USER',
-    status: 'Suspended',
-    joinedDate: 'Mar 10, 2024',
-    lastActive: '30 days ago',
-    initials: 'TH',
-  },
-];
+import { useUsers, useUpdateUser, useDeleteUser } from '@/lib/hooks/use-users';
+import { useSession } from '@/lib/hooks/use-auth';
+import type { Role } from '@/types/database';
 
 const getRoleBadgeStyles = (role: string) => {
   switch (role) {
@@ -108,30 +36,65 @@ const getStatusBadgeStyles = (status: string) => {
 export default function UsersPage() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<'all' | 'USER' | 'DOCTOR' | 'ADMIN'>('all');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Active' | 'Suspended' | 'Pending'>('all');
+  const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<string>('');
 
-  const filteredUsers = users.filter((user) => {
+  const { data: users = [], isLoading, error } = useUsers();
+  const { user: currentUser } = useSession();
+  const updateUserMutation = useUpdateUser();
+  const deleteUserMutation = useDeleteUser();
+
+  const filteredUsers = (users || []).filter((user: any) => {
     const matchesSearch =
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
+      user.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-    const matchesStatus = statusFilter === 'all' || user.status === statusFilter;
-    
-    return matchesSearch && matchesRole && matchesStatus;
+
+    return matchesSearch && matchesRole;
   });
 
-  const handleRoleChange = (userId: string, newRole: 'USER' | 'DOCTOR' | 'ADMIN') => {
-    console.log(`Changing user ${userId} role to ${newRole}`);
-    setEditingUser(null);
+  const handleRoleChange = (userId: string, newRole: Role) => {
+    updateUserMutation.mutate(
+      { id: userId, data: { role: newRole } },
+      {
+        onSuccess: () => {
+          setEditingUser(null);
+        },
+      },
+    );
   };
 
-  const handleStatusChange = (userId: string, newStatus: 'Active' | 'Suspended') => {
-    console.log(`Changing user ${userId} status to ${newStatus}`);
+  const handleDeleteUser = (userId: string) => {
+    if (confirm('Are you sure you want to delete this user?')) {
+      deleteUserMutation.mutate(userId);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardWrapper role='ADMIN' mobileTitle='Users'>
+        <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
+          <div className='flex items-center justify-center h-64'>
+            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
+          </div>
+        </main>
+      </DashboardWrapper>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardWrapper role='ADMIN' mobileTitle='Users'>
+        <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
+          <div className='text-center text-error'>
+            <p>Failed to load users. Please try again.</p>
+          </div>
+        </main>
+      </DashboardWrapper>
+    );
+  }
 
   return (
     <DashboardWrapper role="ADMIN" mobileTitle="Users">
@@ -193,18 +156,6 @@ export default function UsersPage() {
                   <option value='DOCTOR'>Doctor</option>
                   <option value='ADMIN'>Admin</option>
                 </select>
-
-                {/* Status Filter */}
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-                  className='px-4 py-2.5 rounded-lg bg-surface-container-low border-none text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer'
-                >
-                  <option value='all'>All Status</option>
-                  <option value='Active'>Active</option>
-                  <option value='Suspended'>Suspended</option>
-                  <option value='Pending'>Pending</option>
-                </select>
               </div>
             </div>
           </div>
@@ -214,7 +165,7 @@ export default function UsersPage() {
             <span className='text-xs text-outline font-medium'>
               Showing <span className='text-on-surface font-bold'>{filteredUsers.length}</span>{' '}
               {filteredUsers.length === 1 ? 'user' : 'users'}
-              {(searchQuery || roleFilter !== 'all' || statusFilter !== 'all') && (
+              {(searchQuery || roleFilter !== 'all') && (
                 <span> filtered</span>
               )}
             </span>
@@ -247,7 +198,7 @@ export default function UsersPage() {
               </thead>
               <tbody className='divide-y divide-outline-variant/5'>
                 {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
+                  filteredUsers.map((user: any) => (
                     <tr
                       key={user.id}
                       className='hover:bg-surface-container-low/20 transition-colors group'
@@ -256,15 +207,15 @@ export default function UsersPage() {
                     >
                       <td className='px-8 py-6'>
                         <div className='flex items-center gap-3'>
-                          {user.avatar ? (
+                          {user.image ? (
                             <img
                               className='w-10 h-10 rounded-full object-cover'
-                              src={user.avatar}
+                              src={user.image}
                               alt={user.name}
                             />
                           ) : (
                             <div className='w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-[11px] font-bold text-on-secondary-container'>
-                              {user.initials}
+                              {(user.name || '').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                             </div>
                           )}
                           <div>
@@ -279,7 +230,7 @@ export default function UsersPage() {
                         {editingUser === user.id ? (
                           <select
                             value={selectedRole}
-                            onChange={(e) => handleRoleChange(user.id, e.target.value as 'USER' | 'DOCTOR' | 'ADMIN')}
+                            onChange={(e) => handleRoleChange(user.id, e.target.value as Role)}
                             onBlur={() => setEditingUser(null)}
                             autoFocus
                             className='px-3 py-1 rounded-lg bg-surface-container-low border border-outline-variant/30 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer'
@@ -297,17 +248,19 @@ export default function UsersPage() {
                         )}
                       </td>
                       <td className='px-8 py-6'>
-                        <span
-                          className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeStyles(user.status)}`}
-                        >
-                          {user.status}
+                        <span className='text-sm text-secondary'>
+                          {user.emailVerified ? 'Verified' : 'Unverified'}
                         </span>
                       </td>
                       <td className='px-8 py-6'>
-                        <span className='text-sm text-secondary'>{user.joinedDate}</span>
+                        <span className='text-sm text-secondary'>
+                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
+                        </span>
                       </td>
                       <td className='px-8 py-6'>
-                        <span className='text-sm text-outline'>{user.lastActive}</span>
+                        <span className='text-sm text-outline'>
+                          {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'N/A'}
+                        </span>
                       </td>
                       <td className='px-8 py-6 text-right'>
                         <div
@@ -315,21 +268,6 @@ export default function UsersPage() {
                             hoveredRow === user.id ? 'opacity-100' : 'opacity-0'
                           }`}
                         >
-                          {user.status === 'Active' ? (
-                            <button
-                              onClick={() => handleStatusChange(user.id, 'Suspended')}
-                              className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                            >
-                              Suspend
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => handleStatusChange(user.id, 'Active')}
-                              className='bg-primary/10 hover:bg-primary hover:text-white text-primary text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                            >
-                              Activate
-                            </button>
-                          )}
                           <button
                             onClick={() => {
                               setEditingUser(user.id);
@@ -338,6 +276,13 @@ export default function UsersPage() {
                             className='bg-surface-container-high hover:bg-secondary-container hover:text-on-secondary-container text-outline text-[11px] font-bold px-4 py-1.5 rounded transition-all'
                           >
                             Edit Role
+                          </button>
+                          <button
+                            onClick={() => handleDeleteUser(user.id)}
+                            disabled={deleteUserMutation.isPending}
+                            className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all disabled:opacity-50'
+                          >
+                            {deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
                           </button>
                         </div>
                       </td>
@@ -371,23 +316,23 @@ export default function UsersPage() {
           {/* Pagination Footer */}
           <div className='p-6 flex items-center justify-between bg-surface-container-low/10'>
             <span className='text-xs text-outline font-medium'>
-              Showing <span className='text-on-surface font-bold'>1-{filteredUsers.length}</span> of{' '}
-              <span className='text-on-surface font-bold'>{users.length}</span> users
+              Showing <span className='text-on-surface font-bold'>{filteredUsers.length}</span>{' '}
+              {filteredUsers.length === 1 ? 'user' : 'users'}
             </span>
             <div className='flex items-center gap-2'>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline'>
+              <button
+                className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline disabled:opacity-50'
+                disabled
+              >
                 <span className='material-symbols-outlined'>chevron_left</span>
               </button>
               <button className='w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-xs shadow-sm shadow-primary/20'>
                 1
               </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all'>
-                2
-              </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all'>
-                3
-              </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline'>
+              <button
+                className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all disabled:opacity-50'
+                disabled
+              >
                 <span className='material-symbols-outlined'>chevron_right</span>
               </button>
             </div>
