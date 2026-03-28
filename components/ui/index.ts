@@ -8,7 +8,12 @@ export { default as Input } from './Input';
 export type { InputProps } from './Input';
 
 export { default as Card, CardHeader, CardContent, CardFooter } from './Card';
-export type { CardProps, CardHeaderProps, CardContentProps, CardFooterProps } from './Card';
+export type {
+  CardProps,
+  CardHeaderProps,
+  CardContentProps,
+  CardFooterProps,
+} from './Card';
 
 export { default as Badge } from './Badge';
 export type { BadgeProps, BadgeVariant, BadgeSize } from './Badge';
@@ -35,3 +40,16 @@ export type { NavigationProps, NavItem } from './Navigation';
 
 export { default as Footer } from './Footer';
 export type { FooterProps, FooterLink } from './Footer';
+
+export { default as Sidebar } from './Sidebar';
+export type {
+  SidebarProps,
+  NavItem as SidebarNavItem,
+  UserProfile,
+} from './Sidebar';
+
+export { default as Dropdown } from './Dropdown';
+export type { DropdownProps, DropdownOption } from './Dropdown';
+
+export { default as Toast, ToastContainer, useToast } from './Toast';
+export type { ToastProps, ToastType, ToastContainerProps } from './Toast';

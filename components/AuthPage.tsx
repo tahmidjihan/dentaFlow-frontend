@@ -145,39 +145,6 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         required
       />
 
-      {/* Role Selection for Login */}
-      <div className='space-y-3 pt-2'>
-        <label className='block font-label text-xs font-semibold text-on-surface-variant uppercase tracking-widest ml-1'>
-          Login as
-        </label>
-        <div className='grid grid-cols-2 gap-3'>
-          <button
-            type='button'
-            onClick={() => setSelectedRole('USER')}
-            className={`p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
-              selectedRole === 'USER'
-                ? 'border-primary bg-primary-fixed/20 text-primary'
-                : 'border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:border-primary/50'
-            }`}
-          >
-            <span className='material-symbols-outlined text-xl'>person</span>
-            <span className='font-headline text-sm font-semibold'>Patient</span>
-          </button>
-          <button
-            type='button'
-            onClick={() => setSelectedRole('DOCTOR')}
-            className={`p-3 rounded-lg border-2 transition-all duration-200 flex items-center justify-center gap-2 ${
-              selectedRole === 'DOCTOR'
-                ? 'border-primary bg-primary-fixed/20 text-primary'
-                : 'border-outline-variant/20 bg-surface-container-low text-on-surface-variant hover:border-primary/50'
-            }`}
-          >
-            <span className='material-symbols-outlined text-xl'>medical_services</span>
-            <span className='font-headline text-sm font-semibold'>Doctor</span>
-          </button>
-        </div>
-      </div>
-
       <div className='flex items-center gap-3 pt-2'>
         <label className='flex items-center gap-2 cursor-pointer group'>
           <input

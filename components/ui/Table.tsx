@@ -31,6 +31,7 @@ export interface TableCellProps {
   children: React.ReactNode;
   className?: string;
   align?: 'left' | 'center' | 'right';
+  colSpan?: number;
 }
 
 export function Table({ children, className = '' }: TableProps) {
@@ -81,7 +82,7 @@ export function TableHead({ children, className = '', align = 'left' }: TableHea
   );
 }
 
-export function TableCell({ children, className = '', align = 'left' }: TableCellProps) {
+export function TableCell({ children, className = '', align = 'left', colSpan }: TableCellProps) {
   const alignStyles: Record<string, string> = {
     left: 'text-left',
     center: 'text-center',
@@ -89,7 +90,7 @@ export function TableCell({ children, className = '', align = 'left' }: TableCel
   };
 
   return (
-    <td className={`py-8 px-6 ${alignStyles[align]} ${className}`}>
+    <td className={`py-8 px-6 ${alignStyles[align]} ${className}`} colSpan={colSpan}>
       {children}
     </td>
   );

@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -15,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'DentaWave | Modern Dental Care',
+  title: 'DentaFlow | Modern Dental Care',
   description:
     'Experience clinical excellence within a sanctuary designed for your comfort. We combine advanced technology with a human-centric approach.',
 };
@@ -36,13 +34,8 @@ export default function RootLayout({
           rel='stylesheet'
         />
       </head>
-      <body
-        className='min-h-full flex flex-col bg-surface text-on-surface'
-        suppressHydrationWarning
-      >
-        <Navbar />
+      <body className='min-h-full bg-surface text-on-surface antialiased'>
         {children}
-        <Footer />
       </body>
     </html>
   );
