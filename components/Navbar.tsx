@@ -41,9 +41,12 @@ export default function Navbar() {
         </div>
 
         <div className='flex items-center gap-4'>
-          <button className='hidden md:block text-secondary font-headline text-sm font-medium hover:opacity-80 transition-opacity'>
+          <Link
+            href={'/auth/login'}
+            className='hidden md:block text-secondary font-headline text-sm font-medium hover:opacity-80 transition-opacity'
+          >
             Login
-          </button>
+          </Link>
           <button className='bg-primary-container text-on-primary px-6 py-2.5 rounded-lg font-headline text-sm font-semibold scale-95 active:opacity-80 transition-transform hover:bg-primary transition-all duration-300'>
             Book Appointment
           </button>
