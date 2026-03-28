@@ -1,5 +1,7 @@
 import ClinicCard from "./ClinicCard";
 import clinics from "@/data/clinics.json";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
 
 export default function Clinics() {
   return (
@@ -17,18 +19,18 @@ export default function Clinics() {
         </p>
         {/* Search Bar */}
         <div className="relative group">
-          <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none">
-            <span className="material-symbols-outlined text-outline">search</span>
-          </div>
-          <input
-            className="w-full bg-surface-container-low border-none rounded-xl py-5 pl-14 pr-6 text-on-surface placeholder:text-outline/60 focus:ring-2 focus:ring-primary/30 transition-all font-body text-md shadow-sm"
-            placeholder="Search by city, clinic name, or specialty..."
+          <Input
             type="text"
+            placeholder="Search by city, clinic name, or specialty..."
+            className="py-5 pl-14 pr-32 rounded-xl font-body text-md shadow-sm"
           />
+          <span className="material-symbols-outlined absolute left-5 top-1/2 -translate-y-1/2 text-outline pointer-events-none">
+            search
+          </span>
           <div className="absolute inset-y-2 right-2">
-            <button className="bg-on-surface text-surface h-full px-6 rounded-lg font-headline font-semibold text-sm hover:opacity-90 transition-opacity">
+            <Button size="sm" variant="secondary">
               Search
-            </button>
+            </Button>
           </div>
         </div>
       </header>

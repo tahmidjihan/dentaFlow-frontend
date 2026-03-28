@@ -1,6 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@/components/ui/Table';
 
 interface Appointment {
   id: string;
@@ -78,23 +88,11 @@ export default function Dashboard() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'paid':
-        return (
-          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-primary/10 text-primary'>
-            Paid
-          </span>
-        );
+        return <Badge variant='success'>Paid</Badge>;
       case 'pending':
-        return (
-          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-secondary-container text-on-secondary-container'>
-            Pending
-          </span>
-        );
+        return <Badge variant='warning'>Pending</Badge>;
       case 'completed':
-        return (
-          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-surface-container text-on-surface'>
-            Completed
-          </span>
-        );
+        return <Badge variant='info'>Completed</Badge>;
       default:
         return null;
     }
@@ -105,33 +103,33 @@ export default function Dashboard() {
       {/* Top Navigation Bar */}
       <nav className='fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm shadow-on-surface/5'>
         <div className='flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto'>
-          <span className='text-2xl font-bold tracking-tighter text-on-surface font-headline'>
-            DentaFlow
-          </span>
+          <Link href="/" className='text-2xl font-bold tracking-tighter text-on-surface font-headline'>
+            DentaWave
+          </Link>
           <div className='hidden md:flex gap-8 items-center'>
             <Link
               href='/'
-              className="font-['Manrope'] tracking-tight text-sm font-medium text-secondary hover:text-on-surface transition-colors"
+              className="font-headline tracking-tight text-sm font-medium text-secondary hover:text-on-surface transition-colors"
             >
               Home
             </Link>
             <Link
               href='/clinics'
-              className="font-['Manrope'] tracking-tight text-sm font-medium text-secondary hover:text-on-surface transition-colors"
+              className="font-headline tracking-tight text-sm font-medium text-secondary hover:text-on-surface transition-colors"
             >
               Clinics
             </Link>
             <Link
               href='/dashboard'
-              className="font-['Manrope'] tracking-tight text-sm font-medium text-primary font-semibold border-b-2 border-primary pb-1"
+              className="font-headline tracking-tight text-sm font-medium text-primary font-semibold border-b-2 border-primary pb-1"
             >
               Dashboard
             </Link>
           </div>
           <div className='flex items-center gap-4'>
-            <button className='px-5 py-2 rounded-lg bg-primary text-on-primary font-medium text-sm transition-transform scale-95 active:opacity-80'>
+            <Button size='sm' variant='primary'>
               Book Appointment
-            </button>
+            </Button>
             <div className='w-10 h-10 rounded-full overflow-hidden bg-surface-container-high border border-outline-variant/20 flex items-center justify-center'>
               <span className='material-symbols-outlined text-on-surface-variant'>
                 person
@@ -204,75 +202,60 @@ export default function Dashboard() {
           </div>
 
           {/* Custom Table Component */}
-          <div className='overflow-x-auto'>
-            <table className='w-full text-left border-collapse'>
-              <thead>
-                <tr className='bg-surface-container-low'>
-                  <th className='py-5 px-6 font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold'>
-                    Service
-                  </th>
-                  <th className='py-5 px-6 font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold'>
-                    Doctor
-                  </th>
-                  <th className='py-5 px-6 font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold'>
-                    Date
-                  </th>
-                  <th className='py-5 px-6 font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold'>
-                    Status
-                  </th>
-                  <th className='py-5 px-6 font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold text-right'>
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className='divide-y-0'>
-                {appointments.map((appointment) => (
-                  <tr
-                    key={appointment.id}
-                    className='group hover:bg-surface-container-lowest transition-colors'
-                  >
-                    <td className='py-8 px-6'>
-                      <p className='font-headline font-semibold text-on-background'>
-                        {appointment.service}
-                      </p>
-                      <p className='text-xs text-secondary'>
-                        {appointment.category}
-                      </p>
-                    </td>
-                    <td className='py-8 px-6'>
-                      <div className='flex items-center gap-3'>
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${appointment.status === 'paid' ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-secondary-container text-on-secondary-container'}`}
-                        >
-                          {appointment.doctor.initials}
-                        </div>
-                        <p className='text-sm font-medium text-on-background'>
-                          {appointment.doctor.name}
-                        </p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Service</TableHead>
+                <TableHead>Doctor</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead align='right'>Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {appointments.map((appointment) => (
+                <TableRow key={appointment.id} hoverable>
+                  <TableCell>
+                    <p className='font-headline font-semibold text-on-background'>
+                      {appointment.service}
+                    </p>
+                    <p className='text-xs text-secondary'>
+                      {appointment.category}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <div className='flex items-center gap-3'>
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${appointment.status === 'paid' ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-secondary-container text-on-secondary-container'}`}
+                      >
+                        {appointment.doctor.initials}
                       </div>
-                    </td>
-                    <td className='py-8 px-6 text-sm text-secondary'>
-                      {appointment.date}
-                    </td>
-                    <td className='py-8 px-6'>
-                      {getStatusBadge(appointment.status)}
-                    </td>
-                    <td className='py-8 px-6 text-right'>
-                      {appointment.status === 'paid' ? (
-                        <button className='text-xs font-label uppercase tracking-widest text-primary font-bold hover:underline decoration-primary/30 underline-offset-4'>
-                          View Receipt
-                        </button>
-                      ) : (
-                        <button className='text-xs font-label uppercase tracking-widest text-on-background font-bold border border-outline-variant/30 px-4 py-2 hover:bg-on-background hover:text-surface transition-colors'>
-                          Pay Now
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <p className='text-sm font-medium text-on-background'>
+                        {appointment.doctor.name}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell className='text-sm text-secondary'>
+                    {appointment.date}
+                  </TableCell>
+                  <TableCell>
+                    {getStatusBadge(appointment.status)}
+                  </TableCell>
+                  <TableCell align='right'>
+                    {appointment.status === 'paid' ? (
+                      <button className='text-xs font-label uppercase tracking-widest text-primary font-bold hover:underline decoration-primary/30 underline-offset-4'>
+                        View Receipt
+                      </button>
+                    ) : (
+                      <Button size='sm' variant='outline'>
+                        Pay Now
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
 
         {/* Featured Section (Bento Bottom) */}
@@ -332,29 +315,29 @@ export default function Dashboard() {
       <footer className='w-full py-12 px-8 mt-auto bg-surface border-t border-on-surface/10'>
         <div className='flex flex-col md:flex-row justify-between items-center gap-6 max-w-screen-2xl mx-auto'>
           <div className='flex flex-col gap-2'>
-            <span className='font-["Manrope"] font-bold text-on-surface'>
-              DentaFlow
+            <span className='font-headline font-bold text-on-surface'>
+              DentaWave
             </span>
-            <p className='font-["Inter"] text-xs uppercase tracking-widest text-secondary/50'>
-              © 2024 DentaFlow. All rights reserved.
+            <p className='font-body text-xs uppercase tracking-widest text-secondary/50'>
+              © 2026 DentaWave. All rights reserved.
             </p>
           </div>
           <div className='flex gap-8'>
             <Link
               href='/privacy'
-              className="font-['Inter'] text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
+              className="font-body text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
             >
               Privacy Policy
             </Link>
             <Link
               href='/terms'
-              className="font-['Inter'] text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
+              className="font-body text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
             >
               Terms of Service
             </Link>
             <Link
               href='/contact'
-              className="font-['Inter'] text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
+              className="font-body text-xs uppercase tracking-widest text-secondary hover:text-primary transition-all underline decoration-primary/30 underline-offset-4"
             >
               Contact Us
             </Link>

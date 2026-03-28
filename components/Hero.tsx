@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Button from "@/components/ui/Button";
 
 export default function Hero() {
   return (
@@ -18,9 +19,9 @@ export default function Hero() {
             approach.
           </p>
           <div className="flex flex-wrap gap-6">
-            <button className="bg-primary text-on-primary px-10 py-5 rounded-xl font-headline font-bold text-lg hover:bg-primary-container transition-all shadow-xl shadow-primary/10">
+            <Button size="lg" variant="primary">
               Book Now
-            </button>
+            </Button>
             <Link
               href="/philosophy"
               className="flex items-center gap-3 font-headline font-bold text-on-background group"

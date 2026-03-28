@@ -1,5 +1,7 @@
 'use client';
 
+import Button from '@/components/ui/Button';
+
 interface BookingFormProps {
   practitioners: Array<{
     id: string;
@@ -60,9 +62,14 @@ export default function BookingForm({ practitioners, deposit }: BookingFormProps
 
       {/* Action Button */}
       <div className='pt-4'>
-        <button className='group relative w-full bg-primary-container text-on-primary py-5 px-8 rounded-lg font-headline font-bold text-lg tracking-tight transition-all hover:opacity-90 active:scale-[0.98] overflow-hidden'>
-          <span>Confirm & Pay Deposit (£{deposit.toFixed(2)})</span>
-        </button>
+        <Button
+          type='submit'
+          variant='primary'
+          size='lg'
+          fullWidth
+        >
+          Confirm & Pay Deposit (£{deposit.toFixed(2)})
+        </Button>
       </div>
     </form>
   );

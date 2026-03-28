@@ -1,3 +1,6 @@
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
+import Card from "@/components/ui/Card";
+
 interface PricingRowProps {
   service: string;
   price: string;
@@ -5,14 +8,14 @@ interface PricingRowProps {
 
 function PricingRow({ service, price }: PricingRowProps) {
   return (
-    <tr className='group hover:bg-surface-container-low transition-colors duration-300'>
-      <td className='py-8 px-8 font-headline font-bold text-lg border-b border-outline-variant/10'>
+    <TableRow hoverable>
+      <TableCell className="font-headline font-bold text-lg border-b border-outline-variant/10">
         {service}
-      </td>
-      <td className='py-8 px-8 font-body font-medium text-lg text-right border-b border-outline-variant/10'>
+      </TableCell>
+      <TableCell align="right" className="font-body font-medium text-lg border-b border-outline-variant/10">
         {price}
-      </td>
-    </tr>
+      </TableCell>
+    </TableRow>
   );
 }
 
@@ -28,7 +31,7 @@ export default function Pricing() {
             We believe in clarity. No hidden fees, just honest medical care
             focused on your well-being.
           </p>
-          <div className='bg-secondary-container/30 p-8 rounded-2xl'>
+          <Card variant='outlined' className='p-8 rounded-2xl bg-secondary-container/30'>
             <p className='font-label text-xs uppercase tracking-widest text-on-secondary-container mb-2'>
               Insurance
             </p>
@@ -36,25 +39,23 @@ export default function Pricing() {
               We accept most major providers. Contact our team to verify your
               specific coverage details.
             </p>
-          </div>
+          </Card>
         </div>
         <div className='lg:col-span-8 overflow-hidden rounded-3xl editorial-shadow'>
-          <table className='w-full text-left border-collapse'>
-            <thead>
-              <tr className='bg-surface-container-high'>
-                <th className='py-6 px-8 font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant font-bold'>
-                  Service
-                </th>
-                <th className='py-6 px-8 font-label text-xs uppercase tracking-[0.2em] text-on-surface-variant font-bold text-right'>
-                  Starting Price
-                </th>
-              </tr>
-            </thead>
-            <tbody className='bg-surface-container-lowest'>
-              <PricingRow service='Routine Examination' price='$50' />
-              <PricingRow service='Surgeries' price='As the Procedure' />
-            </tbody>
-          </table>
+          <Card variant='elevated' className='rounded-3xl'>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className='py-6 px-8'>Service</TableHead>
+                  <TableHead align='right' className='py-6 px-8'>Starting Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <PricingRow service='Routine Examination' price='$50' />
+                <PricingRow service='Surgeries' price='As the Procedure' />
+              </TableBody>
+            </Table>
+          </Card>
         </div>
       </div>
     </section>

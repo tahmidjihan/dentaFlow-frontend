@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Card from "@/components/ui/Card";
 
 interface ServiceCardProps {
   icon: string;
@@ -8,7 +9,7 @@ interface ServiceCardProps {
 
 function ServiceCard({ icon, title, description }: ServiceCardProps) {
   return (
-    <div className="group bg-surface-container-lowest p-10 rounded-3xl transition-all duration-500 hover:-translate-y-2 border border-outline-variant/10 editorial-shadow">
+    <Card variant="elevated" className="p-10 rounded-3xl transition-all duration-500 hover:-translate-y-2 border border-outline-variant/10">
       <div className="w-14 h-14 bg-surface-container-low rounded-2xl flex items-center justify-center mb-8 group-hover:bg-primary-container transition-colors duration-500">
         <span className="material-symbols-outlined text-primary group-hover:text-on-primary transition-colors">
           {icon}
@@ -21,7 +22,7 @@ function ServiceCard({ icon, title, description }: ServiceCardProps) {
       <span className="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors">
         arrow_right_alt
       </span>
-    </div>
+    </Card>
   );
 }
 

@@ -1,3 +1,5 @@
+import Card from "@/components/ui/Card";
+
 interface TestimonialProps {
   quote: string;
   name: string;
@@ -6,7 +8,7 @@ interface TestimonialProps {
 
 function Testimonial({ quote, name, profession }: TestimonialProps) {
   return (
-    <div className="flex flex-col">
+    <Card variant="elevated" className="p-8 flex flex-col">
       <div className="flex gap-1 mb-8">
         {[...Array(5)].map((_, i) => (
           <span
@@ -27,7 +29,7 @@ function Testimonial({ quote, name, profession }: TestimonialProps) {
           {profession}
         </p>
       </div>
-    </div>
+    </Card>
   );
 }
 

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import Card from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
 
 interface ClinicCardProps {
   id: string;
@@ -18,13 +20,11 @@ export default function ClinicCard({ id, name, address, phone, specialty, image 
           src={image}
           alt={name}
         />
-        <div className="absolute top-4 right-4 bg-surface-container-lowest/90 backdrop-blur-md px-3 py-1 rounded-full">
-          <span className="font-label text-[10px] uppercase tracking-widest font-bold text-primary">
-            {specialty}
-          </span>
+        <div className="absolute top-4 right-4">
+          <Badge variant='success' size='sm'>{specialty}</Badge>
         </div>
       </div>
-      <div className="space-y-4">
+      <Card variant='outlined' className="space-y-4 p-5">
         <div>
           <h3 className="font-headline text-2xl font-bold text-on-surface tracking-tight">
             {name}
@@ -44,7 +44,7 @@ export default function ClinicCard({ id, name, address, phone, specialty, image 
         >
           View Clinic
         </Link>
-      </div>
+      </Card>
     </div>
   );
 }

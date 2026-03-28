@@ -1,6 +1,8 @@
 import Link from 'next/link';
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className='w-full py-12 px-8 mt-auto bg-surface dark:bg-inverse-surface border-t border-on-surface/5 dark:border-inverse-on-surface/5'>
       <div className='flex flex-col md:flex-row justify-between items-center gap-6 max-w-screen-2xl mx-auto'>
@@ -34,7 +36,7 @@ export default function Footer() {
           </Link>
         </div>
         <div className='font-body text-xs text-secondary dark:text-inverse-on-surface/50'>
-          © 2026 DentaWave. All rights reserved.
+          © {currentYear} DentaWave. All rights reserved.
         </div>
       </div>
     </footer>

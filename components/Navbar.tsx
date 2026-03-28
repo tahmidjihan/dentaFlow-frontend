@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import Button from '@/components/ui/Button';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -20,9 +21,9 @@ export default function Navbar() {
   return (
     <nav className='fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm shadow-on-surface/5 transition-all duration-300'>
       <div className='flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto'>
-        <div className='text-2xl font-bold tracking-tighter text-on-surface font-headline'>
+        <Link href="/" className='text-2xl font-bold tracking-tighter text-on-surface font-headline'>
           DentaWave
-        </div>
+        </Link>
 
         {/* Desktop Navigation */}
         <div className='hidden md:flex items-center gap-8 font-headline tracking-tight text-sm font-medium'>
@@ -47,14 +48,15 @@ export default function Navbar() {
           >
             Login
           </Link>
-          <button className='bg-primary-container text-on-primary px-6 py-2.5 rounded-lg font-headline text-sm font-semibold scale-95 active:opacity-80 transition-transform hover:bg-primary transition-all duration-300'>
+          <Button size='sm' variant='primary'>
             Book Appointment
-          </button>
+          </Button>
 
           {/* Mobile menu button */}
           <button
             className='md:hidden text-on-surface'
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label='Toggle menu'
           >
             <span className='material-symbols-outlined'>menu</span>
           </button>
@@ -110,9 +112,9 @@ export default function Navbar() {
               Admin
             </Link>
             <button className='text-secondary text-left'>Login</button>
-            <button className='bg-primary-container text-on-primary px-6 py-2.5 rounded-lg font-headline text-sm font-semibold w-fit'>
+            <Button size='sm' variant='primary'>
               Book Appointment
-            </button>
+            </Button>
           </div>
         </div>
       )}
