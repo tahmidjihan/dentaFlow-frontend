@@ -1,10 +1,19 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Navbar() {
+  const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const getLinkClass = (href: string) => {
+    const isActive = pathname === href;
+    return isActive
+      ? 'text-primary font-semibold border-b-2 border-primary pb-1'
+      : 'text-secondary hover:text-on-surface transition-colors';
+  };
 
   return (
     <nav className='fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm shadow-on-surface/5 transition-all duration-300'>
@@ -15,28 +24,16 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className='hidden md:flex items-center gap-8 font-headline tracking-tight text-sm font-medium'>
-          <Link
-            className='text-primary font-semibold border-b-2 border-primary pb-1'
-            href='/'
-          >
+          <Link className={getLinkClass('/')} href='/'>
             Home
           </Link>
-          <Link
-            className='text-secondary hover:text-on-surface transition-colors'
-            href='/clinics'
-          >
+          <Link className={getLinkClass('/clinics')} href='/clinics'>
             Clinics
           </Link>
-          <Link
-            className='text-secondary hover:text-on-surface transition-colors'
-            href='/dashboard'
-          >
+          <Link className={getLinkClass('/dashboard')} href='/dashboard'>
             Dashboard
           </Link>
-          <Link
-            className='text-secondary hover:text-on-surface transition-colors'
-            href='/admin'
-          >
+          <Link className={getLinkClass('/admin')} href='/admin'>
             Admin
           </Link>
         </div>
@@ -64,28 +61,44 @@ export default function Navbar() {
         <div className='md:hidden bg-surface border-t border-outline-variant/20 px-8 py-4'>
           <div className='flex flex-col gap-4 font-headline tracking-tight text-sm font-medium'>
             <Link
-              className='text-primary font-semibold'
+              className={
+                pathname === '/'
+                  ? 'text-primary font-semibold'
+                  : 'text-secondary'
+              }
               href='/'
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Home
             </Link>
             <Link
-              className='text-secondary'
+              className={
+                pathname === '/clinics'
+                  ? 'text-primary font-semibold'
+                  : 'text-secondary'
+              }
               href='/clinics'
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Clinics
             </Link>
             <Link
-              className='text-secondary'
+              className={
+                pathname === '/dashboard'
+                  ? 'text-primary font-semibold'
+                  : 'text-secondary'
+              }
               href='/dashboard'
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Dashboard
             </Link>
             <Link
-              className='text-secondary'
+              className={
+                pathname === '/admin'
+                  ? 'text-primary font-semibold'
+                  : 'text-secondary'
+              }
               href='/admin'
               onClick={() => setIsMobileMenuOpen(false)}
             >

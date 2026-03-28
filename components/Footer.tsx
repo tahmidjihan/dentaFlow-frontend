@@ -34,7 +34,7 @@ export default function Footer() {
           </Link>
         </div>
         <div className='font-body text-xs text-secondary dark:text-inverse-on-surface/50'>
-          © 2024 DentaWave. All rights reserved.
+          © 2026 DentaWave. All rights reserved.
         </div>
       </div>
     </footer>
