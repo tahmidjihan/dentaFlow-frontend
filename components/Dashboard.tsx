@@ -12,8 +12,9 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/Table';
+import type { AppointStatus } from '@/types/database';
 
-interface Appointment {
+interface DashboardAppointment {
   id: string;
   service: string;
   category: string;
@@ -22,7 +23,7 @@ interface Appointment {
     initials: string;
   };
   date: string;
-  status: 'paid' | 'pending' | 'completed';
+  status: AppointStatus;
   amount?: string;
 }
 
@@ -55,14 +56,14 @@ export default function Dashboard() {
     },
   ];
 
-  const appointments: Appointment[] = [
+  const appointments: DashboardAppointment[] = [
     {
       id: '1',
       service: 'Root Canal',
       category: 'Major Restorative',
       doctor: { name: 'Dr. Smith', initials: 'DS' },
       date: 'Mar 30, 2024',
-      status: 'paid',
+      status: 'DONE',
     },
     {
       id: '2',
@@ -70,7 +71,7 @@ export default function Dashboard() {
       category: 'Preventative Care',
       doctor: { name: 'Dr. Doe', initials: 'DD' },
       date: 'Apr 05, 2024',
-      status: 'pending',
+      status: 'BOOKED',
       amount: '$120.00',
     },
   ];
@@ -86,14 +87,14 @@ export default function Dashboard() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: AppointStatus) => {
     switch (status) {
-      case 'paid':
-        return <Badge variant='success'>Paid</Badge>;
-      case 'pending':
-        return <Badge variant='warning'>Pending</Badge>;
-      case 'completed':
-        return <Badge variant='info'>Completed</Badge>;
+      case 'DONE':
+        return <Badge variant='success'>Done</Badge>;
+      case 'BOOKED':
+        return <Badge variant='warning'>Booked</Badge>;
+      case 'CANCELLED':
+        return <Badge variant='default'>Cancelled</Badge>;
       default:
         return null;
     }
@@ -188,7 +189,7 @@ export default function Dashboard() {
                   <TableCell>
                     <div className='flex items-center gap-3'>
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${appointment.status === 'paid' ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-secondary-container text-on-secondary-container'}`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${appointment.status === 'DONE' ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-secondary-container text-on-secondary-container'}`}
                       >
                         {appointment.doctor.initials}
                       </div>
@@ -202,7 +203,7 @@ export default function Dashboard() {
                   </TableCell>
                   <TableCell>{getStatusBadge(appointment.status)}</TableCell>
                   <TableCell align='right'>
-                    {appointment.status === 'paid' ? (
+                    {appointment.status === 'DONE' ? (
                       <button className='text-xs font-label uppercase tracking-widest text-primary font-bold hover:underline decoration-primary/30 underline-offset-4'>
                         View Receipt
                       </button>

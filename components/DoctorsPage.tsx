@@ -14,7 +14,7 @@ import {
   Card,
 } from '@/components/ui';
 
-// Types
+// Types aligned with Prisma schema
 interface Doctor {
   id: string;
   name: string;
@@ -26,6 +26,9 @@ interface Doctor {
   nextAvailability: string;
   location: string;
   experience: number;
+  role: 'DOCTOR';
+  clinicId: string | null;
+  image: string | null;
 }
 
 // Helper function to get initials from name
@@ -55,7 +58,7 @@ type SpecialtyFilter = 'All' | 'General Dentistry' | 'Orthodontics' | 'Pediatric
 type AvailabilityFilter = 'All' | 'Available Today' | 'Available This Week';
 type RatingFilter = 'All' | '4+ Stars' | '5 Stars';
 
-// Sample doctor data
+// Sample doctor data (aligned with Prisma schema)
 const sampleDoctors: Doctor[] = [
   {
     id: '1',
@@ -68,6 +71,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Today, 2:00 PM',
     location: 'Downtown Clinic',
     experience: 12,
+    role: 'DOCTOR',
+    clinicId: 'clinic-1',
+    image: null,
   },
   {
     id: '2',
@@ -80,6 +86,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Today, 3:30 PM',
     location: 'Westside Clinic',
     experience: 8,
+    role: 'DOCTOR',
+    clinicId: 'clinic-2',
+    image: null,
   },
   {
     id: '3',
@@ -92,6 +101,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Tomorrow, 9:00 AM',
     location: 'Downtown Clinic',
     experience: 15,
+    role: 'DOCTOR',
+    clinicId: 'clinic-1',
+    image: null,
   },
   {
     id: '4',
@@ -104,6 +116,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Today, 4:00 PM',
     location: 'Northside Clinic',
     experience: 10,
+    role: 'DOCTOR',
+    clinicId: 'clinic-3',
+    image: null,
   },
   {
     id: '5',
@@ -116,6 +131,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Today, 11:00 AM',
     location: 'Westside Clinic',
     experience: 7,
+    role: 'DOCTOR',
+    clinicId: 'clinic-2',
+    image: null,
   },
   {
     id: '6',
@@ -128,6 +146,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Wed, 10:00 AM',
     location: 'Downtown Clinic',
     experience: 14,
+    role: 'DOCTOR',
+    clinicId: 'clinic-1',
+    image: null,
   },
   {
     id: '7',
@@ -140,6 +161,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Today, 1:00 PM',
     location: 'Northside Clinic',
     experience: 11,
+    role: 'DOCTOR',
+    clinicId: 'clinic-3',
+    image: null,
   },
   {
     id: '8',
@@ -152,6 +176,9 @@ const sampleDoctors: Doctor[] = [
     nextAvailability: 'Today, 5:00 PM',
     location: 'Westside Clinic',
     experience: 6,
+    role: 'DOCTOR',
+    clinicId: 'clinic-2',
+    image: null,
   },
 ];
 

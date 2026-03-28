@@ -1,0 +1,384 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DentaWave Database Schema",
+  "description": "JSON Schema representation of the Prisma database schema for DentaWave",
+  "definitions": {
+    "Role": {
+      "type": "string",
+      "enum": ["USER", "ADMIN", "DOCTOR"],
+      "description": "User role in the system"
+    },
+    "AppointStatus": {
+      "type": "string",
+      "enum": ["BOOKED", "DONE", "CANCELLED"],
+      "description": "Appointment status"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique user identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User's email address (unique)"
+        },
+        "emailVerified": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the email has been verified"
+        },
+        "image": {
+          "type": ["string", "null"],
+          "description": "User's profile image URL"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Account creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        },
+        "role": {
+          "$ref": "#/definitions/Role",
+          "default": "USER"
+        },
+        "clinicId": {
+          "type": ["string", "null"],
+          "description": "Associated clinic ID (for doctors)"
+        },
+        "clinic": {
+          "oneOf": [
+            { "$ref": "#/definitions/Clinic" },
+            { "type": "null" }
+          ]
+        },
+        "appointments": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Appointment" },
+          "description": "Appointments as a patient"
+        },
+        "doctorTasks": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Appointment" },
+          "description": "Appointments as a doctor"
+        }
+      },
+      "required": ["id", "name", "email", "role"],
+      "additionalProperties": false
+    },
+    "Session": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique session identifier"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Session expiration timestamp"
+        },
+        "token": {
+          "type": "string",
+          "description": "Session token (unique)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "ipAddress": {
+          "type": ["string", "null"],
+          "description": "IP address of the session"
+        },
+        "userAgent": {
+          "type": ["string", "null"],
+          "description": "User agent string"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Associated user ID"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        }
+      },
+      "required": ["id", "expiresAt", "token", "userId"],
+      "additionalProperties": false
+    },
+    "Account": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique account identifier"
+        },
+        "accountId": {
+          "type": "string",
+          "description": "External provider account ID"
+        },
+        "providerId": {
+          "type": "string",
+          "description": "Authentication provider ID"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Associated user ID"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "accessToken": {
+          "type": ["string", "null"]
+        },
+        "refreshToken": {
+          "type": ["string", "null"]
+        },
+        "idToken": {
+          "type": ["string", "null"]
+        },
+        "accessTokenExpiresAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "refreshTokenExpiresAt": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "scope": {
+          "type": ["string", "null"]
+        },
+        "password": {
+          "type": ["string", "null"],
+          "description": "Hashed password (for credential auth)"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "accountId", "providerId", "userId"],
+      "additionalProperties": false
+    },
+    "Verification": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique verification identifier"
+        },
+        "identifier": {
+          "type": "string",
+          "description": "Verification identifier (e.g., email)"
+        },
+        "value": {
+          "type": "string",
+          "description": "Verification code/token"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Verification expiration timestamp"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "identifier", "value", "expiresAt"],
+      "additionalProperties": false
+    },
+    "Clinic": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique clinic identifier"
+        },
+        "name": {
+          "type": "string",
+          "description": "Clinic name"
+        },
+        "status": {
+          "type": "string",
+          "default": "open",
+          "enum": ["open", "closed"],
+          "description": "Clinic operational status"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Clinic contact email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Clinic phone number"
+        },
+        "location": {
+          "type": "string",
+          "description": "Clinic physical address"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "doctors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/User" },
+          "description": "Doctors associated with this clinic"
+        },
+        "appointments": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Appointment" },
+          "description": "Appointments at this clinic"
+        }
+      },
+      "required": ["id", "name", "email", "phone", "location"],
+      "additionalProperties": false
+    },
+    "Appointment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique appointment identifier"
+        },
+        "status": {
+          "$ref": "#/definitions/AppointStatus",
+          "default": "BOOKED"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Appointment date and time"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Patient user ID"
+        },
+        "user": {
+          "$ref": "#/definitions/User"
+        },
+        "doctorId": {
+          "type": "string",
+          "description": "Doctor user ID"
+        },
+        "doctor": {
+          "$ref": "#/definitions/User"
+        },
+        "clinicId": {
+          "type": "string",
+          "description": "Clinic ID"
+        },
+        "clinic": {
+          "$ref": "#/definitions/Clinic"
+        },
+        "payment": {
+          "oneOf": [
+            { "$ref": "#/definitions/Payment" },
+            { "type": "null" }
+          ]
+        }
+      },
+      "required": ["id", "status", "date", "userId", "doctorId", "clinicId"],
+      "additionalProperties": false
+    },
+    "Payment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique payment identifier"
+        },
+        "stripeSessionId": {
+          "type": "string",
+          "description": "Stripe session ID (unique)"
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Amount in cents (e.g., 2000 for $20.00)",
+          "minimum": 0
+        },
+        "currency": {
+          "type": "string",
+          "default": "usd",
+          "description": "Currency code"
+        },
+        "status": {
+          "type": "string",
+          "default": "pending",
+          "enum": ["pending", "paid", "failed"],
+          "description": "Payment status"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "appointmentId": {
+          "type": "string",
+          "description": "Associated appointment ID (unique)"
+        },
+        "appointment": {
+          "$ref": "#/definitions/Appointment"
+        }
+      },
+      "required": ["id", "stripeSessionId", "amount", "appointmentId"],
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "users": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/User" }
+    },
+    "sessions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Session" }
+    },
+    "accounts": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Account" }
+    },
+    "verifications": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Verification" }
+    },
+    "clinics": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Clinic" }
+    },
+    "appointments": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Appointment" }
+    },
+    "payments": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Payment" }
+    }
+  }
+}
