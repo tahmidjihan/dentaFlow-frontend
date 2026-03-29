@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
+import EditUserModal from '@/components/EditUserModal';
 import { useUsers, useUpdateUser, useDeleteUser } from '@/lib/hooks/use-users';
 import { useSession } from '@/lib/hooks/use-auth';
+import { useToast } from '@/components/ui/Toast';
 import type { Role } from '@/types/database';
 
 const getRoleBadgeStyles = (role: string) => {
@@ -39,11 +42,13 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState<'all' | Role>('all');
   const [editingUser, setEditingUser] = useState<string | null>(null);
   const [selectedRole, setSelectedRole] = useState<string>('');
+  const [deletingUser, setDeletingUser] = useState<{ id: string; name: string } | null>(null);
 
   const { data: users = [], isLoading, error } = useUsers();
   const { user: currentUser } = useSession();
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
+  const { success, error: showError, ToastContainer } = useToast();
 
   const filteredUsers = (users || []).filter((user: any) => {
     const matchesSearch =
@@ -61,15 +66,31 @@ export default function UsersPage() {
       {
         onSuccess: () => {
           setEditingUser(null);
+          success('User role updated successfully');
+        },
+        onError: () => {
+          showError('Failed to update user role');
         },
       },
     );
   };
 
-  const handleDeleteUser = (userId: string) => {
-    if (confirm('Are you sure you want to delete this user?')) {
-      deleteUserMutation.mutate(userId);
-    }
+  const handleDeleteUser = () => {
+    if (!deletingUser) return;
+
+    deleteUserMutation.mutate(deletingUser.id, {
+      onSuccess: () => {
+        success('User deleted successfully');
+        setDeletingUser(null);
+      },
+      onError: () => {
+        showError('Failed to delete user');
+      },
+    });
+  };
+
+  const handleEditSuccess = () => {
+    success('User updated successfully');
   };
 
   if (isLoading) {
@@ -96,8 +117,13 @@ export default function UsersPage() {
     );
   }
 
+  const userToEdit = users?.find((u: any) => u.id === editingUser) || null;
+  const userToDelete = deletingUser;
+
   return (
     <DashboardWrapper role="ADMIN" mobileTitle="Users">
+      <ToastContainer position="top-right" />
+      
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -278,7 +304,7 @@ export default function UsersPage() {
                             Edit Role
                           </button>
                           <button
-                            onClick={() => handleDeleteUser(user.id)}
+                            onClick={() => setDeletingUser({ id: user.id, name: user.name })}
                             disabled={deleteUserMutation.isPending}
                             className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all disabled:opacity-50'
                           >
@@ -339,6 +365,24 @@ export default function UsersPage() {
           </div>
         </section>
       </main>
+
+      {/* Edit User Modal */}
+      <EditUserModal
+        isOpen={!!userToEdit}
+        user={userToEdit}
+        onClose={() => setEditingUser(null)}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!userToDelete}
+        entityName={userToDelete?.name || ''}
+        entityType="User"
+        onClose={() => setDeletingUser(null)}
+        onConfirm={handleDeleteUser}
+        isLoading={deleteUserMutation.isPending}
+      />
     </DashboardWrapper>
   );
 }
