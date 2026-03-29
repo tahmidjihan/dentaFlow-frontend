@@ -75,7 +75,7 @@ export default function Clinics() {
               address={clinic.location}
               phone={clinic.phone}
               specialty="Dental Care"
-              image={null}
+              image=""
             />
           ))
         ) : (

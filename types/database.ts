@@ -27,6 +27,7 @@ export interface Clinic {
   email: string;
   phone: string;
   location: string;
+  address?: string;
   createdAt: Date;
 }
 
@@ -38,6 +39,23 @@ export interface Appointment {
   userId: string;
   doctorId: string;
   clinicId: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+  };
+  doctor?: {
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+  };
+  clinic?: {
+    id: string;
+    name: string;
+    address?: string;
+  };
 }
 
 export interface Payment {

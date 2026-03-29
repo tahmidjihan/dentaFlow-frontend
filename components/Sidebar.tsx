@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Button from '@/components/ui/Button';
+import { useSignOut } from '@/lib/hooks/use-auth';
 
 type UserRole = 'DOCTOR' | 'ADMIN' | 'USER';
 
@@ -33,6 +34,12 @@ interface SidebarProps {
 
 const navItems: NavItem[] = [
   // Admin Navigation
+  {
+    title: 'Overview',
+    href: '/dashboard/admin',
+    icon: 'dashboard',
+    roles: ['ADMIN'],
+  },
   {
     title: 'Users',
     href: '/dashboard/admin/users',
@@ -53,6 +60,12 @@ const navItems: NavItem[] = [
   },
   // Doctor Navigation
   {
+    title: 'Overview',
+    href: '/dashboard/doctor',
+    icon: 'dashboard',
+    roles: ['DOCTOR'],
+  },
+  {
     title: 'Appointments',
     href: '/dashboard/doctor',
     icon: 'calendar_today',
@@ -70,6 +83,25 @@ const navItems: NavItem[] = [
     icon: 'group',
     roles: ['DOCTOR'],
   },
+  // Patient Navigation
+  {
+    title: 'Overview',
+    href: '/dashboard/patient',
+    icon: 'dashboard',
+    roles: ['USER'],
+  },
+  {
+    title: 'Book Appointment',
+    href: '/dashboard/patient/book',
+    icon: 'calendar_add_on',
+    roles: ['USER'],
+  },
+  {
+    title: 'My Appointments',
+    href: '/dashboard/patient/appointments',
+    icon: 'calendar_today',
+    roles: ['USER'],
+  },
 ];
 
 export function Sidebar({
@@ -78,41 +110,20 @@ export function Sidebar({
   onClose,
 }: SidebarProps) {
   const pathname = usePathname();
+  const { signOut } = useSignOut();
 
   const filteredNavItems = navItems.filter(
     (item) => !item.roles || item.roles.includes(role),
   );
 
-  // Improved isActive check that handles exact matches and nested routes properly
   const checkIsActive = (href: string) => {
-    // Exact match
     if (pathname === href) return true;
-
-    // For nested routes, check if pathname starts with href + '/'
-    // but make sure it's not just a prefix match (e.g., /dashboard/admin should not match /dashboard/administrator)
-    if (pathname.startsWith(href + '/')) {
-      // Get the remaining path after the href
-      const remainingPath = pathname.slice(href.length + 1);
-      // Only consider it active if the remaining path doesn't contain another '/'
-      // This ensures /dashboard/admin matches /dashboard/admin/users but not /dashboard/admin/users/something
-      return !remainingPath.includes('/');
-    }
 
     return false;
   };
 
-  const handleProfileSelect = (option: {
-    value: string;
-    label: string;
-    icon?: string;
-  }) => {
-    if (option.value === 'logout') {
-      alert(
-        'Demo: Logout clicked! This would log you out in a real application.',
-      );
-    } else {
-      alert(`Demo: Navigating to ${option.label}...`);
-    }
+  const handleLogout = async () => {
+    signOut();
   };
 
   return (
@@ -200,10 +211,18 @@ export function Sidebar({
                   </span>
                   <div className='flex-1 text-left'>
                     <p className='text-sm font-semibold text-on-surface'>
-                      {role === 'ADMIN' ? 'Admin User' : 'Doctor User'}
+                      {role === 'ADMIN'
+                        ? 'Admin User'
+                        : role === 'DOCTOR'
+                          ? 'Doctor'
+                          : 'Patient'}
                     </p>
                     <p className='text-xs text-on-surface-variant'>
-                      {role === 'ADMIN' ? 'Administrator' : 'Doctor'}
+                      {role === 'ADMIN'
+                        ? 'Administrator'
+                        : role === 'DOCTOR'
+                          ? 'Doctor'
+                          : 'Patient'}
                     </p>
                   </div>
                   <span className='material-symbols-outlined text-sm text-outline'>
@@ -213,9 +232,7 @@ export function Sidebar({
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end' className='w-56'>
                 <DropdownMenuItem
-                  onClick={() =>
-                    handleProfileSelect({ value: 'logout', label: 'Log out' })
-                  }
+                  onClick={handleLogout}
                   className='text-error focus:text-error focus:bg-error/10'
                 >
                   <span className='material-symbols-outlined mr-2 h-4 w-4'>

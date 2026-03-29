@@ -11,7 +11,7 @@ export const authClient = createAuthClient({
 });
 
 export const useSession = authClient.useSession;
-export const useSignOut = authClient.useSignOut;
+export const useSignOut = authClient.signOut;
 
 // Type augmentation for user with role
 export type UserWithRole = User & {

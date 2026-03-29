@@ -110,7 +110,6 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         email: data.email,
         password: data.password,
         name: data.name,
-        role: data.role,
       },
       {
         onSuccess: () => {

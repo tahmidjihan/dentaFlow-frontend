@@ -24,6 +24,11 @@ export const getUsers = () => get<User[]>('/api/users');
 export const getUserById = (id: string) => get<User>(`/api/users/${id}`);
 
 /**
+ * Get current user (Protected)
+ */
+export const getCurrentUser = () => get<User>('/api/users/me');
+
+/**
  * Update a user (Admin only)
  */
 export const updateUser = (id: string, data: UpdateUserInput) =>

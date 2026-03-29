@@ -6,6 +6,8 @@ import {
   useSignOut as authUseSignOut,
   type UserWithRole,
 } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 /**
  * Hook to get current session using better-auth built-in hook
@@ -28,23 +30,49 @@ export function useSession() {
  * Hook for sign out mutation using better-auth built-in hook
  */
 export function useSignOut() {
-  return authUseSignOut();
+  const router = useRouter();
+
+  const signOut = async () => {
+    try {
+      await authClient.signOut();
+      toast.success('Signed out successfully');
+      router.push('/');
+    } catch (error) {
+      console.error('Sign out error:', error);
+      toast.error('Failed to sign out');
+    }
+  };
+
+  return { signOut };
 }
 
 /**
  * Hook for sign in mutation
  */
 export function useSignIn() {
+  const router = useRouter();
+
   return {
     mutate: async (
       data: { email: string; password: string },
-      options?: { onSuccess?: () => void; onError?: () => void },
+      options?: { onSuccess?: () => void; onError?: (error?: unknown) => void },
     ) => {
       try {
-        await authClient.signIn.email(data);
+        const result = await authClient.signIn.email({
+          email: data.email,
+          password: data.password,
+          callbackURL: '/dashboard',
+        });
+        
+        if (result.error) {
+          options?.onError?.(result.error);
+          return;
+        }
+        
         options?.onSuccess?.();
       } catch (error) {
-        options?.onError?.();
+        console.error('Sign in error:', error);
+        options?.onError?.(error);
       }
     },
     isPending: false,
@@ -55,21 +83,34 @@ export function useSignIn() {
  * Hook for sign up mutation
  */
 export function useSignUp() {
+  const router = useRouter();
+
   return {
     mutate: async (
       data: {
         email: string;
         password: string;
         name: string;
-        role?: 'USER' | 'ADMIN' | 'DOCTOR';
       },
-      options?: { onSuccess?: () => void; onError?: () => void },
+      options?: { onSuccess?: () => void; onError?: (error?: unknown) => void },
     ) => {
       try {
-        await authClient.signUp.email(data);
+        const result = await authClient.signUp.email({
+          email: data.email,
+          password: data.password,
+          name: data.name,
+          callbackURL: '/dashboard',
+        });
+        
+        if (result.error) {
+          options?.onError?.(result.error);
+          return;
+        }
+        
         options?.onSuccess?.();
       } catch (error) {
-        options?.onError?.();
+        console.error('Sign up error:', error);
+        options?.onError?.(error);
       }
     },
     isPending: false,
