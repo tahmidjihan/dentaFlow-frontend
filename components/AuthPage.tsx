@@ -97,8 +97,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
           toast.success('Welcome back!');
           router.push('/dashboard');
         },
-        onError: (error: any) => {
-          toast.error(error?.message || 'Invalid email or password');
+        onError: () => {
+          toast.error('Invalid email or password');
         },
       },
     );
@@ -117,8 +117,8 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
           toast.success('Account created successfully!');
           router.push('/dashboard');
         },
-        onError: (error: any) => {
-          toast.error(error?.message || 'Failed to create account');
+        onError: () => {
+          toast.error('Failed to create account');
         },
       },
     );

@@ -4,14 +4,24 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/Button';
-import { useSession, useSignOut } from '@/lib/hooks/use-auth';
+import { authClient } from '@/lib/auth-client';
+import UserAvatar from '@/components/UserAvatar';
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isAuthenticated } = useSession();
-  const signOutMutation = useSignOut();
+  const { data: session, isPending: isLoading } = authClient.useSession();
+  const signOut = authClient.signOut;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const user = session?.user as {
+    id: string;
+    name: string;
+    email: string;
+    role?: 'USER' | 'ADMIN' | 'DOCTOR';
+  } | null;
+
+  const isAuthenticated = !!user;
 
   const getLinkClass = (href: string) => {
     const isActive =
@@ -22,18 +32,18 @@ export default function Navbar() {
       : 'text-secondary hover:text-on-surface transition-colors';
   };
 
-  const handleSignOut = () => {
-    signOutMutation.mutate(undefined, {
-      onSuccess: () => {
-        router.push('/');
-      },
-    });
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
   };
 
   return (
     <nav className='fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md shadow-sm shadow-on-surface/5 transition-all duration-300'>
       <div className='flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto'>
-        <Link href="/" className='text-2xl font-bold tracking-tighter text-on-surface font-headline'>
+        <Link
+          href='/'
+          className='text-2xl font-bold tracking-tighter text-on-surface font-headline'
+        >
           DentaWave
         </Link>
 
@@ -54,43 +64,42 @@ export default function Navbar() {
         </div>
 
         <div className='flex items-center gap-4'>
+          {isAuthenticated && user ? <UserAvatar /> : null}
           {isAuthenticated && user ? (
-            <>
-              <div className='hidden md:flex items-center gap-3'>
-                <span className='text-sm font-medium text-on-surface'>
-                  {user.name}
-                </span>
-                {user.role === 'ADMIN' && (
-                  <span className='text-xs px-2 py-1 bg-primary-container text-on-primary rounded'>
-                    Admin
-                  </span>
-                )}
-                {user.role === 'DOCTOR' && (
-                  <span className='text-xs px-2 py-1 bg-secondary-container text-on-secondary rounded'>
-                    Doctor
-                  </span>
-                )}
-              </div>
+            user.role === 'ADMIN' ? (
               <Button
                 size='sm'
-                variant='outline'
-                onClick={handleSignOut}
-                disabled={signOutMutation.isPending}
+                variant='primary'
+                onClick={() => router.push('/dashboard/admin')}
               >
-                {signOutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+                Admin Dashboard
               </Button>
-            </>
+            ) : user.role === 'DOCTOR' ? (
+              <Button
+                size='sm'
+                variant='primary'
+                onClick={() => router.push('/dashboard/doctor')}
+              >
+                Doctor Dashboard
+              </Button>
+            ) : (
+              <Button
+                size='sm'
+                variant='primary'
+                onClick={() => router.push('/dashboard')}
+              >
+                Dashboard
+              </Button>
+            )
           ) : (
-            <Link
-              href={'/auth/login'}
-              className='hidden md:block text-secondary font-headline text-sm font-medium hover:opacity-80 transition-opacity'
+            <Button
+              size='sm'
+              variant='primary'
+              onClick={() => router.push('/clinics')}
             >
-              Login
-            </Link>
+              Book Appointment
+            </Button>
           )}
-          <Button size='sm' variant='primary'>
-            Book Appointment
-          </Button>
 
           {/* Mobile menu button */}
           <button
@@ -151,45 +160,75 @@ export default function Navbar() {
             >
               Dashboard
             </Link>
-            {isAuthenticated && user ? (
-              <>
-                <div className='flex items-center gap-2 py-2'>
-                  <span className='text-on-surface'>
-                    {user.name}
-                  </span>
-                  {user.role === 'ADMIN' && (
-                    <span className='text-xs px-2 py-1 bg-primary-container text-on-primary rounded'>
-                      Admin
-                    </span>
-                  )}
-                  {user.role === 'DOCTOR' && (
-                    <span className='text-xs px-2 py-1 bg-secondary-container text-on-secondary rounded'>
-                      Doctor
-                    </span>
-                  )}
+            {isAuthenticated && user && (
+              <div className='flex items-center justify-between py-2 border-t border-outline-variant/20 mt-2'>
+                <div className='flex items-center gap-2'>
+                  <div className='flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-semibold text-on-primary'>
+                    {user.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className='text-sm font-medium text-on-surface'>
+                      {user.name}
+                    </p>
+                    <p className='text-xs text-on-surface/70'>{user.email}</p>
+                  </div>
                 </div>
+                <Button size='sm' variant='outline' onClick={handleSignOut}>
+                  Sign Out
+                </Button>
+              </div>
+            )}
+            {isAuthenticated && user ? (
+              user.role === 'ADMIN' ? (
                 <Button
                   size='sm'
-                  variant='outline'
-                  onClick={handleSignOut}
-                  disabled={signOutMutation.isPending}
+                  variant='primary'
                   fullWidth
+                  onClick={() => {
+                    router.push('/dashboard/admin');
+                    setIsMobileMenuOpen(false);
+                  }}
                 >
-                  {signOutMutation.isPending ? 'Signing out...' : 'Sign Out'}
+                  Admin Dashboard
                 </Button>
-              </>
+              ) : user.role === 'DOCTOR' ? (
+                <Button
+                  size='sm'
+                  variant='primary'
+                  fullWidth
+                  onClick={() => {
+                    router.push('/dashboard/doctor');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Doctor Dashboard
+                </Button>
+              ) : (
+                <Button
+                  size='sm'
+                  variant='primary'
+                  fullWidth
+                  onClick={() => {
+                    router.push('/dashboard');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
+                  Dashboard
+                </Button>
+              )
             ) : (
-              <Link
-                className='text-secondary'
-                href='/auth/login'
-                onClick={() => setIsMobileMenuOpen(false)}
+              <Button
+                size='sm'
+                variant='primary'
+                fullWidth
+                onClick={() => {
+                  router.push('/clinics');
+                  setIsMobileMenuOpen(false);
+                }}
               >
-                Login
-              </Link>
+                Book Appointment
+              </Button>
             )}
-            <Button size='sm' variant='primary' fullWidth>
-              Book Appointment
-            </Button>
           </div>
         </div>
       )}
