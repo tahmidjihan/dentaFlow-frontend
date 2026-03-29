@@ -3,7 +3,7 @@
  * All API endpoints related to clinics
  */
 
-import { get, post, put, del } from '../lib/fetchAPI';
+import { get, post, put, del } from '../fetchAPI';
 import type { Clinic } from '@/types/database';
 
 export interface CreateClinicInput {
@@ -41,5 +41,4 @@ export const updateClinic = (id: string, data: UpdateClinicInput) =>
 /**
  * Delete a clinic (Admin only)
  */
-export const deleteClinic = (id: string) =>
-  del<void>(`/api/clinics/${id}`);
+export const deleteClinic = (id: string) => del<void>(`/api/clinics/${id}`);

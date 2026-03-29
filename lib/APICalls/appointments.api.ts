@@ -3,7 +3,7 @@
  * All API endpoints related to appointments
  */
 
-import { get, post, put, del } from '../lib/fetchAPI';
+import { get, post, put, del } from '../fetchAPI';
 import type { Appointment, AppointStatus } from '@/types/database';
 
 export interface CreateAppointmentInput {

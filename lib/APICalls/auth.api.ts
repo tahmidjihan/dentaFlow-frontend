@@ -3,7 +3,7 @@
  * All API endpoints related to authentication
  */
 
-import { post } from '../lib/fetchAPI';
+import { post } from '../fetchAPI';
 
 export interface SignUpInput {
   email: string;
@@ -21,19 +21,19 @@ export interface SignInInput {
  * Sign up a new user
  */
 export const signUp = (data: SignUpInput) =>
-  post<{ session: { id: string; userId: string; expiresAt: Date }; user: { id: string; email: string; name: string; role: string } }>(
-    '/api/auth/sign-up',
-    data,
-  );
+  post<{
+    session: { id: string; userId: string; expiresAt: Date };
+    user: { id: string; email: string; name: string; role: string };
+  }>('/api/auth/sign-up', data);
 
 /**
  * Sign in with email and password
  */
 export const signIn = (data: SignInInput) =>
-  post<{ session: { id: string; userId: string; expiresAt: Date }; user: { id: string; email: string; name: string; role: string } }>(
-    '/api/auth/sign-in',
-    data,
-  );
+  post<{
+    session: { id: string; userId: string; expiresAt: Date };
+    user: { id: string; email: string; name: string; role: string };
+  }>('/api/auth/sign-in', data);
 
 /**
  * Sign out current user

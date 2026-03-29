@@ -3,7 +3,7 @@
  * All API endpoints related to doctors
  */
 
-import { get, post, put, del } from '../lib/fetchAPI';
+import { get, post, put, del } from '../fetchAPI';
 import type { User } from '@/types/database';
 
 export interface UpdateDoctorInput {

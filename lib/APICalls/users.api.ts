@@ -3,7 +3,7 @@
  * All API endpoints related to users
  */
 
-import { get, post, put, del } from '../lib/fetchAPI';
+import { get, post, put, del } from '../fetchAPI';
 import type { User, Role } from '@/types/database';
 
 export interface UpdateUserInput {

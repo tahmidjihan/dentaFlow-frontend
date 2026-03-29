@@ -10,12 +10,16 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   icon?: string;
   iconPosition?: 'left' | 'right';
   fullWidth?: boolean;
+  loading?: boolean;
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-primary text-on-primary hover:bg-primary-container transition-colors',
-  secondary: 'bg-secondary-container text-on-secondary-container hover:bg-surface-container-high transition-colors',
-  outline: 'bg-transparent border border-outline-variant/30 text-on-surface hover:bg-on-background hover:text-surface transition-colors',
+  primary:
+    'bg-primary text-on-primary hover:bg-primary-container transition-colors',
+  secondary:
+    'bg-secondary-container text-on-secondary-container hover:bg-surface-container-high transition-colors',
+  outline:
+    'bg-transparent border border-outline-variant/30 text-on-surface hover:bg-on-background hover:text-surface transition-colors',
   ghost: 'bg-transparent text-secondary hover:text-primary transition-colors',
 };
 
@@ -32,6 +36,7 @@ export default function Button({
   icon,
   iconPosition = 'right',
   fullWidth = false,
+  loading = false,
   className = '',
   disabled = false,
   ...props
@@ -49,13 +54,25 @@ export default function Button({
   `.trim();
 
   return (
-    <button className={baseStyles} disabled={disabled} {...props}>
-      {icon && iconPosition === 'left' && (
-        <span className="material-symbols-outlined text-[20px]">{icon}</span>
-      )}
-      {children}
-      {icon && iconPosition === 'right' && (
-        <span className="material-symbols-outlined text-[20px]">{icon}</span>
+    <button className={baseStyles} disabled={disabled || loading} {...props}>
+      {loading ? (
+        <span className='material-symbols-outlined text-[20px] animate-spin'>
+          progress_activity
+        </span>
+      ) : (
+        <>
+          {icon && iconPosition === 'left' && (
+            <span className='material-symbols-outlined text-[20px]'>
+              {icon}
+            </span>
+          )}
+          {children}
+          {icon && iconPosition === 'right' && (
+            <span className='material-symbols-outlined text-[20px]'>
+              {icon}
+            </span>
+          )}
+        </>
       )}
     </button>
   );

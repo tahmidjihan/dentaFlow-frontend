@@ -1,3 +1,4 @@
+'use client';
 import { toast } from 'sonner';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -52,7 +53,9 @@ export async function fetchAPI<T>(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const error: FetchError = new Error(
-        errorMessage || errorData.error || `Request failed with status ${response.status}`,
+        errorMessage ||
+          errorData.error ||
+          `Request failed with status ${response.status}`,
       );
       error.status = response.status;
       error.code = errorData.code;
