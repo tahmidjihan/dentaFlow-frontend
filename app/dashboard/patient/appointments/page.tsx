@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
-import { getMyAppointments, updateAppointmentStatus, deleteAppointment } from '@/lib/APICalls/appointments.api';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
+import EditAppointmentModal from '@/components/EditAppointmentModal';
+import { getMyAppointments, updateAppointmentStatus } from '@/lib/APICalls/appointments.api';
+import { useToast } from '@/components/ui/Toast';
 import type { Appointment, AppointStatus } from '@/types/database';
 
 const getStatusStyles = (status: AppointStatus) => {
@@ -22,6 +25,9 @@ export default function PatientAppointmentsPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all');
+  const [cancellingAppointment, setCancellingAppointment] = useState<{ id: string; clinicName: string } | null>(null);
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<Appointment | null>(null);
+  const { success, error: showError, ToastContainer } = useToast();
 
   useEffect(() => {
     async function fetchAppointments() {
@@ -30,6 +36,7 @@ export default function PatientAppointmentsPage() {
         setAppointments(data);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
+        showError('Failed to load appointments');
       } finally {
         setIsLoading(false);
       }
@@ -48,22 +55,37 @@ export default function PatientAppointmentsPage() {
     return true;
   });
 
-  const handleCancel = async (id: string) => {
-    if (!confirm('Are you sure you want to cancel this appointment?')) return;
+  const handleCancel = () => {
+    if (!cancellingAppointment) return;
 
-    try {
-      await updateAppointmentStatus(id, 'CANCELLED');
-      setAppointments((prev) =>
-        prev.map((apt) => (apt.id === id ? { ...apt, status: 'CANCELLED' } : apt))
-      );
-    } catch (error) {
-      console.error('Failed to cancel appointment:', error);
-      alert('Failed to cancel appointment. Please try again.');
-    }
+    updateAppointmentStatus(cancellingAppointment.id, 'CANCELLED')
+      .then(() => {
+        setAppointments((prev) =>
+          prev.map((apt) =>
+            apt.id === cancellingAppointment.id ? { ...apt, status: 'CANCELLED' } : apt
+          )
+        );
+        success('Appointment cancelled successfully');
+        setCancellingAppointment(null);
+      })
+      .catch((error) => {
+        console.error('Failed to cancel appointment:', error);
+        showError('Failed to cancel appointment. Please try again.');
+      });
   };
+
+  const handleRescheduleSuccess = () => {
+    success('Appointment rescheduled successfully');
+    setReschedulingAppointment(null);
+  };
+
+  const appointmentToCancel = cancellingAppointment;
+  const appointmentToReschedule = reschedulingAppointment;
 
   return (
     <DashboardWrapper role="USER" mobileTitle="My Appointments">
+      <ToastContainer position="top-right" />
+      
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-8'>
@@ -142,6 +164,12 @@ export default function PatientAppointmentsPage() {
                       Date & Time
                     </th>
                     <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>
+                      Clinic
+                    </th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>
+                      Doctor
+                    </th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>
                       Status
                     </th>
                     <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline text-right'>
@@ -171,6 +199,16 @@ export default function PatientAppointmentsPage() {
                         </div>
                       </td>
                       <td className='px-6 py-4'>
+                        <span className='text-sm text-secondary'>
+                          {appointment.clinic?.name || 'Unknown Clinic'}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
+                        <span className='text-sm text-secondary'>
+                          {appointment.doctor?.name || 'Unknown Doctor'}
+                        </span>
+                      </td>
+                      <td className='px-6 py-4'>
                         <span
                           className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusStyles(
                             appointment.status
@@ -181,12 +219,20 @@ export default function PatientAppointmentsPage() {
                       </td>
                       <td className='px-6 py-4 text-right'>
                         {appointment.status === 'BOOKED' && (
-                          <button
-                            onClick={() => handleCancel(appointment.id)}
-                            className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                          >
-                            Cancel
-                          </button>
+                          <div className='flex justify-end gap-2'>
+                            <button
+                              onClick={() => setReschedulingAppointment(appointment)}
+                              className='bg-surface-container-high hover:bg-secondary-container hover:text-on-secondary-container text-outline text-[11px] font-bold px-4 py-1.5 rounded transition-all'
+                            >
+                              Reschedule
+                            </button>
+                            <button
+                              onClick={() => setCancellingAppointment({ id: appointment.id, clinicName: appointment.clinic?.name || 'Unknown' })}
+                              className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all'
+                            >
+                              Cancel
+                            </button>
+                          </div>
                         )}
                         {appointment.status !== 'BOOKED' && (
                           <span className='text-xs text-outline'>
@@ -202,6 +248,25 @@ export default function PatientAppointmentsPage() {
           </div>
         )}
       </main>
+
+      {/* Delete Confirmation Modal for Cancel */}
+      <DeleteConfirmModal
+        isOpen={!!appointmentToCancel}
+        entityName={`Appointment at ${appointmentToCancel?.clinicName || ''}`}
+        entityType="Appointment"
+        onClose={() => setCancellingAppointment(null)}
+        onConfirm={handleCancel}
+        isLoading={false}
+        warningMessage="Are you sure you want to cancel this appointment? This action cannot be undone."
+      />
+
+      {/* Edit Appointment Modal for Reschedule */}
+      <EditAppointmentModal
+        isOpen={!!appointmentToReschedule}
+        appointment={appointmentToReschedule}
+        onClose={() => setReschedulingAppointment(null)}
+        onSuccess={handleRescheduleSuccess}
+      />
     </DashboardWrapper>
   );
 }

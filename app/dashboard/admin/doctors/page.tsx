@@ -3,9 +3,11 @@
 import { useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
+import EditDoctorModal from '@/components/EditDoctorModal';
 import { useDoctors, useUpdateDoctor, useDeleteDoctor } from '@/lib/hooks/use-doctors';
 import { useClinics } from '@/lib/hooks/use-clinics';
-import type { Role } from '@/types/database';
+import { useToast } from '@/components/ui/Toast';
 
 const getVerificationBadgeStyles = (verified: boolean) => {
   return verified
@@ -23,11 +25,14 @@ export default function DoctorsPage() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [verificationFilter, setVerificationFilter] = useState<'all' | 'Verified' | 'Pending'>('all');
+  const [editingDoctor, setEditingDoctor] = useState<string | null>(null);
+  const [deletingDoctor, setDeletingDoctor] = useState<{ id: string; name: string } | null>(null);
 
   const { data: doctors = [], isLoading, error } = useDoctors();
   const { data: clinics = [] } = useClinics();
   const updateDoctorMutation = useUpdateDoctor();
   const deleteDoctorMutation = useDeleteDoctor();
+  const { success, error: showError, ToastContainer } = useToast();
 
   const filteredDoctors = (doctors || []).filter((doctor: any) => {
     const matchesSearch =
@@ -44,17 +49,36 @@ export default function DoctorsPage() {
 
   const handleAssignToClinic = (doctorId: string, clinicId: string) => {
     if (clinicId) {
-      updateDoctorMutation.mutate({
-        id: doctorId,
-        data: { clinicId },
-      });
+      updateDoctorMutation.mutate(
+        { id: doctorId, data: { clinicId } },
+        {
+          onSuccess: () => {
+            success('Doctor assigned to clinic successfully');
+          },
+          onError: () => {
+            showError('Failed to assign doctor to clinic');
+          },
+        },
+      );
     }
   };
 
-  const handleDeleteDoctor = (doctorId: string) => {
-    if (confirm('Are you sure you want to remove this doctor?')) {
-      deleteDoctorMutation.mutate(doctorId);
-    }
+  const handleDeleteDoctor = () => {
+    if (!deletingDoctor) return;
+
+    deleteDoctorMutation.mutate(deletingDoctor.id, {
+      onSuccess: () => {
+        success('Doctor removed successfully');
+        setDeletingDoctor(null);
+      },
+      onError: () => {
+        showError('Failed to remove doctor');
+      },
+    });
+  };
+
+  const handleEditSuccess = () => {
+    success('Doctor updated successfully');
   };
 
   const getClinicName = (clinicId: string | null) => {
@@ -87,8 +111,13 @@ export default function DoctorsPage() {
     );
   }
 
+  const doctorToEdit = doctors?.find((d: any) => d.id === editingDoctor) || null;
+  const doctorToDelete = deletingDoctor;
+
   return (
     <DashboardWrapper role='ADMIN' mobileTitle='Doctors'>
+      <ToastContainer position="top-right" />
+      
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -226,7 +255,8 @@ export default function DoctorsPage() {
                         <select
                           value={doctor.clinicId || ''}
                           onChange={(e) => handleAssignToClinic(doctor.id, e.target.value)}
-                          className='px-3 py-1.5 rounded-lg bg-surface-container-low border border-outline-variant/30 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer'
+                          disabled={updateDoctorMutation.isPending}
+                          className='px-3 py-1.5 rounded-lg bg-surface-container-low border border-outline-variant/30 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer disabled:opacity-50'
                         >
                           <option value=''>Unassigned</option>
                           {clinics?.map((clinic: any) => (
@@ -248,7 +278,13 @@ export default function DoctorsPage() {
                           }`}
                         >
                           <button
-                            onClick={() => handleDeleteDoctor(doctor.id)}
+                            onClick={() => setEditingDoctor(doctor.id)}
+                            className='bg-surface-container-high hover:bg-secondary-container hover:text-on-secondary-container text-outline text-[11px] font-bold px-4 py-1.5 rounded transition-all'
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => setDeletingDoctor({ id: doctor.id, name: doctor.name })}
                             disabled={deleteDoctorMutation.isPending}
                             className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all disabled:opacity-50'
                           >
@@ -309,6 +345,24 @@ export default function DoctorsPage() {
           </div>
         </section>
       </main>
+
+      {/* Edit Doctor Modal */}
+      <EditDoctorModal
+        isOpen={!!doctorToEdit}
+        doctor={doctorToEdit}
+        onClose={() => setEditingDoctor(null)}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!doctorToDelete}
+        entityName={doctorToDelete?.name || ''}
+        entityType="Doctor"
+        onClose={() => setDeletingDoctor(null)}
+        onConfirm={handleDeleteDoctor}
+        isLoading={deleteDoctorMutation.isPending}
+      />
     </DashboardWrapper>
   );
 }

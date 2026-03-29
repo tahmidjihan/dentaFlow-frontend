@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import { useSession } from '@/lib/hooks/use-auth';
 import { getDoctorAppointments, updateAppointmentStatus } from '@/lib/APICalls/appointments.api';
+import { useToast } from '@/components/ui/Toast';
 import type { Appointment, AppointStatus } from '@/types/database';
 
 const getStatusStyles = (status: AppointStatus) => {
@@ -26,6 +28,8 @@ export default function DoctorAppointmentsPage() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'BOOKED' | 'DONE' | 'CANCELLED'>('all');
+  const [cancellingAppointment, setCancellingAppointment] = useState<{ id: string; patientName: string } | null>(null);
+  const { success, error: showError, ToastContainer } = useToast();
 
   useEffect(() => {
     async function fetchAppointments() {
@@ -36,6 +40,7 @@ export default function DoctorAppointmentsPage() {
         setAppointments(data);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
+        showError('Failed to load appointments');
       } finally {
         setIsLoading(false);
       }
@@ -61,28 +66,38 @@ export default function DoctorAppointmentsPage() {
       setAppointments((prev) =>
         prev.map((apt) => (apt.id === id ? { ...apt, status: 'DONE' } : apt))
       );
+      success('Appointment marked as completed');
     } catch (error) {
       console.error('Failed to mark as done:', error);
-      alert('Failed to update appointment status');
+      showError('Failed to update appointment status');
     }
   };
 
-  const handleCancel = async (id: string) => {
-    if (!confirm('Are you sure you want to cancel this appointment?')) return;
+  const handleCancel = () => {
+    if (!cancellingAppointment) return;
 
-    try {
-      await updateAppointmentStatus(id, 'CANCELLED');
-      setAppointments((prev) =>
-        prev.map((apt) => (apt.id === id ? { ...apt, status: 'CANCELLED' } : apt))
-      );
-    } catch (error) {
-      console.error('Failed to cancel appointment:', error);
-      alert('Failed to cancel appointment');
-    }
+    updateAppointmentStatus(cancellingAppointment.id, 'CANCELLED')
+      .then(() => {
+        setAppointments((prev) =>
+          prev.map((apt) =>
+            apt.id === cancellingAppointment.id ? { ...apt, status: 'CANCELLED' } : apt
+          )
+        );
+        success('Appointment cancelled successfully');
+        setCancellingAppointment(null);
+      })
+      .catch((error) => {
+        console.error('Failed to cancel appointment:', error);
+        showError('Failed to cancel appointment');
+      });
   };
+
+  const appointmentToCancel = cancellingAppointment;
 
   return (
     <DashboardWrapper role='DOCTOR' mobileTitle='Appointments'>
+      <ToastContainer position="top-right" />
+      
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -229,7 +244,7 @@ export default function DoctorAppointmentsPage() {
                                   Complete
                                 </button>
                                 <button
-                                  onClick={() => handleCancel(appointment.id)}
+                                  onClick={() => setCancellingAppointment({ id: appointment.id, patientName: appointment.user?.name || 'Unknown' })}
                                   className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all'
                                 >
                                   Cancel
@@ -298,6 +313,17 @@ export default function DoctorAppointmentsPage() {
           </section>
         )}
       </main>
+
+      {/* Delete Confirmation Modal for Cancel */}
+      <DeleteConfirmModal
+        isOpen={!!appointmentToCancel}
+        entityName={`Appointment with ${appointmentToCancel?.patientName || ''}`}
+        entityType="Appointment"
+        onClose={() => setCancellingAppointment(null)}
+        onConfirm={handleCancel}
+        isLoading={false}
+        warningMessage="Are you sure you want to cancel this appointment? The patient will be notified."
+      />
     </DashboardWrapper>
   );
 }

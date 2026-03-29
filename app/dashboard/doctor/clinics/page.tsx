@@ -304,7 +304,8 @@ export default function ClinicsPage() {
         <>
           <DeleteConfirmModal
             isOpen={isDeleteModalOpen}
-            clinicName={getSelectedClinic()!.name}
+            entityName={getSelectedClinic()!.name}
+            entityType="Clinic"
             onClose={() => {
               setIsDeleteModalOpen(false);
               setSelectedClinicId(null);

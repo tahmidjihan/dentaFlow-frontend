@@ -110,14 +110,14 @@ export default function EditAppointmentModal({
 
     if (!validateForm()) return;
 
-    const updateData: { status?: AppointStatus; date?: Date } = {};
+    const updateData: { status?: AppointStatus; date?: string } = {};
 
     if (formData.status !== appointment.status) {
       updateData.status = formData.status;
     }
 
     if (formData.date) {
-      updateData.date = new Date(formData.date);
+      updateData.date = formData.date;
     }
 
     updateAppointmentMutation.mutate(
@@ -191,9 +191,9 @@ export default function EditAppointmentModal({
     </div>
   );
 
-  const formatDateTimeDisplay = (dateString: string) => {
+  const formatDateTimeDisplay = (dateString: string | Date) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
     return date.toLocaleString('en-US', {
       weekday: 'short',
       year: 'numeric',

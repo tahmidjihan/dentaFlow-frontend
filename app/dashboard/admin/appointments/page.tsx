@@ -3,9 +3,13 @@
 import { useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
+import EditAppointmentModal from '@/components/EditAppointmentModal';
 import { useAppointments, useUpdateAppointment, useDeleteAppointment } from '@/lib/hooks/use-appointments';
 import { useUsers } from '@/lib/hooks/use-users';
 import { useClinics } from '@/lib/hooks/use-clinics';
+import { useToast } from '@/components/ui/Toast';
+import type { Appointment } from '@/types/database';
 
 const getStatusBadgeStyles = (status: string) => {
   switch (status) {
@@ -24,12 +28,15 @@ export default function AppointmentsPage() {
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'BOOKED' | 'DONE' | 'CANCELLED'>('all');
+  const [editingAppointment, setEditingAppointment] = useState<string | null>(null);
+  const [deletingAppointment, setDeletingAppointment] = useState<{ id: string; patientName: string } | null>(null);
 
   const { data: appointments = [], isLoading, error } = useAppointments();
   const { data: users = [] } = useUsers();
   const { data: clinics = [] } = useClinics();
   const updateAppointmentMutation = useUpdateAppointment();
   const deleteAppointmentMutation = useDeleteAppointment();
+  const { success, error: showError, ToastContainer } = useToast();
 
   const getUserName = (userId: string) => {
     const user = users?.find((u: any) => u.id === userId);
@@ -58,16 +65,35 @@ export default function AppointmentsPage() {
   });
 
   const handleStatusUpdate = (appointmentId: string, newStatus: 'BOOKED' | 'DONE' | 'CANCELLED') => {
-    updateAppointmentMutation.mutate({
-      id: appointmentId,
-      data: { status: newStatus },
+    updateAppointmentMutation.mutate(
+      { id: appointmentId, data: { status: newStatus } },
+      {
+        onSuccess: () => {
+          success(`Appointment marked as ${newStatus.toLowerCase()}`);
+        },
+        onError: () => {
+          showError('Failed to update appointment status');
+        },
+      },
+    );
+  };
+
+  const handleDeleteAppointment = () => {
+    if (!deletingAppointment) return;
+
+    deleteAppointmentMutation.mutate(deletingAppointment.id, {
+      onSuccess: () => {
+        success('Appointment deleted successfully');
+        setDeletingAppointment(null);
+      },
+      onError: () => {
+        showError('Failed to delete appointment');
+      },
     });
   };
 
-  const handleDeleteAppointment = (appointmentId: string) => {
-    if (confirm('Are you sure you want to cancel this appointment?')) {
-      deleteAppointmentMutation.mutate(appointmentId);
-    }
+  const handleEditSuccess = () => {
+    success('Appointment updated successfully');
   };
 
   if (isLoading) {
@@ -94,8 +120,13 @@ export default function AppointmentsPage() {
     );
   }
 
+  const appointmentToEdit = appointments?.find((a: any) => a.id === editingAppointment) || null;
+  const appointmentToDelete = deletingAppointment;
+
   return (
     <DashboardWrapper role='ADMIN' mobileTitle='Appointments'>
+      <ToastContainer position="top-right" />
+      
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -243,6 +274,12 @@ export default function AppointmentsPage() {
                             hoveredRow === appointment.id ? 'opacity-100' : 'opacity-0'
                           }`}
                         >
+                          <button
+                            onClick={() => setEditingAppointment(appointment.id)}
+                            className='bg-surface-container-high hover:bg-secondary-container hover:text-on-secondary-container text-outline text-[11px] font-bold px-4 py-1.5 rounded transition-all'
+                          >
+                            Edit
+                          </button>
                           {appointment.status === 'BOOKED' && (
                             <>
                               <button
@@ -269,7 +306,7 @@ export default function AppointmentsPage() {
                           )}
                           {appointment.status === 'CANCELLED' && (
                             <button
-                              onClick={() => handleDeleteAppointment(appointment.id)}
+                              onClick={() => setDeletingAppointment({ id: appointment.id, patientName: getUserName(appointment.userId) })}
                               disabled={deleteAppointmentMutation.isPending}
                               className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all disabled:opacity-50'
                             >
@@ -331,6 +368,25 @@ export default function AppointmentsPage() {
           </div>
         </section>
       </main>
+
+      {/* Edit Appointment Modal */}
+      <EditAppointmentModal
+        isOpen={!!appointmentToEdit}
+        appointment={appointmentToEdit}
+        onClose={() => setEditingAppointment(null)}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!appointmentToDelete}
+        entityName={`Appointment for ${appointmentToDelete?.patientName || ''}`}
+        entityType="Appointment"
+        onClose={() => setDeletingAppointment(null)}
+        onConfirm={handleDeleteAppointment}
+        isLoading={deleteAppointmentMutation.isPending}
+        warningMessage="This will permanently remove the appointment record. This action cannot be undone."
+      />
     </DashboardWrapper>
   );
 }
