@@ -67,7 +67,7 @@ const navItems: NavItem[] = [
   },
   {
     title: 'Appointments',
-    href: '/dashboard/doctor',
+    href: '/dashboard/doctor/appointments',
     icon: 'calendar_today',
     roles: ['DOCTOR'],
   },
