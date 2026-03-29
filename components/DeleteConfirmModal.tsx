@@ -3,20 +3,40 @@
 import React from 'react';
 import Button from './ui/Button';
 
+export type EntityType = 'User' | 'Doctor' | 'Clinic' | 'Appointment';
+
 interface DeleteConfirmModalProps {
   isOpen: boolean;
-  clinicName: string;
+  entityName: string;
+  entityType: EntityType;
   onClose: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
+  warningMessage?: string;
 }
+
+const entityIcons: Record<EntityType, string> = {
+  User: 'person',
+  Doctor: 'medical_services',
+  Clinic: 'business',
+  Appointment: 'event',
+};
+
+const entityTitles: Record<EntityType, string> = {
+  User: 'Delete User?',
+  Doctor: 'Delete Doctor?',
+  Clinic: 'Delete Clinic?',
+  Appointment: 'Delete Appointment?',
+};
 
 export default function DeleteConfirmModal({
   isOpen,
-  clinicName,
+  entityName,
+  entityType,
   onClose,
   onConfirm,
   isLoading = false,
+  warningMessage,
 }: DeleteConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -27,6 +47,9 @@ export default function DeleteConfirmModal({
   const handleClose = () => {
     onClose();
   };
+
+  const icon = entityIcons[entityType];
+  const title = entityTitles[entityType];
 
   return (
     <>
@@ -42,22 +65,22 @@ export default function DeleteConfirmModal({
           {/* Icon */}
           <div className="pt-6 px-6 flex justify-center">
             <div className="w-16 h-16 rounded-full bg-error/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-error text-4xl">warning</span>
+              <span className="material-symbols-outlined text-error text-4xl">{icon}</span>
             </div>
           </div>
 
           {/* Content */}
           <div className="px-6 pb-6 text-center">
             <h2 className="font-headline font-bold text-2xl text-on-surface mb-2">
-              Delete Clinic?
+              {title}
             </h2>
             <p className="text-body-medium text-on-surface-variant mb-4">
-              Are you sure you want to delete <strong className="text-on-surface font-semibold">"{clinicName}"</strong>?
+              Are you sure you want to delete <strong className="text-on-surface font-semibold">"{entityName}"</strong>?
             </p>
             <div className="bg-error/5 border border-error/20 rounded-lg p-4 mb-6">
               <p className="text-body-small text-error">
                 <span className="material-symbols-outlined text-sm align-middle mr-1">info</span>
-                This action cannot be undone. All associated data will be permanently removed.
+                {warningMessage || 'This action cannot be undone. All associated data will be permanently removed.'}
               </p>
             </div>
 
