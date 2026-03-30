@@ -3,12 +3,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as clinicsApi from '@/lib/APICalls/clinics.api';
 import type { CreateClinicInput, UpdateClinicInput } from '@/lib/APICalls/clinics.api';
+import type { Clinic } from '@/types/database';
 
 /**
  * Get all clinics
  */
 export function useClinics() {
-  return useQuery({
+  return useQuery<Clinic[]>({
     queryKey: ['clinics'],
     queryFn: clinicsApi.getClinics,
   });
@@ -18,7 +19,7 @@ export function useClinics() {
  * Get clinic by ID
  */
 export function useClinic(clinicId: string) {
-  return useQuery({
+  return useQuery<Clinic>({
     queryKey: ['clinics', clinicId],
     queryFn: () => clinicsApi.getClinicById(clinicId),
     enabled: !!clinicId,

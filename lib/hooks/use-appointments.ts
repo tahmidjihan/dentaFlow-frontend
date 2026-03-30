@@ -3,12 +3,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as appointmentsApi from '@/lib/APICalls/appointments.api';
 import type { CreateAppointmentInput, UpdateAppointmentInput } from '@/lib/APICalls/appointments.api';
+import type { Appointment } from '@/types/database';
 
 /**
  * Get all appointments (Protected)
  */
 export function useAppointments() {
-  return useQuery({
+  return useQuery<Appointment[]>({
     queryKey: ['appointments'],
     queryFn: appointmentsApi.getAppointments,
   });
@@ -18,7 +19,7 @@ export function useAppointments() {
  * Get appointment by ID (Protected)
  */
 export function useAppointment(appointmentId: string) {
-  return useQuery({
+  return useQuery<Appointment>({
     queryKey: ['appointments', appointmentId],
     queryFn: () => appointmentsApi.getAppointmentById(appointmentId),
     enabled: !!appointmentId,

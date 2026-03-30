@@ -5,7 +5,7 @@ import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import EditDoctorModal from '@/components/EditDoctorModal';
-import { useDoctors, useUpdateDoctor, useDeleteDoctor } from '@/lib/hooks/use-doctors';
+import { useDoctors, useUpdateDoctor, useDeleteDoctor, useDoctor } from '@/lib/hooks/use-doctors';
 import { useClinics } from '@/lib/hooks/use-clinics';
 import { useToast } from '@/components/ui/Toast';
 
@@ -28,11 +28,17 @@ export default function DoctorsPage() {
   const [editingDoctor, setEditingDoctor] = useState<string | null>(null);
   const [deletingDoctor, setDeletingDoctor] = useState<{ id: string; name: string } | null>(null);
 
-  const { data: doctors = [], isLoading, error } = useDoctors();
-  const { data: clinics = [] } = useClinics();
+  const { data: doctorsData, isLoading, error } = useDoctors();
+  const { data: clinicsData } = useClinics();
   const updateDoctorMutation = useUpdateDoctor();
   const deleteDoctorMutation = useDeleteDoctor();
   const { success, error: showError, ToastContainer } = useToast();
+
+  const doctors = (doctorsData as any[]) || [];
+  const clinics = (clinicsData as any[]) || [];
+
+  // Fetch individual doctor data for editing
+  const { data: doctorToEditData } = useDoctor(editingDoctor || '');
 
   const filteredDoctors = (doctors || []).filter((doctor: any) => {
     const matchesSearch =
@@ -111,13 +117,13 @@ export default function DoctorsPage() {
     );
   }
 
-  const doctorToEdit = doctors?.find((d: any) => d.id === editingDoctor) || null;
+  const doctorToEdit = (doctorToEditData as any) || null;
   const doctorToDelete = deletingDoctor;
 
   return (
     <DashboardWrapper role='ADMIN' mobileTitle='Doctors'>
       <ToastContainer position="top-right" />
-      
+
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>

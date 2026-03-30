@@ -36,7 +36,7 @@ export default function DoctorAppointmentsPage() {
       if (!user?.id) return;
 
       try {
-        const data = await getDoctorAppointments(user.id);
+        const data = await getDoctorAppointments(user.id) as any[];
         setAppointments(data);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);

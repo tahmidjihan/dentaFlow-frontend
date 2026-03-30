@@ -5,9 +5,7 @@ import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import EditAppointmentModal from '@/components/EditAppointmentModal';
-import { useAppointments, useUpdateAppointment, useDeleteAppointment } from '@/lib/hooks/use-appointments';
-import { useUsers } from '@/lib/hooks/use-users';
-import { useClinics } from '@/lib/hooks/use-clinics';
+import { useAppointments, useUpdateAppointment, useDeleteAppointment, useAppointment } from '@/lib/hooks/use-appointments';
 import { useToast } from '@/components/ui/Toast';
 import type { Appointment } from '@/types/database';
 
@@ -31,30 +29,30 @@ export default function AppointmentsPage() {
   const [editingAppointment, setEditingAppointment] = useState<string | null>(null);
   const [deletingAppointment, setDeletingAppointment] = useState<{ id: string; patientName: string } | null>(null);
 
-  const { data: appointments = [], isLoading, error } = useAppointments();
-  const { data: users = [] } = useUsers();
-  const { data: clinics = [] } = useClinics();
+  const { data: appointmentsData, isLoading, error } = useAppointments();
   const updateAppointmentMutation = useUpdateAppointment();
   const deleteAppointmentMutation = useDeleteAppointment();
   const { success, error: showError, ToastContainer } = useToast();
 
-  const getUserName = (userId: string) => {
-    const user = users?.find((u: any) => u.id === userId);
-    return user?.name || 'Unknown';
+  const appointments = (appointmentsData as any[]) || [];
+
+  // Fetch individual appointment data for editing
+  const { data: appointmentToEditData } = useAppointment(editingAppointment || '');
+
+  const getUserName = (appointment: any) => {
+    return appointment.user?.name || 'Unknown';
   };
 
-  const getDoctorName = (doctorId: string) => {
-    const doctor = users?.find((u: any) => u.id === doctorId && u.role === 'DOCTOR');
-    return doctor?.name || 'Unknown Doctor';
+  const getDoctorName = (appointment: any) => {
+    return appointment.doctor?.name || 'Unknown Doctor';
   };
 
-  const getClinicName = (clinicId: string) => {
-    const clinic = clinics?.find((c: any) => c.id === clinicId);
-    return clinic?.name || 'Unknown Clinic';
+  const getClinicName = (appointment: any) => {
+    return appointment.clinic?.name || 'Unknown Clinic';
   };
 
   const filteredAppointments = (appointments || []).filter((appointment: any) => {
-    const patientName = getUserName(appointment.userId);
+    const patientName = getUserName(appointment);
     const matchesSearch =
       patientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       appointment.id?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -120,13 +118,13 @@ export default function AppointmentsPage() {
     );
   }
 
-  const appointmentToEdit = appointments?.find((a: any) => a.id === editingAppointment) || null;
+  const appointmentToEdit = (appointmentToEditData as any) || null;
   const appointmentToDelete = deletingAppointment;
 
   return (
     <DashboardWrapper role='ADMIN' mobileTitle='Appointments'>
       <ToastContainer position="top-right" />
-      
+
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -243,17 +241,17 @@ export default function AppointmentsPage() {
                       </td>
                       <td className='px-8 py-6'>
                         <span className='text-sm font-semibold text-on-surface'>
-                          {getUserName(appointment.userId)}
+                          {getUserName(appointment)}
                         </span>
                       </td>
                       <td className='px-8 py-6'>
                         <span className='text-sm text-secondary'>
-                          {getDoctorName(appointment.doctorId)}
+                          {getDoctorName(appointment)}
                         </span>
                       </td>
                       <td className='px-8 py-6'>
                         <span className='text-sm text-outline'>
-                          {getClinicName(appointment.clinicId)}
+                          {getClinicName(appointment)}
                         </span>
                       </td>
                       <td className='px-8 py-6'>
@@ -306,7 +304,7 @@ export default function AppointmentsPage() {
                           )}
                           {appointment.status === 'CANCELLED' && (
                             <button
-                              onClick={() => setDeletingAppointment({ id: appointment.id, patientName: getUserName(appointment.userId) })}
+                              onClick={() => setDeletingAppointment({ id: appointment.id, patientName: getUserName(appointment) })}
                               disabled={deleteAppointmentMutation.isPending}
                               className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all disabled:opacity-50'
                             >

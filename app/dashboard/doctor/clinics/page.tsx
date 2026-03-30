@@ -8,14 +8,14 @@ import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import LeaveConfirmModal from '@/components/LeaveConfirmModal';
 import Button from '@/components/ui/Button';
 import { ClinicExtended } from '@/types/database';
-import { useClinics } from '@/lib/hooks/use-clinics';
+import { useClinics, useClinic } from '@/lib/hooks/use-clinics';
 import { useSession } from '@/lib/hooks/use-auth';
 
 type FilterType = 'all' | 'my-clinics' | 'available';
 
 export default function ClinicsPage() {
   const { user } = useSession();
-  const { data: clinicsData = [], isLoading } = useClinics();
+  const { data: clinicsData, isLoading: clinicsLoading } = useClinics();
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -24,15 +24,21 @@ export default function ClinicsPage() {
   const [selectedClinicId, setSelectedClinicId] = useState<string | null>(null);
   const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
 
+  const clinics = (clinicsData as any[]) || [];
+  const isLoading = clinicsLoading;
+
   // Simulated doctor memberships (for demo purposes - will be replaced with API)
   const [memberships, setMemberships] = useState<Record<string, 'OWNER' | 'MEMBER'>>({
     'the-sanctuary-highwood': 'OWNER',
     'the-chelsea-mews': 'MEMBER',
   });
 
+  // Fetch individual clinic data for the selected clinic (for modals)
+  const { data: selectedClinicData } = useClinic(selectedClinicId || '');
+
   // Filter clinics based on current filter and search query
   const filteredClinics = useMemo(() => {
-    return clinicsData.filter((clinic) => {
+    return clinics.filter((clinic) => {
       // Filter by membership status
       if (filter === 'my-clinics' && !memberships[clinic.id]) {
         return false;
@@ -53,7 +59,7 @@ export default function ClinicsPage() {
 
       return true;
     });
-  }, [clinicsData, memberships, filter, searchQuery]);
+  }, [clinics, memberships, filter, searchQuery]);
 
   const getMembershipStatus = (clinicId: string): 'OWNER' | 'MEMBER' | 'AVAILABLE' => {
     return memberships[clinicId] || 'AVAILABLE';
@@ -125,10 +131,6 @@ export default function ClinicsPage() {
   const openDeleteModal = (clinicId: string) => {
     setSelectedClinicId(clinicId);
     setIsDeleteModalOpen(true);
-  };
-
-  const getSelectedClinic = () => {
-    return clinicsData.find((c) => c.id === selectedClinicId);
   };
 
   return (
@@ -287,11 +289,11 @@ export default function ClinicsPage() {
         onSubmit={handleCreateClinic}
       />
 
-      {getSelectedClinic() && (
+      {(selectedClinicData as any) && (
         <>
           <DeleteConfirmModal
             isOpen={isDeleteModalOpen}
-            entityName={getSelectedClinic()!.name}
+            entityName={(selectedClinicData as any).name}
             entityType="Clinic"
             onClose={() => {
               setIsDeleteModalOpen(false);
@@ -303,7 +305,7 @@ export default function ClinicsPage() {
 
           <LeaveConfirmModal
             isOpen={isLeaveModalOpen}
-            clinicName={getSelectedClinic()!.name}
+            clinicName={(selectedClinicData as any).name}
             onClose={() => {
               setIsLeaveModalOpen(false);
               setSelectedClinicId(null);

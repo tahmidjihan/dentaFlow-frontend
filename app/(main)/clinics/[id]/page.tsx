@@ -26,9 +26,9 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
       getClinicById(id),
       getDoctors(),
     ]);
-    clinic = clinicData;
+    clinic = clinicData as Clinic;
     // Filter doctors by clinic ID
-    practitioners = doctorsData.filter((doctor) => doctor.clinicId === id);
+    practitioners = (doctorsData as User[]).filter((doctor) => doctor.clinicId === id);
   } catch (error) {
     console.error('Failed to fetch clinic:', error);
   }

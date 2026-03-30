@@ -53,9 +53,9 @@ export default function AdminDashboardPage() {
     async function fetchStats() {
       try {
         const [users, doctors, appointments] = await Promise.all([
-          getUsers(),
-          getDoctors(),
-          getAppointments(),
+          getUsers() as Promise<any[]>,
+          getDoctors() as Promise<any[]>,
+          getAppointments() as Promise<any[]>,
         ]);
         setStats({
           totalUsers: users.length,

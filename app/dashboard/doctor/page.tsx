@@ -50,7 +50,7 @@ export default function DoctorDashboardPage() {
 
       try {
         const data = await getDoctorAppointments(user.id);
-        setAppointments(data);
+        setAppointments(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
       } finally {

@@ -96,15 +96,15 @@ export async function fetchAPI<T>(
 /**
  * GET request helper
  */
-export function get(endpoint: string, options?: FetchOptions) {
-  return fetchAPI(endpoint, { ...options, method: 'GET' });
+export function get<T>(endpoint: string, options?: FetchOptions) {
+  return fetchAPI<T>(endpoint, { ...options, method: 'GET' });
 }
 
 /**
  * POST request helper
  */
-export function post(endpoint: string, data?: unknown, options?: FetchOptions) {
-  return fetchAPI(endpoint, {
+export function post<T>(endpoint: string, data?: unknown, options?: FetchOptions) {
+  return fetchAPI<T>(endpoint, {
     ...options,
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,

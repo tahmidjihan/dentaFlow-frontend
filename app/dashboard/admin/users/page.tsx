@@ -5,7 +5,7 @@ import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import EditUserModal from '@/components/EditUserModal';
-import { useUsers, useUpdateUser, useDeleteUser } from '@/lib/hooks/use-users';
+import { useUsers, useUpdateUser, useDeleteUser, useUser } from '@/lib/hooks/use-users';
 import { useSession } from '@/lib/hooks/use-auth';
 import { useToast } from '@/components/ui/Toast';
 import type { Role } from '@/types/database';
@@ -44,11 +44,16 @@ export default function UsersPage() {
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [deletingUser, setDeletingUser] = useState<{ id: string; name: string } | null>(null);
 
-  const { data: users = [], isLoading, error } = useUsers();
+  const { data: usersData, isLoading, error } = useUsers();
   const { user: currentUser } = useSession();
   const updateUserMutation = useUpdateUser();
   const deleteUserMutation = useDeleteUser();
   const { success, error: showError, ToastContainer } = useToast();
+
+  const users = (usersData as any[]) || [];
+
+  // Fetch individual user data for editing
+  const { data: userToEditData } = useUser(editingUser || '');
 
   const filteredUsers = (users || []).filter((user: any) => {
     const matchesSearch =
@@ -117,13 +122,13 @@ export default function UsersPage() {
     );
   }
 
-  const userToEdit = users?.find((u: any) => u.id === editingUser) || null;
+  const userToEdit = (userToEditData as any) || null;
   const userToDelete = deletingUser;
 
   return (
     <DashboardWrapper role="ADMIN" mobileTitle="Users">
       <ToastContainer position="top-right" />
-      
+
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>

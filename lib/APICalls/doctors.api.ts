@@ -8,7 +8,7 @@ export interface UpdateDoctorInput {
 
 export const getDoctors = async () => {
   const data = await get('/api/doctors');
-  console.log(data);
+  // console.log(data);
   return data;
 };
 

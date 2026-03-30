@@ -27,7 +27,6 @@ export interface Clinic {
   email: string;
   phone: string;
   location: string;
-  address?: string;
   createdAt: Date;
 }
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { authClient } from '@/lib/auth-client';
 import UserAvatar from '@/components/UserAvatar';
@@ -19,7 +19,9 @@ export default function Navbar() {
     email: string;
     role?: 'USER' | 'ADMIN' | 'DOCTOR';
   } | null;
-
+  useEffect(() => {
+    console.log(session);
+  }, [session]);
   const isAuthenticated = !!user;
 
   const getLinkClass = (href: string) => {
