@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(dentaflow-backend.vercel.app)",
+      "Bash(curl *)"
+    ]
+  },
+  "$version": 3
+}

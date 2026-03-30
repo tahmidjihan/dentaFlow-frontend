@@ -4,6 +4,7 @@ import '../globals.css';
 import { Providers } from '@/components/providers';
 import { Toaster } from 'sonner';
 import UserAvatar from '@/components/UserAvatar';
+import { DashboardGuard } from '../../components/DashboardGuard';
 
 const manrope = Manrope({
   variable: '--font-manrope',
@@ -30,15 +31,19 @@ export default function DashboardLayout({
       lang='en'
       className={`${manrope.variable} ${inter.variable} h-full antialiased`}
     >
-      <Providers>
-        <header className='border-b border-outline-variant bg-surface px-6 py-4'>
-          <div className='flex items-center justify-between'>
-            <h1 className='text-xl font-semibold text-on-surface'>Dashboard</h1>
-            <UserAvatar />
-          </div>
-        </header>
-        <main className='flex-1'>{children}</main>
-      </Providers>
+      <DashboardGuard>
+        <Providers>
+          <header className='border-b border-outline-variant bg-surface px-6 py-4'>
+            <div className='flex items-center justify-between'>
+              <h1 className='text-xl font-semibold text-on-surface'>
+                Dashboard
+              </h1>
+              <UserAvatar />
+            </div>
+          </header>
+          <main className='flex-1'>{children}</main>
+        </Providers>
+      </DashboardGuard>
       <Toaster />
     </div>
   );

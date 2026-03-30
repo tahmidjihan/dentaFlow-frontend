@@ -1,22 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function proxy(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Skip middleware for verify-email route
+  // Skip proxy for verify-email route
   if (pathname.startsWith('/verify-email')) {
     return NextResponse.next();
   }
 
   // Check for session token in cookies
-  const sessionToken = request.cookies.get('better-auth.session_token');
+  // better-auth uses __Secure-better-auth.session_token (with Secure flag)
+  // or better-auth.session_token (without Secure flag)
+  const sessionToken =
+    request.cookies.get('__Secure-better-auth.session_token') ||
+    request.cookies.get('better-auth.session_token');
 
-  // //* User is not authenticated at all
-  // if (!sessionToken) {
-  //   return NextResponse.redirect(new URL('/auth/login', request.url));
-  // }
+  // Protect dashboard routes
+  if (pathname.startsWith('/dashboard/')) {
+    if (!sessionToken) {
+      const loginUrl = new URL('/auth/login', request.url);
+      loginUrl.searchParams.set('callbackUrl', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+  }
 
-  // Allow access if session exists
   return NextResponse.next();
 }
 

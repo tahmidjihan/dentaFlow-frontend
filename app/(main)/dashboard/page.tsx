@@ -1,5 +1,10 @@
 import Dashboard from '@/components/Dashboard';
+import { DashboardGuard } from '@/components/DashboardGuard';
 
 export default function DashboardPage() {
-  return <Dashboard />;
+  return (
+    <DashboardGuard>
+      <Dashboard />;
+    </DashboardGuard>
+  );
 }

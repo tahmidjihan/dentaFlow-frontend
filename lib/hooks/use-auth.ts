@@ -26,9 +26,6 @@ export function useSession() {
   };
 }
 
-/**
- * Hook for sign out mutation using better-auth built-in hook
- */
 export function useSignOut() {
   const router = useRouter();
 
@@ -46,9 +43,6 @@ export function useSignOut() {
   return { signOut };
 }
 
-/**
- * Hook for sign in mutation
- */
 export function useSignIn() {
   const router = useRouter();
 
@@ -61,14 +55,15 @@ export function useSignIn() {
         const result = await authClient.signIn.email({
           email: data.email,
           password: data.password,
-          callbackURL: '/dashboard',
         });
-        
+
         if (result.error) {
           options?.onError?.(result.error);
           return;
         }
-        
+
+        // Manually redirect after successful sign in
+        router.push('/dashboard');
         options?.onSuccess?.();
       } catch (error) {
         console.error('Sign in error:', error);
@@ -79,9 +74,6 @@ export function useSignIn() {
   };
 }
 
-/**
- * Hook for sign up mutation
- */
 export function useSignUp() {
   const router = useRouter();
 
@@ -99,14 +91,15 @@ export function useSignUp() {
           email: data.email,
           password: data.password,
           name: data.name,
-          callbackURL: '/dashboard',
         });
-        
+
         if (result.error) {
           options?.onError?.(result.error);
           return;
         }
-        
+
+        // Manually redirect after successful sign up
+        router.push('/dashboard');
         options?.onSuccess?.();
       } catch (error) {
         console.error('Sign up error:', error);

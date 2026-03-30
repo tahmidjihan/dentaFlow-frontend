@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Button from '@/components/ui/Button';
 import { authClient } from '@/lib/auth-client';
 import UserAvatar from '@/components/UserAvatar';
+import { fetchAPI } from '@/lib/fetchAPI';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -19,9 +20,6 @@ export default function Navbar() {
     email: string;
     role?: 'USER' | 'ADMIN' | 'DOCTOR';
   } | null;
-  useEffect(() => {
-    console.log(session);
-  }, [session]);
   const isAuthenticated = !!user;
 
   const getLinkClass = (href: string) => {
