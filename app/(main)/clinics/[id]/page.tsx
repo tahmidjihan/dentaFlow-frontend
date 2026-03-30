@@ -1,22 +1,37 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingForm from '@/components/BookingForm';
-import clinics from '@/data/clinics.json';
 import { notFound } from 'next/navigation';
+import { getClinicById } from '@/lib/APICalls/clinics.api';
+import { getDoctors } from '@/lib/APICalls/doctors.api';
+import type { Clinic } from '@/types/database';
+import type { User } from '@/types/database';
 
 interface ClinicPageProps {
   params: Promise<{ id: string }>;
 }
 
 export async function generateStaticParams() {
-  return clinics.map((clinic) => ({
-    id: clinic.id,
-  }));
+  return [];
 }
 
 export default async function ClinicPage({ params }: ClinicPageProps) {
   const { id } = await params;
-  const clinic = clinics.find((c) => c.id === id);
+
+  let clinic: Clinic | null = null;
+  let practitioners: User[] = [];
+
+  try {
+    const [clinicData, doctorsData] = await Promise.all([
+      getClinicById(id),
+      getDoctors(),
+    ]);
+    clinic = clinicData;
+    // Filter doctors by clinic ID
+    practitioners = doctorsData.filter((doctor) => doctor.clinicId === id);
+  } catch (error) {
+    console.error('Failed to fetch clinic:', error);
+  }
 
   if (!clinic) {
     notFound();
@@ -30,13 +45,13 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
           <div className='lg:w-5/12 space-y-12'>
             <header className='space-y-6'>
               <span className='text-primary font-label uppercase tracking-widest text-xs font-semibold'>
-                {clinic.tagline}
+                {clinic.status === 'open' ? 'Open' : 'Closed'}
               </span>
               <h1 className='text-5xl lg:text-6xl font-headline font-extrabold tracking-tighter leading-tight text-on-surface'>
                 {clinic.name}
               </h1>
               <p className='text-secondary text-lg max-w-md font-light leading-relaxed'>
-                {clinic.description}
+                {clinic.location}
               </p>
             </header>
 
@@ -52,10 +67,7 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                       Location
                     </p>
                     <p className='text-secondary font-light'>
-                      {clinic.address}
-                      <br />
-                      {clinic.addressLine2 && <>{clinic.addressLine2}<br /></>}
-                      {clinic.city}, {clinic.postalCode}
+                      {clinic.location}
                     </p>
                   </div>
                 </div>
@@ -68,9 +80,7 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                     <p className='text-on-surface font-headline font-bold text-lg'>
                       Email
                     </p>
-                    <p className='text-secondary font-light'>
-                      {clinic.contact.email}
-                    </p>
+                    <p className='text-secondary font-light'>{clinic.email}</p>
                   </div>
                 </div>
 
@@ -82,21 +92,21 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                     <p className='text-on-surface font-headline font-bold text-lg'>
                       Phone
                     </p>
-                    <p className='text-secondary font-light'>
-                      {clinic.contact.phone}
-                    </p>
+                    <p className='text-secondary font-light'>{clinic.phone}</p>
                   </div>
                 </div>
               </div>
 
               {/* Visual Anchor */}
-              <div className='relative aspect-[16/9] rounded-xl overflow-hidden shadow-sm'>
-                <img
-                  alt={`${clinic.name} reception area`}
-                  className='object-cover w-full h-full'
-                  src={clinic.images.reception}
-                />
-                <div className='absolute inset-0 bg-gradient-to-t from-background/40 to-transparent'></div>
+              <div className='relative aspect-[16/9] rounded-xl overflow-hidden shadow-sm bg-surface-container-low flex items-center justify-center'>
+                <div className='text-center space-y-2'>
+                  <span className='material-symbols-outlined text-6xl text-primary opacity-50'>
+                    business
+                  </span>
+                  <p className='text-secondary font-light'>
+                    Clinic image coming soon
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -110,8 +120,12 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                   Secure Your Session
                 </h2>
                 <BookingForm
-                  practitioners={clinic.practitioners}
-                  deposit={clinic.deposit}
+                  practitioners={practitioners.map((p) => ({
+                    id: p.id,
+                    name: p.name,
+                    specialty: 'Practitioner',
+                  }))}
+                  deposit={50}
                 />
 
                 {/* Trust Markers */}
@@ -135,16 +149,14 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
             </div>
 
             {/* Secondary Context / Map Placeholder */}
-            <div className='mt-8 rounded-xl overflow-hidden bg-surface-container-low h-48 relative'>
-              <div className='absolute inset-0 grayscale opacity-40 hover:opacity-100 transition-opacity duration-500 cursor-crosshair'>
-                <img
-                  alt='Map location'
-                  className='w-full h-full object-cover'
-                  src={clinic.images.map}
-                />
-              </div>
-              <div className='absolute bottom-4 left-4 bg-surface px-4 py-2 rounded shadow-sm text-xs font-label font-bold text-primary'>
-                VIEW ON GOOGLE MAPS
+            <div className='mt-8 rounded-xl overflow-hidden bg-surface-container-low h-48 relative flex items-center justify-center'>
+              <div className='text-center space-y-2'>
+                <span className='material-symbols-outlined text-4xl text-primary opacity-50'>
+                  map
+                </span>
+                <p className='text-secondary font-light text-sm'>
+                  Map view coming soon
+                </p>
               </div>
             </div>
           </div>

@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import Button from '@/components/ui/Button';
+import { useUsers } from '@/lib/hooks/use-users';
+import { useQuery } from '@tanstack/react-query';
+import { getAppointments } from '@/lib/APICalls/appointments.api';
+import type { User } from '@/types/database';
 
 interface Patient {
   id: string;
@@ -17,72 +21,76 @@ interface Patient {
   treatments: number;
 }
 
-const patients: Patient[] = [
-  {
-    id: '1',
-    name: 'Eleanor Maxwell',
-    initials: 'EM',
-    email: 'eleanor.maxwell@email.com',
-    phone: '+44 20 7946 0123',
-    lastVisit: 'Oct 24, 2024',
-    nextAppointment: 'Nov 15, 2024',
-    status: 'Active',
-    treatments: 12,
-  },
-  {
-    id: '2',
-    name: 'Tobias Hart',
-    initials: 'TH',
-    email: 'tobias.hart@email.com',
-    phone: '+44 20 7946 0456',
-    lastVisit: 'Oct 20, 2024',
-    status: 'Active',
-    treatments: 8,
-  },
-  {
-    id: '3',
-    name: 'Marcus Thorne',
-    image:
-      'https://lh3.googleusercontent.com/aida-public/AB6AXuDat-3fuaHcXy2xor6JHd6WC2C3Te7VKUaTBp3E7Dz0Cfpe7dXC3bEyAbasU1EtDD6U3xVYv0Xp_FhQk6o0jZHMwUIGKdb7RfR_eY4ZeZ84kAEFj9ztUf-ZAhfdqHCzT2mJJXUBEAvWbbWcQDrp-R5KOqqP3d37xkDuR1F5pDRmlxURdYSmKQBpujatUP0d3dguxLrGeiwbiD8A-so8LjpUInc09Jp8JlwWnZiyRI7_C6_0XQmCg-zrWHgUd2mfCXu-vhKiaZGeaeQ',
-    email: 'marcus.thorne@email.com',
-    phone: '+44 20 7946 0789',
-    lastVisit: 'Oct 18, 2024',
-    nextAppointment: 'Nov 01, 2024',
-    status: 'Active',
-    treatments: 15,
-  },
-  {
-    id: '4',
-    name: 'Lydia Wright',
-    initials: 'LW',
-    email: 'lydia.wright@email.com',
-    phone: '+44 20 7946 0321',
-    lastVisit: 'Sep 28, 2024',
-    status: 'Inactive',
-    treatments: 5,
-  },
-  {
-    id: '5',
-    name: 'James Pemberton',
-    initials: 'JP',
-    email: 'james.pemberton@email.com',
-    phone: '+44 20 7946 0654',
-    lastVisit: 'Oct 26, 2024',
-    nextAppointment: 'Nov 10, 2024',
-    status: 'New',
-    treatments: 2,
-  },
-  {
-    id: '6',
-    name: 'Sophia Chen',
-    initials: 'SC',
-    email: 'sophia.chen@email.com',
-    phone: '+44 20 7946 0987',
-    lastVisit: 'Oct 22, 2024',
-    status: 'Active',
-    treatments: 10,
-  },
-];
+// Helper function to get initials from name
+const getInitials = (name: string): string => {
+  const parts = name.split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+};
+
+// Helper function to determine patient status based on appointments
+const getPatientStatus = (appointments: any[]): 'Active' | 'Inactive' | 'New' => {
+  if (!appointments || appointments.length === 0) {
+    return 'New';
+  }
+  
+  const now = new Date();
+  const hasUpcoming = appointments.some((apt: any) => new Date(apt.date) > now);
+  const hasPast = appointments.some((apt: any) => new Date(apt.date) < now);
+  
+  if (hasUpcoming && hasPast) return 'Active';
+  if (hasUpcoming) return 'New';
+  if (hasPast) return 'Inactive';
+  return 'New';
+};
+
+// Transform user data to patient format
+const transformUserToPatient = (user: User, appointments: any[]): Patient => {
+  const patientAppointments = appointments.filter((apt: any) => apt.userId === user.id);
+  const now = new Date();
+  const upcomingAppointments = patientAppointments
+    .filter((apt: any) => new Date(apt.date) > now)
+    .sort((a: any, b: any) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  
+  const pastAppointments = patientAppointments.filter(
+    (apt: any) => new Date(apt.date) < now
+  );
+
+  const lastVisitDate = pastAppointments.length > 0
+    ? new Date(Math.max(...pastAppointments.map((apt: any) => new Date(apt.date).getTime())))
+    : null;
+
+  const nextAppointment = upcomingAppointments.length > 0
+    ? new Date(upcomingAppointments[0].date).toLocaleDateString('en-GB', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : undefined;
+
+  const lastVisit = lastVisitDate
+    ? lastVisitDate.toLocaleDateString('en-GB', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : 'No visits';
+
+  return {
+    id: user.id,
+    name: user.name,
+    initials: getInitials(user.name),
+    image: undefined, // Can be added if user has image field
+    email: user.email,
+    phone: user.phone || 'Not provided',
+    lastVisit,
+    nextAppointment,
+    status: getPatientStatus(patientAppointments),
+    treatments: pastAppointments.length,
+  };
+};
 
 const getStatusStyles = (status: string) => {
   switch (status) {
@@ -104,16 +112,34 @@ export default function PatientsPage() {
     'all' | 'Active' | 'Inactive' | 'New'
   >('all');
 
-  const filteredPatients = patients.filter((patient) => {
-    const matchesSearch =
-      patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.email.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesStatus =
-      statusFilter === 'all' || patient.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
+  // Fetch users (patients) and appointments from API
+  const { data: users = [], isLoading: usersLoading } = useUsers();
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
+    queryKey: ['appointments'],
+    queryFn: getAppointments,
   });
+
+  // Transform users to patients with appointment data
+  const patients: Patient[] = useMemo(() => {
+    // Filter only non-doctor users (patients)
+    const patientUsers = users.filter(user => user.role === 'USER');
+    return patientUsers.map(user => transformUserToPatient(user, appointments || []));
+  }, [users, appointments]);
+
+  const filteredPatients = useMemo(() => {
+    return patients.filter((patient) => {
+      const matchesSearch =
+        patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        patient.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === 'all' || patient.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [patients, searchQuery, statusFilter]);
+
+  const isLoading = usersLoading || appointmentsLoading;
 
   return (
     <DashboardWrapper role="DOCTOR" mobileTitle="My Patients">
@@ -218,7 +244,12 @@ export default function PatientsPage() {
 
           {/* Patients Table */}
           <div className='overflow-x-auto'>
-            <table className='w-full text-left border-collapse'>
+            {isLoading ? (
+              <div className='flex items-center justify-center py-16'>
+                <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
+              </div>
+            ) : (
+              <table className='w-full text-left border-collapse'>
               <thead>
                 <tr className='bg-surface-container-low/50'>
                   <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
@@ -357,7 +388,7 @@ export default function PatientsPage() {
                           </span>
                         </div>
                         <h3 className='font-headline text-xl font-bold text-on-surface mb-2'>
-                          No patients found
+                          No data yet
                         </h3>
                         <p className='text-body-medium text-secondary max-w-md'>
                           {searchQuery
@@ -387,25 +418,28 @@ export default function PatientsPage() {
               </span>{' '}
               patients
             </span>
-            <div className='flex items-center gap-2'>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline'>
-                <span className='material-symbols-outlined'>chevron_left</span>
-              </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-xs shadow-sm shadow-primary/20'>
-                1
-              </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all'>
-                2
-              </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all'>
-                3
-              </button>
-              <button className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline'>
-                <span className='material-symbols-outlined'>chevron_right</span>
-              </button>
-            </div>
+            {filteredPatients.length > 0 && (
+              <div className='flex items-center gap-2'>
+                <button className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline'>
+                  <span className='material-symbols-outlined'>chevron_left</span>
+                </button>
+                <button className='w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-xs shadow-sm shadow-primary/20'>
+                  1
+                </button>
+                <button className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all'>
+                  2
+                </button>
+                <button className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all'>
+                  3
+                </button>
+                <button className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline'>
+                  <span className='material-symbols-outlined'>chevron_right</span>
+                </button>
+              </div>
+            )}
           </div>
-        </section>
+        </div>
+      </section>
       </main>
     </DashboardWrapper>
   );

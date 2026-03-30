@@ -13,7 +13,6 @@ export default function Navbar() {
   const { data: session, isPending: isLoading } = authClient.useSession();
   const signOut = authClient.signOut;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-
   const user = session?.user as {
     id: string;
     name: string;

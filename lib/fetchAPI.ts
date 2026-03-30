@@ -1,4 +1,3 @@
-'use client';
 import { toast } from 'sonner';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -97,19 +96,15 @@ export async function fetchAPI<T>(
 /**
  * GET request helper
  */
-export function get<T>(endpoint: string, options?: FetchOptions): Promise<T> {
-  return fetchAPI<T>(endpoint, { ...options, method: 'GET' });
+export function get(endpoint: string, options?: FetchOptions) {
+  return fetchAPI(endpoint, { ...options, method: 'GET' });
 }
 
 /**
  * POST request helper
  */
-export function post<T>(
-  endpoint: string,
-  data?: unknown,
-  options?: FetchOptions,
-): Promise<T> {
-  return fetchAPI<T>(endpoint, {
+export function post(endpoint: string, data?: unknown, options?: FetchOptions) {
+  return fetchAPI(endpoint, {
     ...options,
     method: 'POST',
     body: data ? JSON.stringify(data) : undefined,

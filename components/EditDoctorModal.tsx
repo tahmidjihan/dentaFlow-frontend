@@ -38,7 +38,6 @@ export default function EditDoctorModal({
     clinicId: null,
   });
 
-  // Populate form when doctor changes
   useEffect(() => {
     if (doctor) {
       setFormData({
@@ -53,7 +52,6 @@ export default function EditDoctorModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     updateDoctorMutation.mutate(
       { id: doctor.id, data: { clinicId: formData.clinicId } },
       {
@@ -69,36 +67,35 @@ export default function EditDoctorModal({
   };
 
   const handleClose = () => {
-    setFormData({
-      name: '',
-      email: '',
-      clinicId: null,
-    });
+    setFormData({ name: '', email: '', clinicId: null });
     onClose();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: name === 'clinicId' ? (value || null) : value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === 'clinicId' ? value || null : value,
+    }));
   };
 
   const footer = (
-    <div className="flex gap-3">
+    <div className='flex gap-3'>
       <Button
-        type="button"
-        variant="outline"
+        type='button'
+        variant='outline'
         onClick={handleClose}
         disabled={updateDoctorMutation.isPending}
-        className="flex-1"
+        className='flex-1'
       >
         Cancel
       </Button>
       <Button
-        type="submit"
+        type='submit'
         disabled={updateDoctorMutation.isPending}
-        icon="check"
-        className="flex-1"
-        form="edit-doctor-form"
+        icon='check'
+        className='flex-1'
+        form='edit-doctor-form'
       >
         {updateDoctorMutation.isPending ? 'Saving...' : 'Save Changes'}
       </Button>
@@ -108,48 +105,48 @@ export default function EditDoctorModal({
   return (
     <EditModalBase
       isOpen={isOpen}
-      title="Edit Doctor"
-      subtitle="Update doctor information and clinic assignment"
+      title='Edit Doctor'
+      subtitle='Update doctor information and clinic assignment'
       onClose={handleClose}
       isLoading={updateDoctorMutation.isPending}
       footer={footer}
     >
-      <form id="edit-doctor-form" onSubmit={handleSubmit} className="space-y-6">
+      <form id='edit-doctor-form' onSubmit={handleSubmit} className='space-y-6'>
         {/* Doctor Information - Read Only */}
-        <FormSection title="Doctor Information">
-          <FormField label="Name" icon="person">
+        <FormSection title='Doctor Information'>
+          <FormField label='Name' icon='person'>
             <Input
-              id="edit-doctor-name"
-              name="name"
+              id='edit-doctor-name'
+              name='name'
               value={formData.name}
               disabled
-              className="opacity-60 cursor-not-allowed"
+              className='opacity-60 cursor-not-allowed'
             />
           </FormField>
 
-          <FormField label="Email" icon="mail">
+          <FormField label='Email' icon='mail'>
             <Input
-              id="edit-doctor-email"
-              name="email"
-              type="email"
+              id='edit-doctor-email'
+              name='email'
+              type='email'
               value={formData.email}
               disabled
-              className="opacity-60 cursor-not-allowed"
+              className='opacity-60 cursor-not-allowed'
             />
           </FormField>
         </FormSection>
 
         {/* Clinic Assignment */}
-        <FormSection title="Clinic Assignment">
-          <FormField label="Assign to Clinic" icon="business">
+        <FormSection title='Clinic Assignment'>
+          <FormField label='Assign to Clinic' icon='business'>
             <select
-              name="clinicId"
+              name='clinicId'
               value={formData.clinicId || ''}
               onChange={handleChange}
               disabled={updateDoctorMutation.isPending}
-              className="w-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/20 py-4 px-5 rounded-lg text-on-surface transition-all duration-300 font-body appearance-none pr-10"
+              className='w-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/20 py-4 px-5 rounded-lg text-on-surface transition-all duration-300 font-body appearance-none pr-10'
             >
-              <option value="">Unassigned</option>
+              <option value=''>Unassigned</option>
               {clinics.map((clinic: any) => (
                 <option key={clinic.id} value={clinic.id}>
                   {clinic.name}
@@ -157,24 +154,26 @@ export default function EditDoctorModal({
               ))}
             </select>
           </FormField>
-          <p className="text-xs text-on-surface-variant ml-1">
+          <p className='text-xs text-on-surface-variant ml-1'>
             Assign this doctor to a clinic to enable appointment bookings.
           </p>
         </FormSection>
 
         {/* Status */}
-        <FormSection title="Status">
-          <div className="flex items-center gap-3 p-4 bg-surface-container-low rounded-lg">
-            <span className={`material-symbols-outlined ${doctor.emailVerified ? 'text-primary' : 'text-secondary'}`}>
+        <FormSection title='Status'>
+          <div className='flex items-center gap-3 p-4 bg-surface-container-low rounded-lg'>
+            <span
+              className={`material-symbols-outlined ${doctor.emailVerified ? 'text-primary' : 'text-secondary'}`}
+            >
               {doctor.emailVerified ? 'verified' : 'pending'}
             </span>
             <div>
-              <p className="text-sm font-semibold text-on-surface">
+              <p className='text-sm font-semibold text-on-surface'>
                 {doctor.emailVerified ? 'Verified' : 'Pending Verification'}
               </p>
-              <p className="text-xs text-on-surface-variant">
-                {doctor.emailVerified 
-                  ? 'This doctor has been verified and can accept appointments.' 
+              <p className='text-xs text-on-surface-variant'>
+                {doctor.emailVerified
+                  ? 'This doctor has been verified and can accept appointments.'
                   : 'Verification email has been sent to this doctor.'}
               </p>
             </div>

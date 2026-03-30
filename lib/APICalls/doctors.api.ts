@@ -1,10 +1,4 @@
-/**
- * Doctors API Calls
- * All API endpoints related to doctors
- */
-
 import { get, post, put, del } from '../fetchAPI';
-import type { User } from '@/types/database';
 
 export interface UpdateDoctorInput {
   name?: string;
@@ -12,29 +6,18 @@ export interface UpdateDoctorInput {
   clinicId?: string | null;
 }
 
-/**
- * Get all doctors
- */
-export const getDoctors = () => get<User[]>('/api/doctors');
+export const getDoctors = async () => {
+  const data = await get('/api/doctors');
+  console.log(data);
+  return data;
+};
 
-/**
- * Get doctor by ID
- */
-export const getDoctorById = (id: string) => get<User>(`/api/doctors/${id}`);
+export const getDoctorById = (id: string) => get(`/api/doctors/${id}`);
 
-/**
- * Update a doctor (Admin only)
- */
 export const updateDoctor = (id: string, data: UpdateDoctorInput) =>
-  put<User>(`/api/doctors/${id}`, data);
+  put(`/api/doctors/${id}`, data);
 
-/**
- * Delete a doctor (Admin only)
- */
-export const deleteDoctor = (id: string) => del<void>(`/api/doctors/${id}`);
+export const deleteDoctor = (id: string) => del(`/api/doctors/${id}`);
 
-/**
- * Assign doctor to clinic (Admin only)
- */
 export const assignDoctorToClinic = (doctorId: string, clinicId: string) =>
-  post<User>(`/api/doctors/${doctorId}/clinic`, { clinicId });
+  post(`/api/doctors/${doctorId}/clinic`, { clinicId });

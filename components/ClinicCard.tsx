@@ -34,38 +34,40 @@ export default function ClinicCard(props: ClinicCardProps) {
   // Public mode rendering
   if ('mode' in props && props.mode === 'public') {
     const { id, name, address, phone, specialty, image } = props;
-    
+
     return (
-      <a href={`/clinics/${id}`} className="block group">
-        <Card variant="elevated" className="overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+      <a href={`/clinics/${id}`} className='block group'>
+        <Card
+          variant='elevated'
+          className='overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1'
+        >
           {/* Image */}
-          <div className="aspect-[4/3] overflow-hidden">
-            <img
-              src={image}
-              alt={name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          </div>
-          
+
           {/* Content */}
-          <CardContent className="space-y-3">
+          <CardContent className='space-y-3'>
             <div>
-              <h3 className="font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors">
+              <h3 className='font-headline font-bold text-xl text-on-surface group-hover:text-primary transition-colors'>
                 {name}
               </h3>
-              <p className="text-body-small text-primary mt-1 font-semibold">
+              <p className='text-body-small text-primary mt-1 font-semibold'>
                 {specialty}
               </p>
             </div>
-            
-            <div className="flex items-start gap-2">
-              <span className="material-symbols-outlined text-on-surface-variant text-sm mt-0.5">location_on</span>
-              <p className="text-body-small text-on-surface-variant">{address}</p>
+
+            <div className='flex items-start gap-2'>
+              <span className='material-symbols-outlined text-on-surface-variant text-sm mt-0.5'>
+                location_on
+              </span>
+              <p className='text-body-small text-on-surface-variant'>
+                {address}
+              </p>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-on-surface-variant text-sm">phone</span>
-              <p className="text-body-small text-on-surface-variant">{phone}</p>
+
+            <div className='flex items-center gap-2'>
+              <span className='material-symbols-outlined text-on-surface-variant text-sm'>
+                phone
+              </span>
+              <p className='text-body-small text-on-surface-variant'>{phone}</p>
             </div>
           </CardContent>
         </Card>
@@ -88,9 +90,17 @@ export default function ClinicCard(props: ClinicCardProps) {
       case 'OWNER':
         return { variant: 'warning' as const, label: 'Owner', icon: 'star' };
       case 'MEMBER':
-        return { variant: 'success' as const, label: 'Member', icon: 'check_circle' };
+        return {
+          variant: 'success' as const,
+          label: 'Member',
+          icon: 'check_circle',
+        };
       default:
-        return { variant: 'info' as const, label: 'Available', icon: 'add_circle' };
+        return {
+          variant: 'info' as const,
+          label: 'Available',
+          icon: 'add_circle',
+        };
     }
   };
 
@@ -116,75 +126,100 @@ export default function ClinicCard(props: ClinicCardProps) {
   };
 
   return (
-    <Card variant="elevated" className="flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-      <CardContent className="flex-1 pb-4">
+    <Card
+      variant='elevated'
+      className='flex flex-col h-full transition-all duration-300 hover:shadow-lg hover:-translate-y-1'
+    >
+      <CardContent className='flex-1 pb-4'>
         {/* Header with status badge */}
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-              <span className="material-symbols-outlined text-primary text-2xl">business</span>
+        <div className='flex items-start justify-between mb-4'>
+          <div className='flex items-center gap-3'>
+            <div className='w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center'>
+              <span className='material-symbols-outlined text-primary text-2xl'>
+                business
+              </span>
             </div>
             <div>
-              <h3 className="font-headline font-bold text-lg text-on-surface leading-tight">
+              <h3 className='font-headline font-bold text-lg text-on-surface leading-tight'>
                 {clinic.name}
               </h3>
-              <p className="text-body-small text-on-surface-variant mt-0.5">
+              <p className='text-body-small text-on-surface-variant mt-0.5'>
                 {clinic.specialty}
               </p>
             </div>
           </div>
-          <Badge variant={badgeConfig.variant} size="sm" icon={badgeConfig.icon}>
+          <Badge
+            variant={badgeConfig.variant}
+            size='sm'
+            icon={badgeConfig.icon}
+          >
             {badgeConfig.label}
           </Badge>
         </div>
 
         {/* Description */}
         {clinic.description && (
-          <p className="text-body-medium text-on-surface-variant mb-4 line-clamp-2">
+          <p className='text-body-medium text-on-surface-variant mb-4 line-clamp-2'>
             {clinic.description}
           </p>
         )}
 
         {/* Location */}
-        <div className="flex items-start gap-2 mb-3">
-          <span className="material-symbols-outlined text-on-surface-variant text-sm mt-0.5">location_on</span>
-          <div className="text-body-small text-on-surface-variant">
+        <div className='flex items-start gap-2 mb-3'>
+          <span className='material-symbols-outlined text-on-surface-variant text-sm mt-0.5'>
+            location_on
+          </span>
+          <div className='text-body-small text-on-surface-variant'>
             <p>{clinic.address}</p>
             {clinic.addressLine2 && <p>{clinic.addressLine2}</p>}
-            <p>{clinic.city}, {clinic.state && `${clinic.state} `}{clinic.postalCode}</p>
+            <p>
+              {clinic.city}, {clinic.state && `${clinic.state} `}
+              {clinic.postalCode}
+            </p>
             <p>{clinic.country}</p>
           </div>
         </div>
 
         {/* Contact Info */}
-        <div className="space-y-1 mb-4">
+        <div className='space-y-1 mb-4'>
           {clinic.phone && (
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-on-surface-variant text-sm">phone</span>
-              <p className="text-body-small text-on-surface-variant">{clinic.phone}</p>
+            <div className='flex items-center gap-2'>
+              <span className='material-symbols-outlined text-on-surface-variant text-sm'>
+                phone
+              </span>
+              <p className='text-body-small text-on-surface-variant'>
+                {clinic.phone}
+              </p>
             </div>
           )}
           {clinic.email && (
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-on-surface-variant text-sm">mail</span>
-              <p className="text-body-small text-on-surface-variant">{clinic.email}</p>
+            <div className='flex items-center gap-2'>
+              <span className='material-symbols-outlined text-on-surface-variant text-sm'>
+                mail
+              </span>
+              <p className='text-body-small text-on-surface-variant'>
+                {clinic.email}
+              </p>
             </div>
           )}
         </div>
 
         {/* Stats */}
-        <div className="flex items-center gap-4 pt-3 border-t border-outline-variant/10">
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-on-surface-variant text-sm">group</span>
-            <span className="text-body-small text-on-surface-variant">
-              {clinic.doctorCount} {clinic.doctorCount === 1 ? 'Doctor' : 'Doctors'}
+        <div className='flex items-center gap-4 pt-3 border-t border-outline-variant/10'>
+          <div className='flex items-center gap-1.5'>
+            <span className='material-symbols-outlined text-on-surface-variant text-sm'>
+              group
+            </span>
+            <span className='text-body-small text-on-surface-variant'>
+              {clinic.doctorCount}{' '}
+              {clinic.doctorCount === 1 ? 'Doctor' : 'Doctors'}
             </span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="material-symbols-outlined text-on-surface-variant text-sm">
+          <div className='flex items-center gap-1.5'>
+            <span className='material-symbols-outlined text-on-surface-variant text-sm'>
               {clinic.status === 'open' ? 'check_circle' : 'cancel'}
             </span>
-            <span className="text-body-small text-on-surface-variant capitalize">
+            <span className='text-body-small text-on-surface-variant capitalize'>
               {clinic.status}
             </span>
           </div>
@@ -192,13 +227,13 @@ export default function ClinicCard(props: ClinicCardProps) {
       </CardContent>
 
       {/* Action Buttons */}
-      <CardFooter className="pt-4">
+      <CardFooter className='pt-4'>
         {membershipStatus === 'AVAILABLE' && (
           <Button
             onClick={handleJoin}
             disabled={isActionDisabled}
-            icon="add"
-            className="w-full"
+            icon='add'
+            className='w-full'
           >
             {isLoading ? 'Joining...' : 'Join Clinic'}
           </Button>
@@ -208,20 +243,20 @@ export default function ClinicCard(props: ClinicCardProps) {
           <Button
             onClick={handleLeave}
             disabled={isActionDisabled}
-            variant="outline"
-            icon="logout"
-            className="w-full"
+            variant='outline'
+            icon='logout'
+            className='w-full'
           >
             {isLoading ? 'Leaving...' : 'Leave Clinic'}
           </Button>
         )}
 
         {membershipStatus === 'OWNER' && (
-          <div className="flex gap-2 w-full">
+          <div className='flex gap-2 w-full'>
             <Button
-              variant="secondary"
-              icon="settings"
-              className="flex-1"
+              variant='secondary'
+              icon='settings'
+              className='flex-1'
               disabled={isActionDisabled}
             >
               Manage
@@ -229,9 +264,9 @@ export default function ClinicCard(props: ClinicCardProps) {
             <Button
               onClick={handleDelete}
               disabled={isActionDisabled}
-              variant="outline"
-              icon="delete"
-              className="flex-1 text-error"
+              variant='outline'
+              icon='delete'
+              className='flex-1 text-error'
             >
               {isLoading ? 'Deleting...' : 'Delete'}
             </Button>

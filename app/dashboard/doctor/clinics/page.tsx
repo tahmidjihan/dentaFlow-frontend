@@ -8,41 +8,14 @@ import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import LeaveConfirmModal from '@/components/LeaveConfirmModal';
 import Button from '@/components/ui/Button';
 import { ClinicExtended } from '@/types/database';
-import clinicsData from '@/data/clinics.json';
-
-// Mock data - will be replaced with API calls
-const MOCK_CLINICS: ClinicExtended[] = clinicsData.map((clinic: any) => ({
-  id: clinic.id,
-  name: clinic.name,
-  status: 'open',
-  email: clinic.contact.email,
-  phone: clinic.phone,
-  location: clinic.address,
-  address: clinic.address,
-  addressLine2: clinic.addressLine2 || '',
-  city: clinic.city,
-  state: clinic.state,
-  postalCode: clinic.postalCode,
-  country: clinic.country,
-  specialty: clinic.specialty,
-  description: clinic.description,
-  doctorCount: clinic.practitioners.length,
-  createdAt: new Date(),
-}));
-
-// Simulated doctor memberships (for demo purposes)
-const DOCTOR_MEMBERSHIPS: Record<string, 'OWNER' | 'MEMBER'> = {
-  'the-sanctuary-highwood': 'OWNER',
-  'the-chelsea-mews': 'MEMBER',
-};
+import { useClinics } from '@/lib/hooks/use-clinics';
+import { useSession } from '@/lib/hooks/use-auth';
 
 type FilterType = 'all' | 'my-clinics' | 'available';
 
 export default function ClinicsPage() {
-  const [clinics] = useState<ClinicExtended[]>(MOCK_CLINICS);
-  const [memberships, setMemberships] = useState<Record<string, 'OWNER' | 'MEMBER'>>(
-    DOCTOR_MEMBERSHIPS
-  );
+  const { user } = useSession();
+  const { data: clinicsData = [], isLoading } = useClinics();
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -51,9 +24,15 @@ export default function ClinicsPage() {
   const [selectedClinicId, setSelectedClinicId] = useState<string | null>(null);
   const [loadingActionId, setLoadingActionId] = useState<string | null>(null);
 
+  // Simulated doctor memberships (for demo purposes - will be replaced with API)
+  const [memberships, setMemberships] = useState<Record<string, 'OWNER' | 'MEMBER'>>({
+    'the-sanctuary-highwood': 'OWNER',
+    'the-chelsea-mews': 'MEMBER',
+  });
+
   // Filter clinics based on current filter and search query
   const filteredClinics = useMemo(() => {
-    return clinics.filter((clinic) => {
+    return clinicsData.filter((clinic) => {
       // Filter by membership status
       if (filter === 'my-clinics' && !memberships[clinic.id]) {
         return false;
@@ -74,7 +53,7 @@ export default function ClinicsPage() {
 
       return true;
     });
-  }, [clinics, memberships, filter, searchQuery]);
+  }, [clinicsData, memberships, filter, searchQuery]);
 
   const getMembershipStatus = (clinicId: string): 'OWNER' | 'MEMBER' | 'AVAILABLE' => {
     return memberships[clinicId] || 'AVAILABLE';
@@ -149,7 +128,7 @@ export default function ClinicsPage() {
   };
 
   const getSelectedClinic = () => {
-    return clinics.find((c) => c.id === selectedClinicId);
+    return clinicsData.find((c) => c.id === selectedClinicId);
   };
 
   return (
@@ -181,6 +160,12 @@ export default function ClinicsPage() {
 
       {/* Filters and Search */}
       <section className='bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden mb-6'>
+        {isLoading ? (
+          <div className='flex items-center justify-center py-16'>
+            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
+          </div>
+        ) : (
+          <>
         <div className='p-6 border-b border-outline-variant/10 bg-surface-container-low/30'>
           <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between'>
             {/* Filter Tabs */}
@@ -268,7 +253,7 @@ export default function ClinicsPage() {
               </span>
             </div>
             <h3 className='font-headline text-2xl font-bold text-on-surface mb-2'>
-              No clinics found
+              No data yet
             </h3>
             <p className='text-body-medium text-secondary max-w-md mb-6'>
               {searchQuery
@@ -290,6 +275,8 @@ export default function ClinicsPage() {
               </Button>
             )}
           </div>
+        )}
+          </>
         )}
       </section>
 
