@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   Badge,
   Input,
@@ -76,9 +77,11 @@ export default function DoctorsPage() {
         {doctor.nextAvailability}
       </TableCell>
       <TableCell align='right'>
-        <Button variant='primary' size='sm' icon='calendar_today'>
-          Book
-        </Button>
+        <Link href={`/book?doctorId=${doctor.id}`}>
+          <Button variant='primary' size='sm' icon='calendar_today'>
+            Book
+          </Button>
+        </Link>
       </TableCell>
     </TableRow>
   );

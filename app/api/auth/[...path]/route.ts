@@ -39,6 +39,8 @@ async function handleProxy(request: NextRequest, path: string[]) {
   const url = new URL(pathname, backendUrl);
   if (searchParams) url.search = searchParams;
 
+  console.log('[Auth Proxy] Request:', request.method, url.toString());
+
   // Clone headers, removing hop-by-hop headers
   const headers = new Headers(request.headers);
   headers.delete('host');
@@ -62,8 +64,14 @@ async function handleProxy(request: NextRequest, path: string[]) {
       body: body ? JSON.stringify(body) : undefined,
     });
 
+    console.log('[Auth Proxy] Response status:', response.status);
+
     // Get all Set-Cookie headers from backend
     const setCookieHeaders = response.headers.getSetCookie?.() || [];
+    console.log(
+      '[Auth Proxy] Set-Cookie headers from backend:',
+      setCookieHeaders,
+    );
 
     // Create response with JSON content type
     const responseData = await response.json().catch(() => null);
@@ -73,20 +81,30 @@ async function handleProxy(request: NextRequest, path: string[]) {
     });
 
     // Forward all Set-Cookie headers to client
-    // In development (HTTP), strip Secure flag so browser accepts the cookie
+    // In development (HTTP), modify cookie attributes so browser accepts them
     const isDev = process.env.NODE_ENV === 'development';
     setCookieHeaders.forEach((setCookieHeader) => {
       let modifiedCookie = setCookieHeader;
       if (isDev) {
         // Remove Secure flag for local development over HTTP
-        modifiedCookie = setCookieHeader.replace(/; Secure/i, '');
+        modifiedCookie = modifiedCookie.replace(/; Secure/i, '');
+        // Change SameSite=Strict to SameSite=Lax for development
+        modifiedCookie = modifiedCookie.replace(
+          /; SameSite=Strict/i,
+          '; SameSite=Lax',
+        );
+        // Ensure Path is set correctly for the frontend
+        if (!modifiedCookie.includes('Path=')) {
+          modifiedCookie = modifiedCookie + '; Path=/';
+        }
       }
+      console.log('[Auth Proxy] Forwarding cookie:', modifiedCookie);
       newResponse.headers.append('Set-Cookie', modifiedCookie);
     });
 
     return newResponse;
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('[Auth Proxy] Error:', error);
     return NextResponse.json(
       { error: 'Failed to proxy request to backend' },
       { status: 500 },

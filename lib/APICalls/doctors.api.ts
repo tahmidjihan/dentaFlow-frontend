@@ -6,13 +6,13 @@ export interface UpdateDoctorInput {
   clinicId?: string | null;
 }
 
-export const getDoctors = async () => {
-  const data = await get('/api/doctors');
+export const getDoctors = async (options?: { showToast?: boolean }) => {
+  const data = await get('/api/doctors', options);
   // console.log(data);
   return data;
 };
 
-export const getDoctorById = (id: string) => get(`/api/doctors/${id}`);
+export const getDoctorById = (id: string, options?: { showToast?: boolean }) => get(`/api/doctors/${id}`, options);
 
 export const updateDoctor = (id: string, data: UpdateDoctorInput) =>
   put(`/api/doctors/${id}`, data);

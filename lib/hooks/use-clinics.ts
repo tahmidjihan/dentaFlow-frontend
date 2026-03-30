@@ -11,7 +11,7 @@ import type { Clinic } from '@/types/database';
 export function useClinics() {
   return useQuery<Clinic[]>({
     queryKey: ['clinics'],
-    queryFn: clinicsApi.getClinics,
+    queryFn: () => clinicsApi.getClinics({ showToast: false }),
   });
 }
 

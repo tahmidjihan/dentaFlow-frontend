@@ -57,9 +57,6 @@ export default function Navbar() {
           <Link className={getLinkClass('/doctors')} href='/doctors'>
             Doctors
           </Link>
-          <Link className={getLinkClass('/dashboard')} href='/dashboard'>
-            Dashboard
-          </Link>
         </div>
 
         <div className='flex items-center gap-4'>
@@ -148,17 +145,7 @@ export default function Navbar() {
             >
               Doctors
             </Link>
-            <Link
-              className={
-                pathname === '/dashboard'
-                  ? 'text-primary font-semibold'
-                  : 'text-secondary'
-              }
-              href='/dashboard'
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Dashboard
-            </Link>
+
             {isAuthenticated && user && (
               <div className='flex items-center justify-between py-2 border-t border-outline-variant/20 mt-2'>
                 <div className='flex items-center gap-2'>

@@ -4,11 +4,25 @@ import BookingForm from '@/components/BookingForm';
 import { notFound } from 'next/navigation';
 import { getClinicById } from '@/lib/APICalls/clinics.api';
 import { getDoctors } from '@/lib/APICalls/doctors.api';
-import type { Clinic } from '@/types/database';
+import type { Clinic, Doctor } from '@/types/database';
 import type { User } from '@/types/database';
+import Link from 'next/link';
+import { Badge, Button } from '@/components/ui';
 
 interface ClinicPageProps {
   params: Promise<{ id: string }>;
+}
+
+interface ClinicWithDoctors extends Clinic {
+  doctors?: Array<{
+    id: string;
+    name: string;
+    email: string;
+    image: string | null;
+    specialty: string;
+    title: string;
+    clinicId: string | null;
+  }>;
 }
 
 export async function generateStaticParams() {
@@ -18,15 +32,15 @@ export async function generateStaticParams() {
 export default async function ClinicPage({ params }: ClinicPageProps) {
   const { id } = await params;
 
-  let clinic: Clinic | null = null;
+  let clinic: ClinicWithDoctors | null = null;
   let practitioners: User[] = [];
 
   try {
     const [clinicData, doctorsData] = await Promise.all([
-      getClinicById(id),
-      getDoctors(),
+      getClinicById(id, { showToast: false }),
+      getDoctors({ showToast: false }),
     ]);
-    clinic = clinicData as Clinic;
+    clinic = clinicData as ClinicWithDoctors;
     // Filter doctors by clinic ID
     practitioners = (doctorsData as User[]).filter((doctor) => doctor.clinicId === id);
   } catch (error) {
@@ -36,6 +50,27 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
   if (!clinic) {
     notFound();
   }
+
+  const getAvatarColor = (name: string): string => {
+    const colors = [
+      'bg-primary text-on-primary',
+      'bg-secondary-container text-on-secondary-container',
+      'bg-tertiary-container text-on-tertiary',
+      'bg-primary-fixed-dim text-on-primary-fixed-variant',
+      'bg-secondary-fixed-dim text-on-secondary-fixed-variant',
+    ];
+    const index = name.length % colors.length;
+    return colors[index];
+  };
+
+  const getInitials = (name: string): string => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <>
@@ -161,6 +196,86 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
             </div>
           </div>
         </div>
+
+        {/* Doctors Table Section */}
+        <section className='mt-24'>
+          <div className='flex items-center justify-between mb-8'>
+            <div>
+              <h2 className='font-headline text-3xl font-bold text-on-surface'>
+                Our Doctors at {clinic.name}
+              </h2>
+              <p className='text-secondary mt-2'>
+                Meet our team of specialist dentists
+              </p>
+            </div>
+            <Link href='/doctors'>
+              <Button variant='outline' size='sm' icon='arrow_forward'>
+                View All Doctors
+              </Button>
+            </Link>
+          </div>
+
+          {clinic.doctors && clinic.doctors.length > 0 ? (
+            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+              {clinic.doctors.map((doctor) => (
+                <div
+                  key={doctor.id}
+                  className='group p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300'
+                >
+                  <div className='flex flex-col h-full'>
+                    {/* Avatar */}
+                    <div
+                      className={`w-16 h-16 rounded-full flex items-center justify-center font-headline text-lg font-bold flex-shrink-0 mb-4 ${getAvatarColor(doctor.name)}`}
+                    >
+                      {getInitials(doctor.name)}
+                    </div>
+
+                    {/* Content */}
+                    <div className='flex-1'>
+                      <h3 className='font-headline text-lg font-bold text-on-surface mb-1'>
+                        {doctor.name}
+                      </h3>
+                      <p className='text-sm text-secondary mb-2'>{doctor.title}</p>
+                      <Badge variant='info' size='sm'>
+                        {doctor.specialty}
+                      </Badge>
+                    </div>
+
+                    {/* Action */}
+                    <Link
+                      href={`/book?doctorId=${doctor.id}`}
+                      className='mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary-container transition-colors'
+                    >
+                      Book Appointment
+                      <span className='material-symbols-outlined text-base'>
+                        arrow_forward
+                      </span>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className='text-center py-16 bg-surface-container-lowest rounded-2xl border border-outline-variant/10'>
+              <div className='w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mx-auto mb-4'>
+                <span className='material-symbols-outlined text-3xl text-outline'>
+                  search_off
+                </span>
+              </div>
+              <h3 className='font-headline text-xl font-bold text-on-surface mb-2'>
+                No doctors at this clinic yet
+              </h3>
+              <p className='text-secondary mb-6'>
+                We're working on bringing you the best specialists soon.
+              </p>
+              <Link href='/doctors'>
+                <Button variant='primary' size='md' icon='search'>
+                  Browse All Doctors
+                </Button>
+              </Link>
+            </div>
+          )}
+        </section>
       </main>
     </>
   );

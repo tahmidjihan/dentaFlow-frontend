@@ -10,7 +10,7 @@ import type { UpdateDoctorInput } from '@/lib/APICalls/doctors.api';
 export function useDoctors() {
   return useQuery({
     queryKey: ['doctors'],
-    queryFn: doctorsApi.getDoctors,
+    queryFn: () => doctorsApi.getDoctors({ showToast: false }),
   });
 }
 

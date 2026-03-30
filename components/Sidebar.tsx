@@ -86,20 +86,26 @@ const navItems: NavItem[] = [
   // Patient Navigation
   {
     title: 'Overview',
-    href: '/dashboard/patient',
+    href: '/dashboard',
     icon: 'dashboard',
     roles: ['USER'],
   },
   {
+    title: 'My Appointments',
+    href: '/dashboard/appointments',
+    icon: 'calendar_today',
+    roles: ['USER'],
+  },
+  {
     title: 'Book Appointment',
-    href: '/dashboard/patient/book',
+    href: '/book',
     icon: 'calendar_add_on',
     roles: ['USER'],
   },
   {
-    title: 'My Appointments',
-    href: '/dashboard/patient/appointments',
-    icon: 'calendar_today',
+    title: 'Profile',
+    href: '/dashboard/profile',
+    icon: 'person',
     roles: ['USER'],
   },
 ];

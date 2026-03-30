@@ -37,7 +37,7 @@ export default function EditUserModal({
   onSuccess,
 }: EditUserModalProps) {
   const updateUserMutation = useUpdateUser();
-  const { data: clinics = [] } = useClinics();
+  const { data: clinics = [] } = useClinics() as { data: any[] };
 
   const [formData, setFormData] = useState<FormData>({
     name: '',

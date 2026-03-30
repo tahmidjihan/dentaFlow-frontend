@@ -30,7 +30,7 @@ export default function EditDoctorModal({
   onSuccess,
 }: EditDoctorModalProps) {
   const updateDoctorMutation = useUpdateDoctor();
-  const { data: clinics = [] } = useClinics();
+  const { data: clinics = [] } = useClinics() as { data: any[] };
 
   const [formData, setFormData] = useState<FormData>({
     name: '',

@@ -52,10 +52,16 @@ export function useSignIn() {
       options?: { onSuccess?: () => void; onError?: (error?: unknown) => void },
     ) => {
       try {
-        const result = await authClient.signIn.email({
-          email: data.email,
-          password: data.password,
-        });
+        const result = await authClient.signIn.email(
+          {
+            email: data.email,
+            password: data.password,
+          },
+          {
+            // Disable automatic redirect - we handle it manually
+            // redirectTo: undefined,
+          },
+        );
 
         if (result.error) {
           options?.onError?.(result.error);
@@ -87,11 +93,17 @@ export function useSignUp() {
       options?: { onSuccess?: () => void; onError?: (error?: unknown) => void },
     ) => {
       try {
-        const result = await authClient.signUp.email({
-          email: data.email,
-          password: data.password,
-          name: data.name,
-        });
+        const result = await authClient.signUp.email(
+          {
+            email: data.email,
+            password: data.password,
+            name: data.name,
+          },
+          {
+            // Disable automatic redirect - we handle it manually
+            // redirectTo: undefined,
+          },
+        );
 
         if (result.error) {
           options?.onError?.(result.error);

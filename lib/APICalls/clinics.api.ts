@@ -19,12 +19,12 @@ export interface UpdateClinicInput extends Partial<CreateClinicInput> {}
 /**
  * Get all clinics
  */
-export const getClinics = () => get<Clinic[]>('/api/clinics');
+export const getClinics = (options?: { showToast?: boolean }) => get<Clinic[]>('/api/clinics', options);
 
 /**
  * Get clinic by ID
  */
-export const getClinicById = (id: string) => get<Clinic>(`/api/clinics/${id}`);
+export const getClinicById = (id: string, options?: { showToast?: boolean }) => get<Clinic>(`/api/clinics/${id}`, options);
 
 /**
  * Create a new clinic (Admin only)

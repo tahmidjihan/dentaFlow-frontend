@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Skip proxy for verify-email route
-  if (pathname.startsWith('/verify-email')) {
+  // Skip proxy for verify-email route and auth pages
+  if (pathname.startsWith('/verify-email') || pathname.startsWith('/auth')) {
     return NextResponse.next();
   }
 
@@ -26,7 +26,3 @@ export function proxy(request: NextRequest) {
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ['/dashboard/:path*', '/dashboard/admin/:path*'],
-};

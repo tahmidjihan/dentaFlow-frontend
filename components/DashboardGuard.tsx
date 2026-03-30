@@ -1,6 +1,6 @@
 'use client';
 
-import { useSession } from '@/lib/auth-client';
+import { authClient, useSession } from '@/lib/auth-client';
 import { redirect } from 'next/navigation';
 import { useEffect } from 'react';
 
@@ -9,12 +9,12 @@ interface DashboardGuardProps {
 }
 
 export function DashboardGuard({ children }: DashboardGuardProps) {
-  const session: any = useSession();
+  const { data: session, isPending: isLoading } = authClient.useSession();
+
   useEffect(() => {
     // console.log(session);
-    if (session.isPending) return; // Wait until the session is loaded
-    if (!session.isAuthenticated) {
-      redirect('/auth/login'); // Redirect to login if not authenticated
+    if (!isLoading && !session) {
+      redirect('/auth/login?callbackUrl=/dashboard');
     }
   }, [session]);
 
