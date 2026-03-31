@@ -1,3 +1,4 @@
+'use client';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BookingForm from '@/components/BookingForm';
@@ -8,6 +9,8 @@ import type { Clinic, Doctor } from '@/types/database';
 import type { User } from '@/types/database';
 import Link from 'next/link';
 import { Badge, Button } from '@/components/ui';
+import { useEffect, useState } from 'react';
+import { use } from 'react';
 
 interface ClinicPageProps {
   params: Promise<{ id: string }>;
@@ -25,26 +28,44 @@ interface ClinicWithDoctors extends Clinic {
   }>;
 }
 
-export async function generateStaticParams() {
-  return [];
-}
+export default function ClinicPage({ params }: ClinicPageProps) {
+  const { id } = use(params);
+  const [clinic, setClinic] = useState<ClinicWithDoctors | null>(null);
+  const [practitioners, setPractitioners] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function ClinicPage({ params }: ClinicPageProps) {
-  const { id } = await params;
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [clinicData, doctorsData] = await Promise.all([
+          getClinicById(id, { showToast: false }),
+          getDoctors({ showToast: false }),
+        ]);
+        setClinic(clinicData as ClinicWithDoctors);
+        // Filter doctors by clinic ID
+        setPractitioners(
+          (doctorsData as User[]).filter((doctor) => doctor.clinicId === id),
+        );
+      } catch (error) {
+        console.error('Failed to fetch clinic:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, [id]);
 
-  let clinic: ClinicWithDoctors | null = null;
-  let practitioners: User[] = [];
-
-  try {
-    const [clinicData, doctorsData] = await Promise.all([
-      getClinicById(id, { showToast: false }),
-      getDoctors({ showToast: false }),
-    ]);
-    clinic = clinicData as ClinicWithDoctors;
-    // Filter doctors by clinic ID
-    practitioners = (doctorsData as User[]).filter((doctor) => doctor.clinicId === id);
-  } catch (error) {
-    console.error('Failed to fetch clinic:', error);
+  if (loading) {
+    return (
+      <main className='pt-32 pb-24 px-8 max-w-screen-2xl mx-auto min-h-screen flex items-center justify-center'>
+        <div className='text-center'>
+          <span className='material-symbols-outlined text-4xl text-primary animate-spin mb-4'>
+            progress_activity
+          </span>
+          <p className='text-secondary'>Loading clinic details...</p>
+        </div>
+      </main>
+    );
   }
 
   if (!clinic) {
@@ -235,7 +256,9 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                       <h3 className='font-headline text-lg font-bold text-on-surface mb-1'>
                         {doctor.name}
                       </h3>
-                      <p className='text-sm text-secondary mb-2'>{doctor.title}</p>
+                      <p className='text-sm text-secondary mb-2'>
+                        {doctor.title}
+                      </p>
                       <Badge variant='info' size='sm'>
                         {doctor.specialty}
                       </Badge>
@@ -263,7 +286,7 @@ export default async function ClinicPage({ params }: ClinicPageProps) {
                 </span>
               </div>
               <h3 className='font-headline text-xl font-bold text-on-surface mb-2'>
-                No doctors at this clinic yet
+                No doctor to show
               </h3>
               <p className='text-secondary mb-6'>
                 We're working on bringing you the best specialists soon.

@@ -14,6 +14,7 @@ export function DashboardGuard({ children }: DashboardGuardProps) {
   useEffect(() => {
     // console.log(session);
     if (!isLoading && !session) {
+      // console.log(`loading ${isLoading}; session =>  ${session}`);
       redirect('/auth/login?callbackUrl=/dashboard');
     }
   }, [session]);

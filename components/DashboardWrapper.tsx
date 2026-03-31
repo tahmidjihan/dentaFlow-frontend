@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import MobileHeader from '@/components/MobileHeader';
+import { DashboardGuard } from './DashboardGuard';
 
 type UserRole = 'DOCTOR' | 'ADMIN' | 'USER';
 
@@ -21,16 +22,18 @@ export default function DashboardWrapper({
 
   return (
     <>
-      <Sidebar
-        role={role}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-      <MobileHeader
-        title={mobileTitle}
-        onMenuClick={() => setIsSidebarOpen(true)}
-      />
-      {children}
+      <DashboardGuard>
+        <Sidebar
+          role={role}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+        <MobileHeader
+          title={mobileTitle}
+          onMenuClick={() => setIsSidebarOpen(true)}
+        />
+        {children}
+      </DashboardGuard>
     </>
   );
 }

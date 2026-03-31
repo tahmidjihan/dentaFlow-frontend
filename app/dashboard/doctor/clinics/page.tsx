@@ -2,8 +2,11 @@
 
 import React, { useState, useMemo } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
+import DoctorGuard from '@/components/DoctorGuard';
 import ClinicCard from '@/components/ClinicCard';
-import CreateClinicModal, { CreateClinicFormData } from '@/components/CreateClinicModal';
+import CreateClinicModal, {
+  CreateClinicFormData,
+} from '@/components/CreateClinicModal';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import LeaveConfirmModal from '@/components/LeaveConfirmModal';
 import Button from '@/components/ui/Button';
@@ -28,7 +31,9 @@ export default function ClinicsPage() {
   const isLoading = clinicsLoading;
 
   // Simulated doctor memberships (for demo purposes - will be replaced with API)
-  const [memberships, setMemberships] = useState<Record<string, 'OWNER' | 'MEMBER'>>({
+  const [memberships, setMemberships] = useState<
+    Record<string, 'OWNER' | 'MEMBER'>
+  >({
     'the-sanctuary-highwood': 'OWNER',
     'the-chelsea-mews': 'MEMBER',
   });
@@ -53,15 +58,21 @@ export default function ClinicsPage() {
         const matchesName = clinic.name.toLowerCase().includes(query);
         const matchesLocation = clinic.location.toLowerCase().includes(query);
         const matchesCity = clinic.city.toLowerCase().includes(query);
-        const matchesSpecialty = clinic.specialty?.toLowerCase().includes(query);
-        return matchesName || matchesLocation || matchesCity || matchesSpecialty;
+        const matchesSpecialty = clinic.specialty
+          ?.toLowerCase()
+          .includes(query);
+        return (
+          matchesName || matchesLocation || matchesCity || matchesSpecialty
+        );
       }
 
       return true;
     });
   }, [clinics, memberships, filter, searchQuery]);
 
-  const getMembershipStatus = (clinicId: string): 'OWNER' | 'MEMBER' | 'AVAILABLE' => {
+  const getMembershipStatus = (
+    clinicId: string,
+  ): 'OWNER' | 'MEMBER' | 'AVAILABLE' => {
     return memberships[clinicId] || 'AVAILABLE';
   };
 
@@ -134,188 +145,202 @@ export default function ClinicsPage() {
   };
 
   return (
-    <DashboardWrapper role="DOCTOR" mobileTitle="Clinics">
-      <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
-      {/* Header */}
-      <header className='mb-12'>
-        <p className='font-label text-xs uppercase tracking-widest text-secondary mb-3'>
-          Clinic Management
-        </p>
-        <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
-          <div>
-            <h1 className='font-headline text-5xl font-extrabold tracking-tighter text-on-background max-w-2xl'>
-              Manage your clinics
-            </h1>
-            <p className='text-secondary mt-2 max-w-xl'>
-              View, join, or create clinic locations. Manage your memberships and access clinic resources.
+    <DoctorGuard>
+      <DashboardWrapper role='DOCTOR' mobileTitle='Clinics'>
+        <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
+          {/* Header */}
+          <header className='mb-12'>
+            <p className='font-label text-xs uppercase tracking-widest text-secondary mb-3'>
+              Clinic Management
             </p>
-          </div>
-          <Button
-            onClick={() => setIsCreateModalOpen(true)}
-            icon='add'
-            className='min-w-[160px]'
-          >
-            Create Clinic
-          </Button>
-        </div>
-      </header>
-
-      {/* Filters and Search */}
-      <section className='bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden mb-6'>
-        {isLoading ? (
-          <div className='flex items-center justify-center py-16'>
-            <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
-          </div>
-        ) : (
-          <>
-        <div className='p-6 border-b border-outline-variant/10 bg-surface-container-low/30'>
-          <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between'>
-            {/* Filter Tabs */}
-            <div className='flex gap-2 bg-surface-container-low p-1 rounded-xl w-full lg:w-auto'>
-              <button
-                onClick={() => setFilter('all')}
-                className={`flex-1 lg:flex-none px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider transition-all ${
-                  filter === 'all'
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'text-outline hover:bg-surface-container-high'
-                }`}
+            <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
+              <div>
+                <h1 className='font-headline text-5xl font-extrabold tracking-tighter text-on-background max-w-2xl'>
+                  Manage your clinics
+                </h1>
+                <p className='text-secondary mt-2 max-w-xl'>
+                  View, join, or create clinic locations. Manage your
+                  memberships and access clinic resources.
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsCreateModalOpen(true)}
+                icon='add'
+                className='min-w-[160px]'
               >
-                All Clinics
-              </button>
-              <button
-                onClick={() => setFilter('my-clinics')}
-                className={`flex-1 lg:flex-none px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider transition-all ${
-                  filter === 'my-clinics'
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'text-outline hover:bg-surface-container-high'
-                }`}
-              >
-                My Clinics
-              </button>
-              <button
-                onClick={() => setFilter('available')}
-                className={`flex-1 lg:flex-none px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider transition-all ${
-                  filter === 'available'
-                    ? 'bg-primary text-on-primary shadow-sm'
-                    : 'text-outline hover:bg-surface-container-high'
-                }`}
-              >
-                Available
-              </button>
+                Create Clinic
+              </Button>
             </div>
+          </header>
 
-            {/* Search */}
-            <div className='relative w-full lg:w-auto'>
-              <span className='material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline'>
-                search
-              </span>
-              <input
-                type='text'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder='Search clinics...'
-                className='w-full lg:w-[300px] bg-surface-container-low/50 border-none rounded-full pl-12 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/60'
+          {/* Filters and Search */}
+          <section className='bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden mb-6'>
+            {isLoading ? (
+              <div className='flex items-center justify-center py-16'>
+                <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-primary'></div>
+              </div>
+            ) : (
+              <>
+                <div className='p-6 border-b border-outline-variant/10 bg-surface-container-low/30'>
+                  <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between'>
+                    {/* Filter Tabs */}
+                    <div className='flex gap-2 bg-surface-container-low p-1 rounded-xl w-full lg:w-auto'>
+                      <button
+                        onClick={() => setFilter('all')}
+                        className={`flex-1 lg:flex-none px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider transition-all ${
+                          filter === 'all'
+                            ? 'bg-primary text-on-primary shadow-sm'
+                            : 'text-outline hover:bg-surface-container-high'
+                        }`}
+                      >
+                        All Clinics
+                      </button>
+                      <button
+                        onClick={() => setFilter('my-clinics')}
+                        className={`flex-1 lg:flex-none px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider transition-all ${
+                          filter === 'my-clinics'
+                            ? 'bg-primary text-on-primary shadow-sm'
+                            : 'text-outline hover:bg-surface-container-high'
+                        }`}
+                      >
+                        My Clinics
+                      </button>
+                      <button
+                        onClick={() => setFilter('available')}
+                        className={`flex-1 lg:flex-none px-4 py-2 rounded-lg font-label text-xs font-bold uppercase tracking-wider transition-all ${
+                          filter === 'available'
+                            ? 'bg-primary text-on-primary shadow-sm'
+                            : 'text-outline hover:bg-surface-container-high'
+                        }`}
+                      >
+                        Available
+                      </button>
+                    </div>
+
+                    {/* Search */}
+                    <div className='relative w-full lg:w-auto'>
+                      <span className='material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline'>
+                        search
+                      </span>
+                      <input
+                        type='text'
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder='Search clinics...'
+                        className='w-full lg:w-[300px] bg-surface-container-low/50 border-none rounded-full pl-12 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/60'
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Results Count */}
+                <div className='px-6 py-3 bg-surface-container-low/10 border-b border-outline-variant/5'>
+                  <span className='text-xs text-outline font-medium'>
+                    Showing{' '}
+                    <span className='text-on-surface font-bold'>
+                      {filteredClinics.length}
+                    </span>{' '}
+                    {filteredClinics.length === 1 ? 'clinic' : 'clinics'}
+                    {searchQuery && (
+                      <span> matching &quot;{searchQuery}&quot;</span>
+                    )}
+                  </span>
+                </div>
+
+                {/* Clinic Grid */}
+                {filteredClinics.length > 0 ? (
+                  <div className='p-6'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
+                      {filteredClinics.map((clinic) => (
+                        <ClinicCard
+                          key={clinic.id}
+                          clinic={clinic}
+                          membershipStatus={getMembershipStatus(clinic.id)}
+                          onJoin={handleJoinClinic}
+                          onLeave={openLeaveModal}
+                          onDelete={openDeleteModal}
+                          isLoading={loadingActionId === clinic.id}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  /* Empty State */
+                  <div className='flex flex-col items-center justify-center py-16 text-center px-6'>
+                    <div className='w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-6'>
+                      <span className='material-symbols-outlined text-4xl text-outline'>
+                        business
+                      </span>
+                    </div>
+                    <h3 className='font-headline text-2xl font-bold text-on-surface mb-2'>
+                      No data yet
+                    </h3>
+                    <p className='text-body-medium text-secondary max-w-md mb-6'>
+                      {searchQuery
+                        ? `No clinics match your search "${searchQuery}". Try a different search term.`
+                        : filter === 'my-clinics'
+                          ? "You haven't joined any clinics yet. Browse available clinics and join one to get started."
+                          : filter === 'available'
+                            ? 'All clinics are currently at capacity or you have joined all available clinics.'
+                            : 'There are no clinics available at the moment.'}
+                    </p>
+                    {filter === 'my-clinics' && (
+                      <Button
+                        onClick={() => setFilter('available')}
+                        icon='browse_gallery'
+                      >
+                        Browse Available Clinics
+                      </Button>
+                    )}
+                    {filter === 'all' && !searchQuery && (
+                      <Button
+                        onClick={() => setIsCreateModalOpen(true)}
+                        icon='add_business'
+                      >
+                        Create Your First Clinic
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </section>
+
+          {/* Modals */}
+          <CreateClinicModal
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+            onSubmit={handleCreateClinic}
+          />
+
+          {(selectedClinicData as any) && (
+            <>
+              <DeleteConfirmModal
+                isOpen={isDeleteModalOpen}
+                entityName={(selectedClinicData as any).name}
+                entityType='Clinic'
+                onClose={() => {
+                  setIsDeleteModalOpen(false);
+                  setSelectedClinicId(null);
+                }}
+                onConfirm={() => handleDeleteClinic(selectedClinicId!)}
+                isLoading={loadingActionId === selectedClinicId}
               />
-            </div>
-          </div>
-        </div>
 
-        {/* Results Count */}
-        <div className='px-6 py-3 bg-surface-container-low/10 border-b border-outline-variant/5'>
-          <span className='text-xs text-outline font-medium'>
-            Showing <span className='text-on-surface font-bold'>{filteredClinics.length}</span>{' '}
-            {filteredClinics.length === 1 ? 'clinic' : 'clinics'}
-            {searchQuery && <span> matching &quot;{searchQuery}&quot;</span>}
-          </span>
-        </div>
-
-        {/* Clinic Grid */}
-        {filteredClinics.length > 0 ? (
-          <div className='p-6'>
-            <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
-              {filteredClinics.map((clinic) => (
-                <ClinicCard
-                  key={clinic.id}
-                  clinic={clinic}
-                  membershipStatus={getMembershipStatus(clinic.id)}
-                  onJoin={handleJoinClinic}
-                  onLeave={openLeaveModal}
-                  onDelete={openDeleteModal}
-                  isLoading={loadingActionId === clinic.id}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          /* Empty State */
-          <div className='flex flex-col items-center justify-center py-16 text-center px-6'>
-            <div className='w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-6'>
-              <span className='material-symbols-outlined text-4xl text-outline'>
-                business
-              </span>
-            </div>
-            <h3 className='font-headline text-2xl font-bold text-on-surface mb-2'>
-              No data yet
-            </h3>
-            <p className='text-body-medium text-secondary max-w-md mb-6'>
-              {searchQuery
-                ? `No clinics match your search "${searchQuery}". Try a different search term.`
-                : filter === 'my-clinics'
-                ? "You haven't joined any clinics yet. Browse available clinics and join one to get started."
-                : filter === 'available'
-                ? 'All clinics are currently at capacity or you have joined all available clinics.'
-                : 'There are no clinics available at the moment.'}
-            </p>
-            {filter === 'my-clinics' && (
-              <Button onClick={() => setFilter('available')} icon='browse_gallery'>
-                Browse Available Clinics
-              </Button>
-            )}
-            {filter === 'all' && !searchQuery && (
-              <Button onClick={() => setIsCreateModalOpen(true)} icon='add_business'>
-                Create Your First Clinic
-              </Button>
-            )}
-          </div>
-        )}
-          </>
-        )}
-      </section>
-
-      {/* Modals */}
-      <CreateClinicModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateClinic}
-      />
-
-      {(selectedClinicData as any) && (
-        <>
-          <DeleteConfirmModal
-            isOpen={isDeleteModalOpen}
-            entityName={(selectedClinicData as any).name}
-            entityType="Clinic"
-            onClose={() => {
-              setIsDeleteModalOpen(false);
-              setSelectedClinicId(null);
-            }}
-            onConfirm={() => handleDeleteClinic(selectedClinicId!)}
-            isLoading={loadingActionId === selectedClinicId}
-          />
-
-          <LeaveConfirmModal
-            isOpen={isLeaveModalOpen}
-            clinicName={(selectedClinicData as any).name}
-            onClose={() => {
-              setIsLeaveModalOpen(false);
-              setSelectedClinicId(null);
-            }}
-            onConfirm={() => handleLeaveClinic(selectedClinicId!)}
-            isLoading={loadingActionId === selectedClinicId}
-          />
-        </>
-      )}
-    </main>
-    </DashboardWrapper>
+              <LeaveConfirmModal
+                isOpen={isLeaveModalOpen}
+                clinicName={(selectedClinicData as any).name}
+                onClose={() => {
+                  setIsLeaveModalOpen(false);
+                  setSelectedClinicId(null);
+                }}
+                onConfirm={() => handleLeaveClinic(selectedClinicId!)}
+                isLoading={loadingActionId === selectedClinicId}
+              />
+            </>
+          )}
+        </main>
+      </DashboardWrapper>
+    </DoctorGuard>
   );
 }

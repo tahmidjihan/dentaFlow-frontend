@@ -15,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'DentaFlow | Modern Dental Care',
+  title: 'dentaWave | Modern Dental Care',
   description:
     'Experience clinical excellence within a sanctuary designed for your comfort. We combine advanced technology with a human-centric approach.',
 };

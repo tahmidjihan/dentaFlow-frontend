@@ -26,10 +26,26 @@ export interface SidebarProps {
 const defaultNavItems: NavItem[] = [
   { label: 'Home', href: '/dashboard', icon: 'grid_view', section: 'main' },
   { label: 'Clinics', href: '/clinics', icon: 'apartment', section: 'main' },
-  { label: 'Appointments', href: '/dashboard/doctor', icon: 'calendar_today', filled: true, section: 'main' },
+  {
+    label: 'Appointments',
+    href: '/dashboard/doctor',
+    icon: 'calendar_today',
+    filled: true,
+    section: 'main',
+  },
   { label: 'Users', href: '/dashboard/users', icon: 'group', section: 'main' },
-  { label: 'Dashboard', href: '/dashboard/analytics', icon: 'analytics', section: 'main' },
-  { label: 'Admin Settings', href: '/dashboard/settings', icon: 'settings', section: 'system' },
+  {
+    label: 'Dashboard',
+    href: '/dashboard/analytics',
+    icon: 'analytics',
+    section: 'main',
+  },
+  {
+    label: 'Admin Settings',
+    href: '/dashboard/settings',
+    icon: 'settings',
+    section: 'system',
+  },
 ];
 
 const defaultUserProfile: UserProfile = {
@@ -60,7 +76,7 @@ export default function Sidebar({
           href='/'
           className='text-2xl font-extrabold tracking-tighter text-on-background'
         >
-          DentaFlow
+          dentaWave
         </Link>
       </div>
       <nav className='flex-1 px-4 space-y-2 mt-4'>
@@ -76,15 +92,11 @@ export default function Sidebar({
           >
             <span
               className={`material-symbols-outlined ${
-                isActive(item.href) || item.filled
-                  ? ''
-                  : 'text-outline'
+                isActive(item.href) || item.filled ? '' : 'text-outline'
               }`}
               style={{
                 fontVariationSettings:
-                  isActive(item.href) || item.filled
-                    ? "'FILL' 1"
-                    : "'FILL' 0",
+                  isActive(item.href) || item.filled ? "'FILL' 1" : "'FILL' 0",
               }}
             >
               {item.icon}

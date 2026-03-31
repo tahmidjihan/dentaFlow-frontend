@@ -94,7 +94,7 @@ function AdminDashboardContent() {
                 Admin Dashboard
               </h1>
               <p className='text-secondary mt-2 max-w-xl'>
-                Manage your DentaFlow platform from a centralized control panel.
+                Manage your dentaWave platform from a centralized control panel.
               </p>
             </div>
           </div>

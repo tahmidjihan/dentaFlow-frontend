@@ -1,8 +1,8 @@
 'use client';
 import { toast } from 'sonner';
 
-// Use relative URL - rewrites in next.config.ts will handle proxying to backend
-// This ensures cookies are sent correctly for authentication
+// Use relative URL - cookies are sent correctly for same-origin requests
+// For cross-origin scenarios, ensure backend CORS is configured properly
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export interface FetchOptions extends RequestInit {
@@ -34,7 +34,6 @@ export async function fetchAPI<T>(
   } = options;
 
   const url = `${API_BASE_URL}${endpoint}`;
-  console.log(url);
 
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -46,7 +45,8 @@ export async function fetchAPI<T>(
       ...defaultHeaders,
       ...headers,
     },
-    credentials: 'include', // Include cookies for auth
+    credentials: 'include', // Always include cookies for auth
+    mode: 'cors', // Enable CORS for cross-origin requests
   };
 
   try {

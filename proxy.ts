@@ -16,13 +16,13 @@ export function proxy(request: NextRequest) {
     request.cookies.get('better-auth.session_token');
 
   // Protect dashboard routes
-  if (pathname.startsWith('/dashboard/')) {
-    if (!sessionToken) {
-      const loginUrl = new URL('/auth/login', request.url);
-      loginUrl.searchParams.set('callbackUrl', pathname);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
+  // if (pathname.startsWith('/dashboard/')) {
+  //   if (!sessionToken) {
+  //     const loginUrl = new URL('/auth/login', request.url);
+  //     loginUrl.searchParams.set('callbackUrl', pathname);
+  //     return NextResponse.redirect(loginUrl);
+  //   }
+  // }
 
   return NextResponse.next();
 }

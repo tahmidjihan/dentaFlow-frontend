@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(dentaflow-backend.vercel.app)"
+      "WebFetch(dentaWave-backend.vercel.app)"
     ]
   }
 }

@@ -2,10 +2,10 @@ import { createAuthClient } from 'better-auth/react';
 import type { User } from '@/types/database';
 
 export const authClient = createAuthClient({
-  // Use relative path for auth - rewrites will handle proxying to backend
-  baseURL: typeof window !== 'undefined' ? window.location.origin : undefined,
+  // Use API base URL from environment - empty string means relative paths
+  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
   fetchOptions: {
-    credentials: 'include',
+    credentials: 'include', // Always include cookies for auth
   },
 });
 

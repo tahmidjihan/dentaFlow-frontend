@@ -81,9 +81,10 @@ async function handleProxy(request: NextRequest, path: string[]) {
     });
 
     // Forward all Set-Cookie headers to client
-    // In development (HTTP), modify cookie attributes so browser accepts them
+    // Modify cookie attributes based on environment
     const isDev = process.env.NODE_ENV === 'development';
     const isProd = process.env.NODE_ENV === 'production';
+
     setCookieHeaders.forEach((setCookieHeader) => {
       let modifiedCookie = setCookieHeader;
 
@@ -91,13 +92,20 @@ async function handleProxy(request: NextRequest, path: string[]) {
       modifiedCookie = modifiedCookie.replace(/; Domain=[^;]+/gi, '');
 
       if (isDev) {
-        // Remove Secure flag for local development over HTTP
+        // For development (HTTP): Remove Secure flag, set SameSite=Lax
         modifiedCookie = modifiedCookie.replace(/; Secure/i, '');
-        // Change SameSite=Strict to SameSite=Lax for development
         modifiedCookie = modifiedCookie.replace(
-          /; SameSite=Strict/i,
+          /; SameSite=(Strict|None)/gi,
           '; SameSite=Lax',
         );
+      } else if (isProd) {
+        // For production (HTTPS): Ensure Secure flag and SameSite=None for cross-site
+        if (!modifiedCookie.includes('; Secure')) {
+          modifiedCookie = modifiedCookie + '; Secure';
+        }
+        if (!modifiedCookie.includes('SameSite=')) {
+          modifiedCookie = modifiedCookie + '; SameSite=None';
+        }
       }
 
       // Ensure Path is set correctly for the frontend

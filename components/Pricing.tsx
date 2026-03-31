@@ -1,5 +1,12 @@
-import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/Table";
-import Card from "@/components/ui/Card";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '@/components/ui/Table';
+import Card from '@/components/ui/Card';
 
 interface PricingRowProps {
   service: string;
@@ -9,10 +16,13 @@ interface PricingRowProps {
 function PricingRow({ service, price }: PricingRowProps) {
   return (
     <TableRow hoverable>
-      <TableCell className="font-headline font-bold text-lg border-b border-outline-variant/10">
+      <TableCell className='font-headline font-bold text-lg border-b border-outline-variant/10'>
         {service}
       </TableCell>
-      <TableCell align="right" className="font-body font-medium text-lg border-b border-outline-variant/10">
+      <TableCell
+        align='right'
+        className='font-body font-medium text-lg border-b border-outline-variant/10'
+      >
         {price}
       </TableCell>
     </TableRow>
@@ -31,7 +41,10 @@ export default function Pricing() {
             We believe in clarity. No hidden fees, just honest medical care
             focused on your well-being.
           </p>
-          <Card variant='outlined' className='p-8 rounded-2xl bg-secondary-container/30'>
+          <Card
+            variant='outlined'
+            className='p-8 rounded-2xl bg-secondary-container/30'
+          >
             <p className='font-label text-xs uppercase tracking-widest text-on-secondary-container mb-2'>
               Insurance
             </p>
@@ -47,12 +60,14 @@ export default function Pricing() {
               <TableHeader>
                 <TableRow>
                   <TableHead className='py-6 px-8'>Service</TableHead>
-                  <TableHead align='right' className='py-6 px-8'>Starting Price</TableHead>
+                  <TableHead align='right' className='py-6 px-8'>
+                    Starting Price
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 <PricingRow service='Routine Examination' price='$50' />
-                <PricingRow service='Surgeries' price='As the Procedure' />
+                <PricingRow service='Surgeries' price='$50' />
               </TableBody>
             </Table>
           </Card>

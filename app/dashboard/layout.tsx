@@ -16,7 +16,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Dashboard | DentaFlow',
+  title: 'Dashboard | dentaWave',
   description: 'Dashboard for managing appointments, clinics, and users',
 };
 

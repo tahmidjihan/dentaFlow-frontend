@@ -150,7 +150,7 @@ export function Sidebar({
               href='/'
               className='text-xl font-headline font-extrabold tracking-tighter text-on-surface'
             >
-              DentaFlow
+              dentaWave
             </Link>
             {onClose && (
               <Button

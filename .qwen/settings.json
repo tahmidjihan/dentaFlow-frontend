@@ -1,9 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(dentaflow-backend.vercel.app)",
+      "WebFetch(dentaWave-backend.vercel.app)",
       "Bash(curl *)",
-      "Read(//home/tahmid/Documents/Folders/projects/DentaFlow/**)",
+      "Read(//home/tahmid/Documents/Folders/projects/dentaWave/**)",
       "Bash(cat *)",
       "Bash(mv *)",
       "WebSearch"
