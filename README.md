@@ -10,12 +10,15 @@ Modern dental clinic management platform built with Next.js 16, React 19, and Ty
 
 ---
 
-## 🌐 Live Application
+## 🌐 Live Links
 
 | Service | URL |
 |---------|-----|
-| **Frontend** | [https://dentaflow-rho.vercel.app/](https://dentaflow-rho.vercel.app/) |
-| **Backend API** | [https://dentaflow-backend.vercel.app/](https://dentaflow-backend.vercel.app/) |
+| **Frontend Repo** | [https://github.com/your-username/project-frontend](https://github.com/your-username/project-frontend) |
+| **Backend Repo** | [https://github.com/your-username/project-backend](https://github.com/your-username/project-backend) |
+| **Frontend Live** | [https://project-frontend.vercel.app](https://project-frontend.vercel.app) |
+| **Backend Live** | [https://project-backend.vercel.app](https://project-backend.vercel.app) |
+| **Demo Video** | [https://drive.google.com/file/d/abc/view](https://drive.google.com/file/d/abc/view) |
 
 ---
 
@@ -25,8 +28,8 @@ For testing purposes, use the following admin credentials:
 
 | Field | Value |
 |-------|-------|
-| **Email** | `admin@admin.com` |
-| **Password** | `Admin123!` |
+| **Email** | `admin@project.com` |
+| **Password** | `admin123` |
 
 > ⚠️ **Note:** Please change these credentials in production environments.
 
@@ -178,8 +181,8 @@ frontend/
 
    Create a `.env.local` file:
    ```env
-   NEXT_PUBLIC_API_URL=https://dentaflow-backend.vercel.app
-   NEXT_PUBLIC_BASE_URL=https://dentaflow-rho.vercel.app
+   NEXT_PUBLIC_API_URL=https://project-backend.vercel.app
+   NEXT_PUBLIC_BASE_URL=https://project-frontend.vercel.app
    ```
 
 4. **Start the development server**
@@ -302,8 +305,8 @@ const appointment = await fetchAPI('/appointments', {
 ### Environment Variables
 
 ```env
-NEXT_PUBLIC_API_URL=https://dentaflow-backend.vercel.app
-NEXT_PUBLIC_BASE_URL=https://dentaflow-rho.vercel.app
+NEXT_PUBLIC_API_URL=https://project-backend.vercel.app
+NEXT_PUBLIC_BASE_URL=https://project-frontend.vercel.app
 ```
 
 ---
@@ -422,7 +425,7 @@ Built with Radix UI primitives and Tailwind CSS:
 For any issues or questions:
 
 - **Documentation:** Check this README
-- **Backend API:** [https://dentaflow-backend.vercel.app/health](https://dentaflow-backend.vercel.app/health)
+- **Backend API:** [https://project-backend.vercel.app/health](https://project-backend.vercel.app/health)
 - **Issues:** GitHub repository issues
 
 ---
