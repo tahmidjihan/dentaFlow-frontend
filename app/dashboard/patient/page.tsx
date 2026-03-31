@@ -5,10 +5,10 @@ import { useEffect, useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import RoleGuard from '@/components/RoleGuard';
 import { useSession } from '@/lib/hooks/use-auth';
-import { getDoctorAppointments } from '@/lib/APICalls/appointments.api';
+import { getMyAppointments } from '@/lib/APICalls/appointments.api';
 import type { Appointment } from '@/types/database';
 
-interface DoctorRoute {
+interface PatientRoute {
   title: string;
   description: string;
   href: string;
@@ -16,34 +16,39 @@ interface DoctorRoute {
   color: string;
 }
 
-const doctorRoutes: DoctorRoute[] = [
+const patientRoutes: PatientRoute[] = [
   {
-    title: 'Appointments',
+    title: 'My Appointments',
     description: 'View and manage your scheduled appointments',
-    href: '/dashboard/doctor/appointments',
+    href: '/dashboard/appointments',
     icon: 'calendar_today',
     color: 'bg-primary/10 text-primary',
   },
   {
-    title: 'Clinics',
-    description: 'View your associated clinics',
-    href: '/dashboard/doctor/clinics',
-    icon: 'business',
+    title: 'Book Appointment',
+    description: 'Schedule a new appointment with our specialists',
+    href: '/book',
+    icon: 'add_circle',
+    color: 'bg-secondary/10 text-secondary',
+  },
+  {
+    title: 'My Profile',
+    description: 'Manage your personal information',
+    href: '/dashboard/profile',
+    icon: 'person',
     color: 'bg-tertiary/10 text-tertiary',
   },
 ];
 
-function DoctorDashboardContent() {
+function PatientDashboardContent() {
   const { user } = useSession();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAppointments() {
-      if (!user?.id) return;
-
       try {
-        const data = await getDoctorAppointments(user.id);
+        const data = await getMyAppointments();
         setAppointments(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
@@ -53,35 +58,45 @@ function DoctorDashboardContent() {
     }
 
     fetchAppointments();
-  }, [user?.id]);
+  }, []);
 
   const upcomingAppointments = appointments.filter(
     (a) => a.status === 'BOOKED',
   );
   const completedAppointments = appointments.filter((a) => a.status === 'DONE');
+  const cancelledAppointments = appointments.filter(
+    (a) => a.status === 'CANCELLED',
+  );
 
   return (
-    <DashboardWrapper role='DOCTOR' mobileTitle='Doctor Dashboard'>
+    <DashboardWrapper role='USER' mobileTitle='My Dashboard'>
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12 min-h-screen'>
         {/* Header */}
         <header className='mb-12'>
           <p className='font-label text-xs uppercase tracking-widest text-secondary mb-3'>
-            Doctor Portal
+            Patient Portal
           </p>
           <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
             <div>
               <h1 className='font-headline text-5xl font-extrabold tracking-tighter text-on-background max-w-2xl'>
-                Welcome, Dr. {user?.name || 'Doctor'}
+                Welcome, {user?.name || 'Patient'}
               </h1>
               <p className='text-secondary mt-2 max-w-xl'>
-                Manage your appointments and clinic activities.
+                Manage your appointments and health records.
               </p>
             </div>
+            <Link
+              href='/book'
+              className='inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-container text-on-primary font-bold py-3 px-6 rounded-lg transition-all'
+            >
+              <span className='material-symbols-outlined'>add_circle</span>
+              Book Appointment
+            </Link>
           </div>
         </header>
 
         {/* Quick Stats */}
-        <section className='grid grid-cols-1 md:grid-cols-2 gap-6 mb-12'>
+        <section className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-12'>
           <div className='p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm'>
             <div className='flex items-center gap-4'>
               <div className='w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center'>
@@ -117,6 +132,24 @@ function DoctorDashboardContent() {
               </div>
             </div>
           </div>
+
+          <div className='p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm'>
+            <div className='flex items-center gap-4'>
+              <div className='w-12 h-12 rounded-xl bg-error/10 flex items-center justify-center'>
+                <span className='material-symbols-outlined text-error text-2xl'>
+                  cancel
+                </span>
+              </div>
+              <div>
+                <p className='text-2xl font-headline font-bold text-on-background'>
+                  {isLoading ? '-' : cancelledAppointments.length}
+                </p>
+                <p className='text-xs font-label uppercase tracking-widest text-secondary'>
+                  Cancelled
+                </p>
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Navigation Cards */}
@@ -125,7 +158,7 @@ function DoctorDashboardContent() {
             Quick Access
           </h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {doctorRoutes.map((route) => (
+            {patientRoutes.map((route) => (
               <Link
                 key={route.href}
                 href={route.href}
@@ -171,7 +204,7 @@ function DoctorDashboardContent() {
               Upcoming Appointments
             </h2>
             <Link
-              href='/dashboard/doctor/appointments'
+              href='/dashboard/appointments'
               className='text-sm font-medium text-primary hover:underline decoration-primary/30 underline-offset-4'
             >
               View all
@@ -193,8 +226,18 @@ function DoctorDashboardContent() {
                   No upcoming appointments
                 </h3>
                 <p className='text-sm text-secondary text-center max-w-md'>
-                  You have no scheduled appointments at the moment.
+                  You have no scheduled appointments. Book one now to get
+                  started.
                 </p>
+                <Link
+                  href='/book'
+                  className='mt-4 inline-flex items-center gap-2 bg-primary hover:bg-primary-container text-on-primary font-bold py-2 px-4 rounded-lg transition-all'
+                >
+                  <span className='material-symbols-outlined text-sm'>
+                    add_circle
+                  </span>
+                  Book Now
+                </Link>
               </div>
             ) : (
               <div className='space-y-4'>
@@ -206,12 +249,12 @@ function DoctorDashboardContent() {
                     <div className='flex items-center gap-4'>
                       <div className='w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center'>
                         <span className='material-symbols-outlined text-primary text-xl'>
-                          person
+                          medical_services
                         </span>
                       </div>
                       <div>
                         <p className='font-semibold text-on-surface'>
-                          {appointment.user?.name || 'Unknown Patient'}
+                          Dr. {appointment.doctor?.name || 'Unknown Doctor'}
                         </p>
                         <p className='text-xs text-secondary'>
                           {new Date(appointment.date).toLocaleDateString()} at{' '}
@@ -236,10 +279,10 @@ function DoctorDashboardContent() {
   );
 }
 
-export default function DoctorDashboardPage() {
+export default function PatientDashboardPage() {
   return (
-    <RoleGuard allowedRoles={['DOCTOR']}>
-      <DoctorDashboardContent />
+    <RoleGuard allowedRoles={['USER']}>
+      <PatientDashboardContent />
     </RoleGuard>
   );
 }

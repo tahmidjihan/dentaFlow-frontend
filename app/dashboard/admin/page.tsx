@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import DashboardWrapper from '@/components/DashboardWrapper';
+import RoleGuard from '@/components/RoleGuard';
 import { getUsers } from '@/lib/APICalls/users.api';
 import { getDoctors } from '@/lib/APICalls/doctors.api';
 import { getAppointments } from '@/lib/APICalls/appointments.api';
@@ -33,15 +34,22 @@ const adminRoutes: AdminRoute[] = [
     color: 'bg-secondary/10 text-secondary',
   },
   {
+    title: 'Clinics Management',
+    description: 'Manage clinics and their locations',
+    href: '/dashboard/admin/clinics',
+    icon: 'business',
+    color: 'bg-tertiary/10 text-tertiary',
+  },
+  {
     title: 'Appointments',
     description: 'Monitor and manage all appointments',
     href: '/dashboard/admin/appointments',
     icon: 'calendar_today',
-    color: 'bg-tertiary/10 text-tertiary',
+    color: 'bg-primary/10 text-primary',
   },
 ];
 
-export default function AdminDashboardPage() {
+function AdminDashboardContent() {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalDoctors: 0,
@@ -210,13 +218,21 @@ export default function AdminDashboardPage() {
                 No recent activity
               </h3>
               <p className='text-sm text-secondary text-center max-w-md'>
-                Activity from across your platform will appear here once you start
-                managing users, doctors, and appointments.
+                Activity from across your platform will appear here once you
+                start managing users, doctors, and appointments.
               </p>
             </div>
           </div>
         </section>
       </main>
     </DashboardWrapper>
+  );
+}
+
+export default function AdminDashboardPage() {
+  return (
+    <RoleGuard allowedRoles={['ADMIN']}>
+      <AdminDashboardContent />
+    </RoleGuard>
   );
 }

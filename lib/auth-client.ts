@@ -2,8 +2,8 @@ import { createAuthClient } from 'better-auth/react';
 import type { User } from '@/types/database';
 
 export const authClient = createAuthClient({
-  // Point to Next.js app, not backend
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
+  // Use relative path for auth - rewrites will handle proxying to backend
+  baseURL: typeof window !== 'undefined' ? window.location.origin : undefined,
   fetchOptions: {
     credentials: 'include',
   },

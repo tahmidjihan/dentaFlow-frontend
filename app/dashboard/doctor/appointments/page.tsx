@@ -4,9 +4,13 @@ import { useEffect, useState } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import { useSession } from '@/lib/hooks/use-auth';
-import { getDoctorAppointments, updateAppointmentStatus } from '@/lib/APICalls/appointments.api';
+import {
+  getDoctorAppointments,
+  updateAppointmentStatus,
+} from '@/lib/APICalls/appointments.api';
 import { useToast } from '@/components/ui/Toast';
 import type { Appointment, AppointStatus } from '@/types/database';
+import { authClient } from '@/lib/auth-client';
 
 const getStatusStyles = (status: AppointStatus) => {
   switch (status) {
@@ -22,25 +26,33 @@ const getStatusStyles = (status: AppointStatus) => {
 };
 
 export default function DoctorAppointmentsPage() {
-  const { user } = useSession();
+  // const { user } = useSession();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'BOOKED' | 'DONE' | 'CANCELLED'>('all');
-  const [cancellingAppointment, setCancellingAppointment] = useState<{ id: string; patientName: string } | null>(null);
+  const { data: session, isPending } = authClient.useSession();
+  const user = session?.user;
+
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'BOOKED' | 'DONE' | 'CANCELLED'
+  >('all');
+  const [cancellingAppointment, setCancellingAppointment] = useState<{
+    id: string;
+    patientName: string;
+  } | null>(null);
   const { success, error: showError, ToastContainer } = useToast();
 
   useEffect(() => {
     async function fetchAppointments() {
+      if (!user?.id && !isPending && !isLoading) return;
       if (!user?.id) return;
-
+      console.log(user.id);
       try {
-        const data = await getDoctorAppointments(user.id) as any[];
+        const data = (await getDoctorAppointments(user.id)) as any[];
         setAppointments(data);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
-        showError('Failed to load appointments');
       } finally {
         setIsLoading(false);
       }
@@ -55,7 +67,8 @@ export default function DoctorAppointmentsPage() {
       patientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       appointment.id.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesStatus = statusFilter === 'all' || appointment.status === statusFilter;
+    const matchesStatus =
+      statusFilter === 'all' || appointment.status === statusFilter;
 
     return matchesSearch && matchesStatus;
   });
@@ -64,7 +77,7 @@ export default function DoctorAppointmentsPage() {
     try {
       await updateAppointmentStatus(id, 'DONE');
       setAppointments((prev) =>
-        prev.map((apt) => (apt.id === id ? { ...apt, status: 'DONE' } : apt))
+        prev.map((apt) => (apt.id === id ? { ...apt, status: 'DONE' } : apt)),
       );
       success('Appointment marked as completed');
     } catch (error) {
@@ -80,8 +93,10 @@ export default function DoctorAppointmentsPage() {
       .then(() => {
         setAppointments((prev) =>
           prev.map((apt) =>
-            apt.id === cancellingAppointment.id ? { ...apt, status: 'CANCELLED' } : apt
-          )
+            apt.id === cancellingAppointment.id
+              ? { ...apt, status: 'CANCELLED' }
+              : apt,
+          ),
         );
         success('Appointment cancelled successfully');
         setCancellingAppointment(null);
@@ -96,8 +111,8 @@ export default function DoctorAppointmentsPage() {
 
   return (
     <DashboardWrapper role='DOCTOR' mobileTitle='Appointments'>
-      <ToastContainer position="top-right" />
-      
+      <ToastContainer position='top-right' />
+
       <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
         {/* Header */}
         <header className='mb-12'>
@@ -146,7 +161,9 @@ export default function DoctorAppointmentsPage() {
                 <div className='flex gap-2 flex-wrap'>
                   <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
+                    onChange={(e) =>
+                      setStatusFilter(e.target.value as typeof statusFilter)
+                    }
                     className='px-4 py-2.5 rounded-lg bg-surface-container-low border-none text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer'
                   >
                     <option value='all'>All Status</option>
@@ -161,8 +178,13 @@ export default function DoctorAppointmentsPage() {
             {/* Results Count */}
             <div className='px-6 py-3 bg-surface-container-low/10 border-b border-outline-variant/5'>
               <span className='text-xs text-outline font-medium'>
-                Showing <span className='text-on-surface font-bold'>{filteredAppointments.length}</span>{' '}
-                {filteredAppointments.length === 1 ? 'appointment' : 'appointments'}
+                Showing{' '}
+                <span className='text-on-surface font-bold'>
+                  {filteredAppointments.length}
+                </span>{' '}
+                {filteredAppointments.length === 1
+                  ? 'appointment'
+                  : 'appointments'}
                 {(searchQuery || statusFilter !== 'all') && (
                   <span> filtered</span>
                 )}
@@ -202,9 +224,12 @@ export default function DoctorAppointmentsPage() {
                             <div className='w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-[10px] font-bold text-on-secondary-container'>
                               {appointment.user?.name?.charAt(0) || 'P'}
                             </div>
-                            <span className='text-sm font-semibold text-on-surface'>
+                            <a
+                              href={`mailto:${appointment.user?.email}`}
+                              className='text-sm font-semibold text-on-surface hover:text-primary transition-colors'
+                            >
                               {appointment.user?.name || 'Unknown'}
-                            </span>
+                            </a>
                           </div>
                         </td>
                         <td className='px-8 py-6'>
@@ -213,17 +238,20 @@ export default function DoctorAppointmentsPage() {
                               {new Date(appointment.date).toLocaleDateString()}
                             </span>
                             <span className='text-[11px] text-outline'>
-                              {new Date(appointment.date).toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                              {new Date(appointment.date).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                },
+                              )}
                             </span>
                           </div>
                         </td>
                         <td className='px-8 py-6'>
                           <span
                             className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusStyles(
-                              appointment.status
+                              appointment.status,
                             )}`}
                           >
                             {appointment.status}
@@ -232,19 +260,29 @@ export default function DoctorAppointmentsPage() {
                         <td className='px-8 py-6 text-right'>
                           <div
                             className={`flex justify-end gap-2 transition-opacity ${
-                              hoveredRow === appointment.id ? 'opacity-100' : 'opacity-0'
+                              hoveredRow === appointment.id
+                                ? 'opacity-100'
+                                : 'opacity-0'
                             }`}
                           >
                             {appointment.status === 'BOOKED' && (
                               <>
                                 <button
-                                  onClick={() => handleMarkAsDone(appointment.id)}
+                                  onClick={() =>
+                                    handleMarkAsDone(appointment.id)
+                                  }
                                   className='bg-primary/10 hover:bg-primary hover:text-white text-primary text-[11px] font-bold px-4 py-1.5 rounded transition-all'
                                 >
                                   Complete
                                 </button>
                                 <button
-                                  onClick={() => setCancellingAppointment({ id: appointment.id, patientName: appointment.user?.name || 'Unknown' })}
+                                  onClick={() =>
+                                    setCancellingAppointment({
+                                      id: appointment.id,
+                                      patientName:
+                                        appointment.user?.name || 'Unknown',
+                                    })
+                                  }
                                   className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all'
                                 >
                                   Cancel
@@ -252,10 +290,14 @@ export default function DoctorAppointmentsPage() {
                               </>
                             )}
                             {appointment.status === 'DONE' && (
-                              <span className='text-xs text-outline'>Completed</span>
+                              <span className='text-xs text-outline'>
+                                Completed
+                              </span>
                             )}
                             {appointment.status === 'CANCELLED' && (
-                              <span className='text-xs text-outline'>Cancelled</span>
+                              <span className='text-xs text-outline'>
+                                Cancelled
+                              </span>
                             )}
                           </div>
                         </td>
@@ -289,15 +331,22 @@ export default function DoctorAppointmentsPage() {
             {/* Pagination Footer */}
             <div className='p-6 flex items-center justify-between bg-surface-container-low/10'>
               <span className='text-xs text-outline font-medium'>
-                Showing <span className='text-on-surface font-bold'>{filteredAppointments.length}</span>{' '}
-                {filteredAppointments.length === 1 ? 'appointment' : 'appointments'}
+                Showing{' '}
+                <span className='text-on-surface font-bold'>
+                  {filteredAppointments.length}
+                </span>{' '}
+                {filteredAppointments.length === 1
+                  ? 'appointment'
+                  : 'appointments'}
               </span>
               <div className='flex items-center gap-2'>
                 <button
                   className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline disabled:opacity-50'
                   disabled
                 >
-                  <span className='material-symbols-outlined'>chevron_left</span>
+                  <span className='material-symbols-outlined'>
+                    chevron_left
+                  </span>
                 </button>
                 <button className='w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-xs shadow-sm shadow-primary/20'>
                   1
@@ -306,7 +355,9 @@ export default function DoctorAppointmentsPage() {
                   className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all disabled:opacity-50'
                   disabled
                 >
-                  <span className='material-symbols-outlined'>chevron_right</span>
+                  <span className='material-symbols-outlined'>
+                    chevron_right
+                  </span>
                 </button>
               </div>
             </div>
@@ -318,11 +369,11 @@ export default function DoctorAppointmentsPage() {
       <DeleteConfirmModal
         isOpen={!!appointmentToCancel}
         entityName={`Appointment with ${appointmentToCancel?.patientName || ''}`}
-        entityType="Appointment"
+        entityType='Appointment'
         onClose={() => setCancellingAppointment(null)}
         onConfirm={handleCancel}
         isLoading={false}
-        warningMessage="Are you sure you want to cancel this appointment? The patient will be notified."
+        warningMessage='Are you sure you want to cancel this appointment? The patient will be notified.'
       />
     </DashboardWrapper>
   );

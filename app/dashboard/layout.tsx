@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Manrope, Inter } from 'next/font/google';
 import '../globals.css';
 import { Providers } from '@/components/providers';
-import { Toaster } from 'sonner';
 import UserAvatar from '@/components/UserAvatar';
 import { DashboardGuard } from '../../components/DashboardGuard';
 
@@ -44,7 +43,6 @@ export default function DashboardLayout({
           <main className='flex-1'>{children}</main>
         </Providers>
       </DashboardGuard>
-      <Toaster />
     </div>
   );
 }

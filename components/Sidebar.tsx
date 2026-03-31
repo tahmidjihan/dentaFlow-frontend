@@ -53,6 +53,12 @@ const navItems: NavItem[] = [
     roles: ['ADMIN'],
   },
   {
+    title: 'Clinics',
+    href: '/dashboard/admin/clinics',
+    icon: 'business',
+    roles: ['ADMIN'],
+  },
+  {
     title: 'Appointments',
     href: '/dashboard/admin/appointments',
     icon: 'calendar_today',
@@ -77,12 +83,6 @@ const navItems: NavItem[] = [
     icon: 'business',
     roles: ['DOCTOR'],
   },
-  {
-    title: 'My Patients',
-    href: '/dashboard/doctor/patients',
-    icon: 'group',
-    roles: ['DOCTOR'],
-  },
   // Patient Navigation
   {
     title: 'Overview',
@@ -100,12 +100,6 @@ const navItems: NavItem[] = [
     title: 'Book Appointment',
     href: '/book',
     icon: 'calendar_add_on',
-    roles: ['USER'],
-  },
-  {
-    title: 'Profile',
-    href: '/dashboard/profile',
-    icon: 'person',
     roles: ['USER'],
   },
 ];

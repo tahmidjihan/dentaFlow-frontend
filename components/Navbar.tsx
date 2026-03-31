@@ -91,9 +91,9 @@ export default function Navbar() {
             <Button
               size='sm'
               variant='primary'
-              onClick={() => router.push('/clinics')}
+              onClick={() => router.push('/auth/login?callbackUrl=/dashboard')}
             >
-              Book Appointment
+              Log In
             </Button>
           )}
 
@@ -208,11 +208,11 @@ export default function Navbar() {
                 variant='primary'
                 fullWidth
                 onClick={() => {
-                  router.push('/clinics');
+                  router.push('/auth/login?callbackUrl=/dashboard');
                   setIsMobileMenuOpen(false);
                 }}
               >
-                Book Appointment
+                Log In
               </Button>
             )}
           </div>

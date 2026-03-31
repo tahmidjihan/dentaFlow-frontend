@@ -2,13 +2,17 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as appointmentsApi from '@/lib/APICalls/appointments.api';
-import type { CreateAppointmentInput, UpdateAppointmentInput } from '@/lib/APICalls/appointments.api';
+import type {
+  CreateAppointmentInput,
+  UpdateAppointmentInput,
+} from '@/lib/APICalls/appointments.api';
 import type { Appointment } from '@/types/database';
 
 /**
  * Get all appointments (Protected)
  */
 export function useAppointments() {
+  console.log('use appointments');
   return useQuery<Appointment[]>({
     queryKey: ['appointments'],
     queryFn: appointmentsApi.getAppointments,

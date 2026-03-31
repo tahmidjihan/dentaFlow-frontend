@@ -33,7 +33,8 @@ export const getAppointmentById = (id: string) =>
 /**
  * Get current user's appointments (patient view) (Protected)
  */
-export const getMyAppointments = () => get<Appointment[]>('/api/appointments/my');
+export const getMyAppointments = () =>
+  get<Appointment[]>('/api/appointments/my');
 
 /**
  * Get doctor's appointments by doctor ID (Protected)

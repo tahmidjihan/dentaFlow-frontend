@@ -60,7 +60,7 @@ export default function DeleteConfirmModal({
       />
 
       {/* Modal */}
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
         <div className="bg-surface rounded-2xl shadow-2xl w-full max-w-md">
           {/* Icon */}
           <div className="pt-6 px-6 flex justify-center">

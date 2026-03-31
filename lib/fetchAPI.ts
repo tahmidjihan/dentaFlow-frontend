@@ -1,6 +1,9 @@
+'use client';
 import { toast } from 'sonner';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+// Use relative URL - rewrites in next.config.ts will handle proxying to backend
+// This ensures cookies are sent correctly for authentication
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 export interface FetchOptions extends RequestInit {
   /** Whether to show error toast on failure */
@@ -31,6 +34,7 @@ export async function fetchAPI<T>(
   } = options;
 
   const url = `${API_BASE_URL}${endpoint}`;
+  console.log(url);
 
   const defaultHeaders: HeadersInit = {
     'Content-Type': 'application/json',
@@ -103,7 +107,11 @@ export function get<T>(endpoint: string, options?: FetchOptions) {
 /**
  * POST request helper
  */
-export function post<T>(endpoint: string, data?: unknown, options?: FetchOptions) {
+export function post<T>(
+  endpoint: string,
+  data?: unknown,
+  options?: FetchOptions,
+) {
   return fetchAPI<T>(endpoint, {
     ...options,
     method: 'POST',

@@ -83,8 +83,13 @@ async function handleProxy(request: NextRequest, path: string[]) {
     // Forward all Set-Cookie headers to client
     // In development (HTTP), modify cookie attributes so browser accepts them
     const isDev = process.env.NODE_ENV === 'development';
+    const isProd = process.env.NODE_ENV === 'production';
     setCookieHeaders.forEach((setCookieHeader) => {
       let modifiedCookie = setCookieHeader;
+
+      // Remove domain attribute - cookie should be scoped to frontend origin
+      modifiedCookie = modifiedCookie.replace(/; Domain=[^;]+/gi, '');
+
       if (isDev) {
         // Remove Secure flag for local development over HTTP
         modifiedCookie = modifiedCookie.replace(/; Secure/i, '');
@@ -93,11 +98,13 @@ async function handleProxy(request: NextRequest, path: string[]) {
           /; SameSite=Strict/i,
           '; SameSite=Lax',
         );
-        // Ensure Path is set correctly for the frontend
-        if (!modifiedCookie.includes('Path=')) {
-          modifiedCookie = modifiedCookie + '; Path=/';
-        }
       }
+
+      // Ensure Path is set correctly for the frontend
+      if (!modifiedCookie.includes('Path=')) {
+        modifiedCookie = modifiedCookie + '; Path=/';
+      }
+
       console.log('[Auth Proxy] Forwarding cookie:', modifiedCookie);
       newResponse.headers.append('Set-Cookie', modifiedCookie);
     });
