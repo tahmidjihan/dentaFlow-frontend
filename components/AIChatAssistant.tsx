@@ -9,32 +9,6 @@ interface ChatMessage {
   timestamp: Date;
 }
 
-const predefinedResponses: Record<string, string> = {
-  'how often should i visit the dentist':
-    'We recommend visiting the dentist every 6 months for routine check-ups and professional cleanings. This helps detect potential issues early and maintain optimal oral health.',
-  'what should i do for a toothache':
-    'For a toothache, rinse your mouth with warm salt water, gently floss around the affected tooth to remove any trapped food, and take an over-the-counter pain reliever if needed. If the pain persists for more than 1-2 days, please book an appointment with us.',
-  'how to book an appointment':
-    'You can book an appointment by clicking the "Book Now" button in the navigation bar, or visit our Clinics page and select your preferred clinic. Choose a date and time that works for you, and you will receive a confirmation email.',
-  'do you accept insurance':
-    'Yes, we work with most major dental insurance providers. Our team will help you verify your coverage and process claims efficiently. We also offer flexible payment plans for treatments not fully covered by insurance.',
-  'what services do you offer':
-    'We offer a comprehensive range of dental services including general dentistry, cosmetic dentistry, orthodontics, oral surgery, pediatric dentistry, emergency dental care, and preventive care.',
-  'how much does teeth whitening cost':
-    'Professional teeth whitening costs vary depending on the treatment type. In-chair whitening typically ranges from £300-£600, while take-home kits are around £150-£300. Book a consultation for a personalized quote.',
-  'what are dental implants':
-    'Dental implants are titanium posts surgically placed in your jawbone to replace missing tooth roots. They provide a permanent, natural-looking solution for missing teeth and can support crowns, bridges, or dentures.',
-  'hello':
-    'Hello! Welcome to DentaWave. How can I help you today? I can answer questions about our services, booking appointments, dental care tips, and more.',
-  'hi':
-    'Hi there! Welcome to DentaWave. What can I help you with today?',
-  'thank you':
-    "You're welcome! Is there anything else I can help you with? Don't hesitate to reach out if you have more questions.",
-};
-
-const defaultResponse =
-  "Thank you for your question! While I don't have a specific answer for that right now, I can help you with information about our services, booking appointments, dental care tips, and general dental health questions. Would you like to know more about any of these topics?";
-
 const commonQuestions = [
   'How often should I visit the dentist?',
   'How do I book an appointment?',
@@ -43,36 +17,6 @@ const commonQuestions = [
   'What should I do for a toothache?',
 ];
 
-function getAIResponse(message: string): string {
-  const lowerMessage = message.toLowerCase().trim();
-
-  // Check for exact or partial matches in predefined responses
-  for (const [key, response] of Object.entries(predefinedResponses)) {
-    if (lowerMessage.includes(key) || key.includes(lowerMessage)) {
-      return response;
-    }
-  }
-
-  // Check for keyword matches
-  const keywordMap: Record<string, string[]> = {
-    'how often should i visit the dentist': ['visit', 'often', 'checkup', 'check-up', 'routine'],
-    'what should i do for a toothache': ['toothache', 'tooth ache', 'pain', 'hurt', 'sore'],
-    'how to book an appointment': ['book', 'appointment', 'schedule', 'reserve'],
-    'do you accept insurance': ['insurance', 'coverage', 'pay', 'payment'],
-    'what services do you offer': ['service', 'offer', 'treatment', 'procedure'],
-    'how much does teeth whitening cost': ['whitening', 'bleach', 'brighten', 'cost', 'price'],
-    'what are dental implants': ['implant', 'replace', 'missing tooth'],
-  };
-
-  for (const [responseKey, keywords] of Object.entries(keywordMap)) {
-    if (keywords.some((keyword) => lowerMessage.includes(keyword))) {
-      return predefinedResponses[responseKey];
-    }
-  }
-
-  return defaultResponse;
-}
-
 export default function AIChatAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -80,7 +24,7 @@ export default function AIChatAssistant() {
       id: 'welcome',
       role: 'assistant',
       content:
-        "Hi! I'm your DentaWave assistant. I can help you with information about our services, booking appointments, and dental care tips. How can I help you today?",
+        "Hi! I'm DentaBot, your AI dental assistant. I can help with dental health questions, booking guidance, and care tips. How can I help?",
       timestamp: new Date(),
     },
   ]);
@@ -110,20 +54,56 @@ export default function AIChatAssistant() {
     setInputValue('');
     setIsTyping(true);
 
-    // Simulate AI thinking
-    await new Promise((resolve) =>
-      setTimeout(resolve, 500 + Math.random() * 1000),
-    );
+    try {
+      const apiBaseUrl =
+        process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-    const aiResponse: ChatMessage = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: getAIResponse(userMessage.content),
-      timestamp: new Date(),
-    };
+      // Convert messages to API format (exclude welcome message)
+      const apiMessages = messages
+        .filter((m) => m.id !== 'welcome')
+        .map((m) => ({
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+        }));
 
-    setMessages((prev) => [...prev, aiResponse]);
-    setIsTyping(false);
+      // Add the current user message
+      apiMessages.push({ role: 'user' as const, content: userMessage.content });
+
+      const response = await fetch(`${apiBaseUrl}/api/chat/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages: apiMessages }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to get response');
+      }
+
+      const data = await response.json();
+
+      const aiResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.content,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, aiResponse]);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const aiResponse: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content:
+          "I'm having trouble connecting right now. Please try again in a moment, or feel free to book an appointment directly through our platform.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, aiResponse]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleQuickQuestion = (question: string) => {
@@ -145,9 +125,9 @@ export default function AIChatAssistant() {
               </div>
               <div>
                 <h3 className='font-headline font-bold text-on-primary text-sm'>
-                  DentaWave Assistant
+                  DentaBot AI Assistant
                 </h3>
-                <p className='text-xs text-on-primary/70'>Online</p>
+                <p className='text-xs text-on-primary/70'>Powered by AI</p>
               </div>
             </div>
             <button
@@ -181,9 +161,18 @@ export default function AIChatAssistant() {
               <div className='flex justify-start'>
                 <div className='bg-surface-container-high rounded-2xl rounded-bl-md px-4 py-3'>
                   <div className='flex gap-1'>
-                    <span className='w-2 h-2 bg-on-surface-variant/50 rounded-full animate-bounce' style={{ animationDelay: '0ms' }} />
-                    <span className='w-2 h-2 bg-on-surface-variant/50 rounded-full animate-bounce' style={{ animationDelay: '150ms' }} />
-                    <span className='w-2 h-2 bg-on-surface-variant/50 rounded-full animate-bounce' style={{ animationDelay: '300ms' }} />
+                    <span
+                      className='w-2 h-2 bg-on-surface-variant/50 rounded-full animate-bounce'
+                      style={{ animationDelay: '0ms' }}
+                    />
+                    <span
+                      className='w-2 h-2 bg-on-surface-variant/50 rounded-full animate-bounce'
+                      style={{ animationDelay: '150ms' }}
+                    />
+                    <span
+                      className='w-2 h-2 bg-on-surface-variant/50 rounded-full animate-bounce'
+                      style={{ animationDelay: '300ms' }}
+                    />
                   </div>
                 </div>
               </div>
@@ -194,7 +183,9 @@ export default function AIChatAssistant() {
           {/* Quick Questions */}
           {messages.length <= 2 && (
             <div className='px-4 pb-2'>
-              <p className='text-xs text-on-surface-variant mb-2'>Quick questions:</p>
+              <p className='text-xs text-on-surface-variant mb-2'>
+                Quick questions:
+              </p>
               <div className='flex flex-wrap gap-2'>
                 {commonQuestions.slice(0, 3).map((q) => (
                   <button
@@ -217,12 +208,12 @@ export default function AIChatAssistant() {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder='Type your message...'
+                placeholder='Ask me anything about dental care...'
                 className='flex-1 px-4 py-2 rounded-full bg-surface-container-high text-on-surface text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20'
               />
               <button
                 onClick={handleSendMessage}
-                disabled={!inputValue.trim()}
+                disabled={!inputValue.trim() || isTyping}
                 className='w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
               >
                 <span className='material-symbols-outlined text-sm'>send</span>
