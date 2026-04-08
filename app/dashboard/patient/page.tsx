@@ -56,26 +56,36 @@ const patientRoutes: PatientRoute[] = [
   },
 ];
 
-// Sample appointment trends data
-const appointmentTrendsData = [
-  { month: 'Jan', appointments: 2 },
-  { month: 'Feb', appointments: 3 },
-  { month: 'Mar', appointments: 5 },
-  { month: 'Apr', appointments: 4 },
-  { month: 'May', appointments: 6 },
-  { month: 'Jun', appointments: 8 },
-];
-
 function PatientDashboardContent() {
   const { user } = useSession();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointmentTrendsData, setAppointmentTrendsData] = useState<
+    { month: string; appointments: number }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAppointments() {
       try {
         const data = await getMyAppointments();
-        setAppointments(Array.isArray(data) ? data : []);
+        const appointmentsArray = Array.isArray(data) ? data : [];
+        setAppointments(appointmentsArray);
+
+        // Compute appointment trends over last 6 months from real data
+        const now = new Date();
+        const last6Months = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+          const monthLabel = d.toLocaleString('default', { month: 'short' });
+          const count = appointmentsArray.filter((a: Appointment) => {
+            const apptDate = new Date(a.date);
+            return (
+              apptDate.getMonth() === d.getMonth() &&
+              apptDate.getFullYear() === d.getFullYear()
+            );
+          }).length;
+          return { month: monthLabel, appointments: count };
+        });
+        setAppointmentTrendsData(last6Months);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
       } finally {
@@ -184,29 +194,42 @@ function PatientDashboardContent() {
             Appointment Trends
           </h2>
           <div className='p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm'>
-            <ResponsiveContainer width='100%' height={250}>
-              <LineChart data={appointmentTrendsData}>
-                <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
-                <XAxis dataKey='month' stroke='var(--on-surface-variant)' fontSize={12} />
-                <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--surface-container)',
-                    border: '1px solid var(--outline-variant)',
-                    borderRadius: '8px',
-                    color: 'var(--on-surface)',
-                  }}
-                />
-                <Line
-                  type='monotone'
-                  dataKey='appointments'
-                  stroke='var(--primary)'
-                  strokeWidth={2}
-                  dot={{ fill: 'var(--primary)', r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {appointmentTrendsData.length === 0 || appointmentTrendsData.every((d) => d.appointments === 0) ? (
+              <div className='flex flex-col items-center justify-center py-12'>
+                <div className='w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-3'>
+                  <span className='material-symbols-outlined text-2xl text-outline-variant'>
+                    show_chart
+                  </span>
+                </div>
+                <p className='text-sm text-on-surface-variant'>
+                  Charts will appear once data is available
+                </p>
+              </div>
+            ) : (
+              <ResponsiveContainer width='100%' height={250}>
+                <LineChart data={appointmentTrendsData}>
+                  <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
+                  <XAxis dataKey='month' stroke='var(--on-surface-variant)' fontSize={12} />
+                  <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'var(--surface-container)',
+                      border: '1px solid var(--outline-variant)',
+                      borderRadius: '8px',
+                      color: 'var(--on-surface)',
+                    }}
+                  />
+                  <Line
+                    type='monotone'
+                    dataKey='appointments'
+                    stroke='var(--primary)'
+                    strokeWidth={2}
+                    dot={{ fill: 'var(--primary)', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 

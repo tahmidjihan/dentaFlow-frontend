@@ -73,29 +73,18 @@ const adminRoutes: AdminRoute[] = [
   },
 ];
 
-// Sample user growth data
-const userGrowthData = [
-  { month: 'Jan', users: 120 },
-  { month: 'Feb', users: 180 },
-  { month: 'Mar', users: 250 },
-  { month: 'Apr', users: 320 },
-  { month: 'May', users: 400 },
-  { month: 'Jun', users: 520 },
-];
-
-// Role distribution data
-const roleDistributionData = [
-  { name: 'Patients', value: 380, color: 'var(--primary)' },
-  { name: 'Doctors', value: 85, color: 'var(--secondary)' },
-  { name: 'Admins', value: 15, color: 'var(--tertiary)' },
-];
-
 function AdminDashboardContent() {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalDoctors: 0,
     totalAppointments: 0,
   });
+  const [userGrowthData, setUserGrowthData] = useState<
+    { month: string; users: number }[]
+  >([]);
+  const [roleDistributionData, setRoleDistributionData] = useState<
+    { name: string; value: number; color: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -106,11 +95,57 @@ function AdminDashboardContent() {
           getDoctors() as Promise<any[]>,
           getAppointments() as Promise<any[]>,
         ]);
+
+        const usersArray = Array.isArray(users) ? users : [];
+        const doctorsArray = Array.isArray(doctors) ? doctors : [];
+        const appointmentsArray = Array.isArray(appointments)
+          ? appointments
+          : [];
+
         setStats({
-          totalUsers: users.length,
-          totalDoctors: doctors.length,
-          totalAppointments: appointments.length,
+          totalUsers: usersArray.length,
+          totalDoctors: doctorsArray.length,
+          totalAppointments: appointmentsArray.length,
         });
+
+        // Compute role distribution from real data
+        const roleDistribution = [
+          {
+            name: 'Patients',
+            value: usersArray.filter(
+              (u: any) => u.role === 'USER' || u.role === 'PATIENT',
+            ).length,
+            color: 'var(--primary)',
+          },
+          {
+            name: 'Doctors',
+            value: doctorsArray.length,
+            color: 'var(--secondary)',
+          },
+          {
+            name: 'Admins',
+            value: usersArray.filter((u: any) => u.role === 'ADMIN').length,
+            color: 'var(--tertiary)',
+          },
+        ].filter((r) => r.value > 0);
+        setRoleDistributionData(roleDistribution);
+
+        // Compute user growth over last 6 months from real user creation dates
+        const now = new Date();
+        const last6Months = Array.from({ length: 6 }, (_, i) => {
+          const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+          return {
+            month: d.toLocaleString('default', { month: 'short' }),
+            users: usersArray.filter((u: any) => {
+              const created = new Date(u.createdAt || u.created_at || u.createdAt);
+              return (
+                created.getMonth() === d.getMonth() &&
+                created.getFullYear() === d.getFullYear()
+              );
+            }).length,
+          };
+        });
+        setUserGrowthData(last6Months);
       } catch (error) {
         console.error('Failed to fetch stats:', error);
       } finally {
@@ -205,29 +240,42 @@ function AdminDashboardContent() {
             <h2 className='font-headline text-lg font-bold text-on-surface mb-4'>
               User Growth
             </h2>
-            <ResponsiveContainer width='100%' height={250}>
-              <LineChart data={userGrowthData}>
-                <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
-                <XAxis dataKey='month' stroke='var(--on-surface-variant)' fontSize={12} />
-                <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--surface-container)',
-                    border: '1px solid var(--outline-variant)',
-                    borderRadius: '8px',
-                    color: 'var(--on-surface)',
-                  }}
-                />
-                <Line
-                  type='monotone'
-                  dataKey='users'
-                  stroke='var(--primary)'
-                  strokeWidth={2}
-                  dot={{ fill: 'var(--primary)', r: 4 }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {userGrowthData.length === 0 || userGrowthData.every((d) => d.users === 0) ? (
+              <div className='flex flex-col items-center justify-center py-12'>
+                <div className='w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-3'>
+                  <span className='material-symbols-outlined text-2xl text-outline-variant'>
+                    timeline
+                  </span>
+                </div>
+                <p className='text-sm text-on-surface-variant'>
+                  Charts will appear once data is available
+                </p>
+              </div>
+            ) : (
+              <ResponsiveContainer width='100%' height={250}>
+                <LineChart data={userGrowthData}>
+                  <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
+                  <XAxis dataKey='month' stroke='var(--on-surface-variant)' fontSize={12} />
+                  <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'var(--surface-container)',
+                      border: '1px solid var(--outline-variant)',
+                      borderRadius: '8px',
+                      color: 'var(--on-surface)',
+                    }}
+                  />
+                  <Line
+                    type='monotone'
+                    dataKey='users'
+                    stroke='var(--primary)'
+                    strokeWidth={2}
+                    dot={{ fill: 'var(--primary)', r: 4 }}
+                    activeDot={{ r: 6 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </div>
 
           {/* Role Distribution Chart */}
@@ -235,32 +283,45 @@ function AdminDashboardContent() {
             <h2 className='font-headline text-lg font-bold text-on-surface mb-4'>
               Role Distribution
             </h2>
-            <ResponsiveContainer width='100%' height={250}>
-              <PieChart>
-                <Pie
-                  data={roleDistributionData}
-                  cx='50%'
-                  cy='50%'
-                  outerRadius={80}
-                  dataKey='value'
-                  label={({ name, percent }) =>
-                    `${name} (${(percent * 100).toFixed(0)}%)`
-                  }
-                >
-                  {roleDistributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--surface-container)',
-                    border: '1px solid var(--outline-variant)',
-                    borderRadius: '8px',
-                    color: 'var(--on-surface)',
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {roleDistributionData.length === 0 ? (
+              <div className='flex flex-col items-center justify-center py-12'>
+                <div className='w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-3'>
+                  <span className='material-symbols-outlined text-2xl text-outline-variant'>
+                    donut_large
+                  </span>
+                </div>
+                <p className='text-sm text-on-surface-variant'>
+                  Charts will appear once data is available
+                </p>
+              </div>
+            ) : (
+              <ResponsiveContainer width='100%' height={250}>
+                <PieChart>
+                  <Pie
+                    data={roleDistributionData}
+                    cx='50%'
+                    cy='50%'
+                    outerRadius={80}
+                    dataKey='value'
+                    label={({ name, percent }) =>
+                      `${name} (${(percent * 100).toFixed(0)}%)`
+                    }
+                  >
+                    {roleDistributionData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'var(--surface-container)',
+                      border: '1px solid var(--outline-variant)',
+                      borderRadius: '8px',
+                      color: 'var(--on-surface)',
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 

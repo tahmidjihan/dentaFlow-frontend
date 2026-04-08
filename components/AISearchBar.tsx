@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useClinics } from '@/lib/hooks/use-clinics';
+import { useDoctors } from '@/lib/hooks/use-doctors';
 
 interface Suggestion {
   id: string;
@@ -8,21 +10,6 @@ interface Suggestion {
   icon: string;
   type: 'clinic' | 'doctor' | 'service';
 }
-
-const allSuggestions: Suggestion[] = [
-  { id: '1', text: 'General Dentistry Clinic', icon: 'business', type: 'clinic' },
-  { id: '2', text: 'Orthodontist Near Me', icon: 'medical_services', type: 'doctor' },
-  { id: '3', text: 'Teeth Whitening Service', icon: 'brightness_1', type: 'service' },
-  { id: '4', text: 'Pediatric Dentist', icon: 'child_care', type: 'doctor' },
-  { id: '5', text: 'Emergency Dental Care', icon: 'warning', type: 'service' },
-  { id: '6', text: 'Dental Implants Clinic', icon: 'construction', type: 'clinic' },
-  { id: '7', text: 'Cosmetic Dentistry', icon: 'auto_awesome', type: 'service' },
-  { id: '8', text: 'Oral Surgeon', icon: 'engineering', type: 'doctor' },
-  { id: '9', text: 'Root Canal Treatment', icon: 'healing', type: 'service' },
-  { id: '10', text: 'London Dental Clinic', icon: 'location_on', type: 'clinic' },
-  { id: '11', text: 'Invisalign Specialist', icon: 'science', type: 'doctor' },
-  { id: '12', text: 'Teeth Cleaning Service', icon: 'cleaning', type: 'service' },
-];
 
 interface AISearchBarProps {
   onSearch?: (query: string) => void;
@@ -33,28 +20,64 @@ export default function AISearchBar({
   onSearch,
   placeholder = 'Search clinics, doctors, services...',
 }: AISearchBarProps) {
+  const { data: clinics = [] } = useClinics();
+  const { data: doctors = [] } = useDoctors();
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
+  // Build suggestions from real API data
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    const generated: Suggestion[] = [];
 
-  useEffect(() => {
+    // Add clinics as suggestions
+    if (Array.isArray(clinics)) {
+      clinics.forEach((clinic: any) => {
+        if (clinic.name) {
+          generated.push({
+            id: `clinic-${clinic.id}`,
+            text: clinic.name,
+            icon: 'business',
+            type: 'clinic',
+          });
+        }
+      });
+    }
+
+    // Add doctors as suggestions
+    if (Array.isArray(doctors)) {
+      doctors.forEach((doctor: any) => {
+        if (doctor.name) {
+          generated.push({
+            id: `doctor-${doctor.id}`,
+            text: `${doctor.name} — ${doctor.specialty || 'Dentist'}`,
+            icon: 'medical_services',
+            type: 'doctor',
+          });
+        }
+      });
+    }
+
+    // If no data yet, show generic service types based on specialties
+    if (generated.length === 0) {
+      const genericServices: Suggestion[] = [
+        { id: 'svc-1', text: 'General Dentistry', icon: 'medical_services', type: 'service' },
+        { id: 'svc-2', text: 'Orthodontics', icon: 'science', type: 'service' },
+        { id: 'svc-3', text: 'Teeth Whitening', icon: 'brightness_1', type: 'service' },
+        { id: 'svc-4', text: 'Dental Implants', icon: 'construction', type: 'service' },
+        { id: 'svc-5', text: 'Pediatric Dentistry', icon: 'child_care', type: 'service' },
+        { id: 'svc-6', text: 'Root Canal Treatment', icon: 'healing', type: 'service' },
+      ];
+      generated.push(...genericServices);
+    }
+
+    // Filter by query if provided
     if (query.trim().length > 0) {
       const lowerQuery = query.toLowerCase();
-      const filtered = allSuggestions.filter((s) =>
+      const filtered = generated.filter((s) =>
         s.text.toLowerCase().includes(lowerQuery),
       );
-      // Rank by relevance: starts with query first, then includes
       const ranked = filtered.sort((a, b) => {
         const aStarts = a.text.toLowerCase().startsWith(lowerQuery);
         const bStarts = b.text.toLowerCase().startsWith(lowerQuery);
@@ -63,12 +86,23 @@ export default function AISearchBar({
         return 0;
       });
       setSuggestions(ranked.slice(0, 5));
-      setShowSuggestions(true);
     } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      setSuggestions(generated.slice(0, 5));
     }
-  }, [query]);
+  }, [query, clinics, doctors]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        wrapperRef.current &&
+        !wrapperRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSelect = (suggestion: Suggestion) => {
     setQuery(suggestion.text);
@@ -93,7 +127,7 @@ export default function AISearchBar({
             type='text'
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onFocus={() => query.trim() && setShowSuggestions(true)}
+            onFocus={() => setShowSuggestions(true)}
             placeholder={placeholder}
             className='w-full pl-12 pr-12 py-4 rounded-xl bg-surface-container-lowest border border-outline-variant/20 text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all shadow-sm'
           />
@@ -120,7 +154,9 @@ export default function AISearchBar({
               <span className='material-symbols-outlined text-on-surface-variant text-sm'>
                 {suggestion.icon}
               </span>
-              <span className='text-sm text-on-surface flex-1'>{suggestion.text}</span>
+              <span className='text-sm text-on-surface flex-1'>
+                {suggestion.text}
+              </span>
               <span className='text-xs text-on-surface-variant uppercase px-2 py-0.5 rounded bg-surface-container-high'>
                 {suggestion.type}
               </span>

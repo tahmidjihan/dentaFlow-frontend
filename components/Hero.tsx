@@ -49,21 +49,41 @@ export default function Hero() {
         <div
           className={`lg:col-span-5 relative transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
         >
-          <div className='aspect-[4/5] rounded-[2rem] overflow-hidden editorial-shadow'>
-            <img
-              className='w-full h-full object-cover grayscale-[20%] hover:scale-105 transition-transform duration-700'
-              src='https://images.unsplash.com/photo-1629909613654-28e377c37b09?q=80&w=2068&auto=format&fit=crop'
-              alt='Minimalist aesthetic dental clinic interior with soft natural light'
-            />
-          </div>
-          {/* Decorative element */}
-          <div className='absolute -bottom-4 md:-bottom-6 -left-4 md:-left-6 bg-secondary-container p-6 md:p-8 rounded-2xl hidden md:block'>
-            <p className='font-headline text-on-secondary-container font-bold text-3xl md:text-4xl leading-tight'>
-              98%
-            </p>
-            <p className='font-label text-on-secondary-container/70 text-xs uppercase tracking-widest mt-1'>
-              Patient Satisfaction
-            </p>
+          {/* Abstract decorative illustration instead of stock photo */}
+          <div className='aspect-[4/5] rounded-[2rem] overflow-hidden editorial-shadow relative'>
+            <div className='absolute inset-0 bg-gradient-to-br from-primary/20 via-primary-container/30 to-secondary-container/40' />
+            {/* Abstract dental-themed SVG illustration */}
+            <svg
+              viewBox='0 0 400 500'
+              className='absolute inset-0 w-full h-full opacity-30'
+              fill='none'
+              xmlns='http://www.w3.org/2000/svg'
+            >
+              {/* Tooth-like abstract shape */}
+              <path
+                d='M200 80C160 80 130 110 130 150C130 190 140 220 150 260C160 300 170 350 170 380C170 410 185 430 200 430C215 430 230 410 230 380C230 350 240 300 250 260C260 220 270 190 270 150C270 110 240 80 200 80Z'
+                fill='white'
+                fillOpacity='0.15'
+              />
+              {/* Decorative circles */}
+              <circle cx='80' cy='120' r='40' fill='white' fillOpacity='0.08' />
+              <circle cx='320' cy='180' r='60' fill='white' fillOpacity='0.06' />
+              <circle cx='120' cy='350' r='30' fill='white' fillOpacity='0.1' />
+              <circle cx='300' cy='380' r='45' fill='white' fillOpacity='0.07' />
+              {/* Abstract wave */}
+              <path
+                d='M0 280C100 250 150 300 200 270C250 240 300 280 400 260'
+                stroke='white'
+                strokeWidth='2'
+                strokeOpacity='0.2'
+              />
+              <path
+                d='M0 320C120 290 180 340 250 310C320 280 360 320 400 300'
+                stroke='white'
+                strokeWidth='1.5'
+                strokeOpacity='0.15'
+              />
+            </svg>
           </div>
         </div>
       </div>

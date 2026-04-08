@@ -124,7 +124,11 @@ export default function DoctorDetailsPage({ params }: DoctorPageProps) {
                 <p className='font-headline font-bold text-on-surface'>
                   Experience
                 </p>
-                <p className='text-secondary'>{doctor.experience || '10'}+ years</p>
+                {doctor.experience ? (
+                  <p className='text-secondary'>{doctor.experience}+ years</p>
+                ) : (
+                  <p className='text-secondary'>Experience details not yet available</p>
+                )}
               </div>
             </div>
 
@@ -136,9 +140,13 @@ export default function DoctorDetailsPage({ params }: DoctorPageProps) {
                 <p className='font-headline font-bold text-on-surface'>
                   Rating
                 </p>
-                <p className='text-secondary'>
-                  {doctor.rating || '4.9'} ({doctor.reviewCount || '120'} reviews)
-                </p>
+                {doctor.rating ? (
+                  <p className='text-secondary'>
+                    {doctor.rating} ({doctor.reviewCount ?? 0} reviews)
+                  </p>
+                ) : (
+                  <p className='text-secondary'>No ratings yet</p>
+                )}
               </div>
             </div>
 
@@ -198,76 +206,51 @@ export default function DoctorDetailsPage({ params }: DoctorPageProps) {
 
             <div className='flex items-center gap-4 mb-6 p-4 bg-surface-container-low rounded-xl'>
               <div className='text-center'>
-                <p className='text-3xl font-headline font-bold text-on-surface'>
-                  {doctor.rating || '4.9'}
-                </p>
-                <div className='flex text-warning'>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className='material-symbols-filled text-lg'
-                    >
-                      star
-                    </span>
-                  ))}
-                </div>
-                <p className='text-xs text-on-surface-variant mt-1'>
-                  {doctor.reviewCount || '120'} reviews
-                </p>
+                {doctor.rating ? (
+                  <>
+                    <p className='text-3xl font-headline font-bold text-on-surface'>
+                      {doctor.rating}
+                    </p>
+                    <div className='flex text-warning'>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <span
+                          key={star}
+                          className='material-symbols-filled text-lg'
+                        >
+                          star
+                        </span>
+                      ))}
+                    </div>
+                    <p className='text-xs text-on-surface-variant mt-1'>
+                      {doctor.reviewCount ?? 0} reviews
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className='text-lg font-headline font-bold text-on-surface'>
+                      No reviews yet
+                    </p>
+                    <p className='text-xs text-on-surface-variant mt-1'>
+                      Be the first to share your experience
+                    </p>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Sample Reviews */}
-            <div className='space-y-4'>
-              {[
-                {
-                  name: 'Sarah M.',
-                  comment:
-                    'Excellent care and very thorough. Made me feel comfortable throughout the entire procedure.',
-                  rating: 5,
-                  date: '2 weeks ago',
-                },
-                {
-                  name: 'James L.',
-                  comment:
-                    'Very professional and friendly. Would highly recommend to anyone looking for quality dental care.',
-                  rating: 5,
-                  date: '1 month ago',
-                },
-              ].map((review, i) => (
-                <div
-                  key={i}
-                  className='p-4 bg-surface-container-low/50 rounded-xl'
-                >
-                  <div className='flex items-center justify-between mb-2'>
-                    <div className='flex items-center gap-2'>
-                      <div className='w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary'>
-                        {review.name[0]}
-                      </div>
-                      <span className='text-sm font-semibold text-on-surface'>
-                        {review.name}
-                      </span>
-                    </div>
-                    <span className='text-xs text-on-surface-variant'>
-                      {review.date}
-                    </span>
-                  </div>
-                  <div className='flex text-warning mb-2'>
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <span
-                        key={star}
-                        className={`material-symbols-${star <= review.rating ? 'filled' : 'outlined'} text-sm`}
-                      >
-                        star
-                      </span>
-                    ))}
-                  </div>
-                  <p className='text-sm text-on-surface-variant'>
-                    {review.comment}
-                  </p>
+            {/* Reviews placeholder */}
+            {!doctor.reviewCount && (
+              <div className='flex flex-col items-center justify-center py-8'>
+                <div className='w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-3'>
+                  <span className='material-symbols-outlined text-2xl text-outline-variant'>
+                    rate_review
+                  </span>
                 </div>
-              ))}
-            </div>
+                <p className='text-sm text-on-surface-variant'>
+                  No reviews available for this doctor yet
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

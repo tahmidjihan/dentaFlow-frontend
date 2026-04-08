@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useSession } from '@/lib/hooks/use-auth';
 
 export interface NavItem {
   label: string;
@@ -14,7 +15,7 @@ export interface NavItem {
 export interface UserProfile {
   name: string;
   role: string;
-  image: string;
+  image?: string;
 }
 
 export interface SidebarProps {
@@ -48,19 +49,38 @@ const defaultNavItems: NavItem[] = [
   },
 ];
 
-const defaultUserProfile: UserProfile = {
-  name: 'Dr. Sarah Chen',
-  role: 'System Admin',
-  image:
-    'https://lh3.googleusercontent.com/aida-public/AB6AXuCXKtnRatLULAN9w361Silbvua0RCwcmExv5g05UsN4nU1vcKel73I8wMMv_gQ8rX5Tn7g5tY9-yiRuabDVLh-vIS7DPWwKGgVseQBcZBV063brrw6txf-H8k1Kll6Mq0G-waqZYEb3krEwt0cE7ZXeGiz7mWsuLNU9uQIR-t_YTdqVsHdaebM9JeF1jN1oDPD68B5zHln3OIpxZyRiJtjLhlqu_jGBX2nuSudJR3uSQ_XjT4elmlTQ-etZz-KBMcf7mfewv07JMV4',
-};
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function getAvatarColor(name: string): string {
+  const colors = [
+    'bg-primary text-on-primary',
+    'bg-secondary-container text-on-secondary-container',
+    'bg-tertiary-container text-on-tertiary',
+  ];
+  const index = name.length % colors.length;
+  return colors[index];
+}
 
 export default function Sidebar({
   navItems = defaultNavItems,
-  userProfile = defaultUserProfile,
+  userProfile: propUserProfile,
   className = '',
 }: SidebarProps) {
   const pathname = usePathname();
+  const { user } = useSession();
+
+  // Use prop profile if provided, otherwise derive from session
+  const displayName = propUserProfile?.name || user?.name || 'User';
+  const displayRole =
+    propUserProfile?.role || user?.role || 'User';
+  const displayImage = propUserProfile?.image;
 
   const mainNavItems = navItems.filter((item) => item.section !== 'system');
   const systemNavItems = navItems.filter((item) => item.section === 'system');
@@ -140,16 +160,22 @@ export default function Sidebar({
       <div className='p-6 mt-auto'>
         <div className='bg-surface-container-lowest p-4 rounded-xl shadow-sm shadow-on-background/5 border border-outline-variant/10'>
           <div className='flex items-center gap-3'>
-            <img
-              className='w-10 h-10 rounded-full object-cover'
-              src={userProfile.image}
-              alt={userProfile.name}
-            />
+            {displayImage ? (
+              <img
+                className='w-10 h-10 rounded-full object-cover'
+                src={displayImage}
+                alt={displayName}
+              />
+            ) : (
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold ${getAvatarColor(displayName)}`}
+              >
+                {getInitials(displayName)}
+              </div>
+            )}
             <div>
-              <p className='text-xs font-bold text-on-surface'>
-                {userProfile.name}
-              </p>
-              <p className='text-[10px] text-outline'>{userProfile.role}</p>
+              <p className='text-xs font-bold text-on-surface'>{displayName}</p>
+              <p className='text-[10px] text-outline'>{displayRole}</p>
             </div>
           </div>
         </div>

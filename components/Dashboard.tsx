@@ -1,8 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
-import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import {
   Table,
@@ -12,80 +12,31 @@ import {
   TableHead,
   TableCell,
 } from '@/components/ui/Table';
-import type { AppointStatus } from '@/types/database';
-
-interface DashboardAppointment {
-  id: string;
-  service: string;
-  category: string;
-  doctor: {
-    name: string;
-    initials: string;
-  };
-  date: string;
-  status: AppointStatus;
-  amount?: string;
-}
-
-interface StatCard {
-  value: string;
-  label: string;
-  icon: string;
-  variant?: 'default' | 'primary' | 'secondary';
-}
+import { getMyAppointments } from '@/lib/APICalls/appointments.api';
+import type { Appointment, AppointStatus } from '@/types/database';
 
 export default function Dashboard() {
-  const stats: StatCard[] = [
-    {
-      value: '02',
-      label: 'Upcoming Visits',
-      icon: 'event_available',
-      variant: 'default',
-    },
-    {
-      value: 'Root Canal',
-      label: 'Last Procedure',
-      icon: 'medical_information',
-      variant: 'secondary',
-    },
-    {
-      value: '$120.00',
-      label: 'Outstanding Balance',
-      icon: 'account_balance_wallet',
-      variant: 'primary',
-    },
-  ];
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const appointments: DashboardAppointment[] = [
-    {
-      id: '1',
-      service: 'Root Canal',
-      category: 'Major Restorative',
-      doctor: { name: 'Dr. Smith', initials: 'DS' },
-      date: 'Mar 30, 2024',
-      status: 'DONE',
-    },
-    {
-      id: '2',
-      service: 'Cleaning',
-      category: 'Preventative Care',
-      doctor: { name: 'Dr. Doe', initials: 'DD' },
-      date: 'Apr 05, 2024',
-      status: 'BOOKED',
-      amount: '$120.00',
-    },
-  ];
-
-  const getStatStyles = (variant: string = 'default') => {
-    switch (variant) {
-      case 'primary':
-        return 'bg-primary-container text-on-primary-container';
-      case 'secondary':
-        return 'bg-surface-container-low';
-      default:
-        return 'bg-surface-container-lowest shadow-sm shadow-on-background/5 border border-outline-variant/10';
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const data = await getMyAppointments();
+        setAppointments(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to fetch appointments:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
-  };
+
+    fetchAppointments();
+  }, []);
+
+  const upcomingAppointments = appointments.filter(
+    (a) => a.status === 'BOOKED',
+  );
 
   const getStatusBadge = (status: AppointStatus) => {
     switch (status) {
@@ -100,6 +51,21 @@ export default function Dashboard() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <main className='pt-32 pb-20 px-8 max-w-screen-2xl mx-auto min-h-screen'>
+        <div className='animate-pulse space-y-8'>
+          <div className='w-64 h-12 bg-surface-container-high rounded' />
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+            {[0, 1, 2].map((i) => (
+              <div key={i} className='h-48 bg-surface-container-high rounded-2xl' />
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <>
       <main className='pt-32 pb-20 px-8 max-w-screen-2xl mx-auto min-h-screen'>
@@ -113,33 +79,52 @@ export default function Dashboard() {
           </h1>
         </header>
 
-        {/* Stats Grid (Bento Style) */}
+        {/* Stats Grid */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-8 mb-16'>
-          {stats.map((stat, index) => (
-            <div
-              key={index}
-              className={`p-8 flex flex-col justify-between aspect-square md:aspect-auto md:h-48 ${getStatStyles(stat.variant)}`}
-            >
-              <span
-                className={`material-symbols-outlined text-3xl ${stat.variant === 'primary' ? '' : stat.variant === 'secondary' ? 'text-secondary' : 'text-primary'}`}
-                style={
-                  stat.variant === 'primary'
-                    ? { fontVariationSettings: "'FILL' 1" }
-                    : {}
-                }
-              >
-                {stat.icon}
-              </span>
-              <div>
-                <p className='text-4xl font-headline font-bold text-on-background'>
-                  {stat.value}
-                </p>
-                <p className='font-label text-xs uppercase tracking-widest text-secondary'>
-                  {stat.label}
-                </p>
-              </div>
+          <div className='p-8 flex flex-col justify-between aspect-square md:aspect-auto md:h-48 bg-surface-container-lowest shadow-sm shadow-on-background/5 border border-outline-variant/10'>
+            <span className='material-symbols-outlined text-3xl text-primary'>
+              event_available
+            </span>
+            <div>
+              <p className='text-4xl font-headline font-bold text-on-background'>
+                {upcomingAppointments.length}
+              </p>
+              <p className='font-label text-xs uppercase tracking-widest text-secondary'>
+                Upcoming Visits
+              </p>
             </div>
-          ))}
+          </div>
+
+          <div className='p-8 flex flex-col justify-between aspect-square md:aspect-auto md:h-48 bg-surface-container-low'>
+            <span className='material-symbols-outlined text-3xl text-secondary'>
+              history
+            </span>
+            <div>
+              <p className='text-4xl font-headline font-bold text-on-background'>
+                {appointments.filter((a) => a.status === 'DONE').length}
+              </p>
+              <p className='font-label text-xs uppercase tracking-widest text-secondary'>
+                Completed Visits
+              </p>
+            </div>
+          </div>
+
+          <div className='p-8 flex flex-col justify-between aspect-square md:aspect-auto md:h-48 bg-primary-container text-on-primary-container'>
+            <span
+              className='material-symbols-outlined text-3xl'
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              calendar_month
+            </span>
+            <div>
+              <p className='text-4xl font-headline font-bold'>
+                {appointments.length}
+              </p>
+              <p className='font-label text-xs uppercase tracking-widest opacity-70'>
+                Total Bookings
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Dashboard Content */}
@@ -148,75 +133,80 @@ export default function Dashboard() {
             <h2 className='font-headline text-2xl font-bold tracking-tight text-on-background'>
               Appointment History
             </h2>
-            <div className='flex gap-4'>
-              <button className='flex items-center gap-2 text-xs font-label uppercase tracking-widest text-secondary hover:text-primary transition-colors'>
-                <span className='material-symbols-outlined text-sm'>
-                  filter_list
-                </span>
-                Filter
-              </button>
-              <button className='flex items-center gap-2 text-xs font-label uppercase tracking-widest text-secondary hover:text-primary transition-colors'>
-                <span className='material-symbols-outlined text-sm'>
-                  download
-                </span>
-                Export
-              </button>
-            </div>
           </div>
 
-          {/* Custom Table Component */}
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Service</TableHead>
-                <TableHead>Doctor</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead align='right'>Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {appointments.map((appointment) => (
-                <TableRow key={appointment.id} hoverable>
-                  <TableCell>
-                    <p className='font-headline font-semibold text-on-background'>
-                      {appointment.service}
-                    </p>
-                    <p className='text-xs text-secondary'>
-                      {appointment.category}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <div className='flex items-center gap-3'>
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${appointment.status === 'DONE' ? 'bg-primary-fixed text-on-primary-fixed' : 'bg-secondary-container text-on-secondary-container'}`}
-                      >
-                        {appointment.doctor.initials}
-                      </div>
-                      <p className='text-sm font-medium text-on-background'>
-                        {appointment.doctor.name}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell className='text-sm text-secondary'>
-                    {appointment.date}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(appointment.status)}</TableCell>
-                  <TableCell align='right'>
-                    {appointment.status === 'DONE' ? (
-                      <button className='text-xs font-label uppercase tracking-widest text-primary font-bold hover:underline decoration-primary/30 underline-offset-4'>
-                        View Receipt
-                      </button>
-                    ) : (
-                      <Button size='sm' variant='outline'>
-                        Pay Now
-                      </Button>
-                    )}
-                  </TableCell>
+          {appointments.length === 0 ? (
+            <div className='p-12 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 flex flex-col items-center justify-center'>
+              <div className='w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-4'>
+                <span className='material-symbols-outlined text-3xl text-outline-variant'>
+                  event_busy
+                </span>
+              </div>
+              <h3 className='font-headline text-lg font-bold text-on-surface mb-2'>
+                No appointments yet
+              </h3>
+              <p className='text-sm text-secondary text-center max-w-md mb-6'>
+                Your appointment history will appear here once you book your
+                first visit.
+              </p>
+              <Link
+                href='/book'
+                className='inline-flex items-center gap-2 bg-primary hover:bg-primary-container text-on-primary font-bold py-3 px-6 rounded-lg transition-all'
+              >
+                <span className='material-symbols-outlined'>add_circle</span>
+                Book Your First Appointment
+              </Link>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Doctor</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead align='right'>Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {appointments.map((appointment) => (
+                  <TableRow key={appointment.id} hoverable>
+                    <TableCell>
+                      <div className='flex items-center gap-3'>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                            appointment.status === 'DONE'
+                              ? 'bg-primary-fixed text-on-primary-fixed'
+                              : 'bg-secondary-container text-on-secondary-container'
+                          }`}
+                        >
+                          {appointment.doctor?.name?.slice(0, 2).toUpperCase() || '?'}
+                        </div>
+                        <p className='text-sm font-medium text-on-background'>
+                          {appointment.doctor?.name || 'Unknown Doctor'}
+                        </p>
+                      </div>
+                    </TableCell>
+                    <TableCell className='text-sm text-secondary'>
+                      {new Date(appointment.date).toLocaleDateString('en-GB', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(appointment.status)}</TableCell>
+                    <TableCell align='right'>
+                      <Link
+                        href={`/doctors/${appointment.doctorId}`}
+                        className='text-xs font-label uppercase tracking-widest text-primary font-bold hover:underline decoration-primary/30 underline-offset-4'
+                      >
+                        View Details
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </div>
       </main>
     </>

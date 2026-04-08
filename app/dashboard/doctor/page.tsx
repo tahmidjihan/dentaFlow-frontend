@@ -56,18 +56,12 @@ const doctorRoutesArr: DoctorRoute[] = [
   },
 ];
 
-// Sample appointments per week data
-const appointmentsPerWeekData = [
-  { day: 'Mon', appointments: 6 },
-  { day: 'Tue', appointments: 8 },
-  { day: 'Wed', appointments: 5 },
-  { day: 'Thu', appointments: 9 },
-  { day: 'Fri', appointments: 7 },
-];
-
 function DoctorDashboardContent() {
   const { user } = useSession();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [appointmentsPerWeekData, setAppointmentsPerWeekData] = useState<
+    { day: string; appointments: number }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -76,7 +70,28 @@ function DoctorDashboardContent() {
 
       try {
         const data = await getDoctorAppointments(user.id);
-        setAppointments(Array.isArray(data) ? data : []);
+        const appointmentsArray = Array.isArray(data) ? data : [];
+        setAppointments(appointmentsArray);
+
+        // Compute appointments per week from real data
+        const now = new Date();
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - ((now.getDay() + 6) % 7)); // Monday
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+        const weekData = daysOfWeek.map((day, index) => {
+          const dayDate = new Date(startOfWeek);
+          dayDate.setDate(startOfWeek.getDate() + index);
+          const count = appointmentsArray.filter((a: Appointment) => {
+            const apptDate = new Date(a.date);
+            return (
+              apptDate.toDateString() === dayDate.toDateString()
+            );
+          }).length;
+          return { day, appointments: count };
+        });
+        setAppointmentsPerWeekData(weekData);
       } catch (error) {
         console.error('Failed to fetch appointments:', error);
       } finally {
@@ -157,26 +172,39 @@ function DoctorDashboardContent() {
             Appointments This Week
           </h2>
           <div className='p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm'>
-            <ResponsiveContainer width='100%' height={250}>
-              <BarChart data={appointmentsPerWeekData}>
-                <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
-                <XAxis dataKey='day' stroke='var(--on-surface-variant)' fontSize={12} />
-                <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'var(--surface-container)',
-                    border: '1px solid var(--outline-variant)',
-                    borderRadius: '8px',
-                    color: 'var(--on-surface)',
-                  }}
-                />
-                <Bar
-                  dataKey='appointments'
-                  fill='var(--primary)'
-                  radius={[6, 6, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {appointmentsPerWeekData.length === 0 || appointmentsPerWeekData.every((d) => d.appointments === 0) ? (
+              <div className='flex flex-col items-center justify-center py-12'>
+                <div className='w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center mb-3'>
+                  <span className='material-symbols-outlined text-2xl text-outline-variant'>
+                    bar_chart
+                  </span>
+                </div>
+                <p className='text-sm text-on-surface-variant'>
+                  Charts will appear once data is available
+                </p>
+              </div>
+            ) : (
+              <ResponsiveContainer width='100%' height={250}>
+                <BarChart data={appointmentsPerWeekData}>
+                  <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
+                  <XAxis dataKey='day' stroke='var(--on-surface-variant)' fontSize={12} />
+                  <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: 'var(--surface-container)',
+                      border: '1px solid var(--outline-variant)',
+                      borderRadius: '8px',
+                      color: 'var(--on-surface)',
+                    }}
+                  />
+                  <Bar
+                    dataKey='appointments'
+                    fill='var(--primary)'
+                    radius={[6, 6, 0, 0]}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </section>
 

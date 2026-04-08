@@ -82,7 +82,7 @@ function BookingContent() {
       const result = await createAppointment.mutateAsync({
         userId: user?.id || '',
         doctorId: formData.doctorId,
-        clinicId: formData.clinicId || 'default-clinic-id', // TODO: Get actual clinic ID
+        clinicId: formData.clinicId || '',
         date: appointmentDateTime.toISOString(),
         status: 'BOOKED',
       });

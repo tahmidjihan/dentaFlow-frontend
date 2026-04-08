@@ -278,9 +278,9 @@ export default function DoctorsPage() {
                       <div className='p-6'>
                         {/* Avatar */}
                         <div
-                          className={`w-16 h-16 rounded-full flex items-center justify-center font-headline text-xl font-bold mb-4 ${getAvatarColor(doctor.name || 'Doctor')}`}
+                          className={`w-16 h-16 rounded-full flex items-center justify-center font-headline text-xl font-bold mb-4 ${getAvatarColor(doctor.name)}`}
                         >
-                          {getInitials(doctor.name || 'D')}
+                          {getInitials(doctor.name)}
                         </div>
 
                         {/* Content */}
@@ -290,25 +290,33 @@ export default function DoctorsPage() {
                         <p className='text-sm text-primary font-semibold mb-1'>
                           {doctor.specialty}
                         </p>
-                        <p className='text-sm text-on-surface-variant mb-3'>
-                          {doctor.title}
-                        </p>
+                        {doctor.title && (
+                          <p className='text-sm text-on-surface-variant mb-3'>
+                            {doctor.title}
+                          </p>
+                        )}
 
-                        {/* Meta info */}
-                        <div className='flex items-center gap-4 text-sm text-on-surface-variant mb-4'>
-                          <div className='flex items-center gap-1'>
-                            <span className='material-symbols-outlined text-sm text-warning'>
-                              star
-                            </span>
-                            <span>{doctor.rating || '4.9'}</span>
+                        {/* Meta info — only render if values exist */}
+                        {(doctor.rating || doctor.experience) && (
+                          <div className='flex items-center gap-4 text-sm text-on-surface-variant mb-4'>
+                            {doctor.rating && (
+                              <div className='flex items-center gap-1'>
+                                <span className='material-symbols-outlined text-sm text-warning'>
+                                  star
+                                </span>
+                                <span>{doctor.rating}</span>
+                              </div>
+                            )}
+                            {doctor.experience && (
+                              <div className='flex items-center gap-1'>
+                                <span className='material-symbols-outlined text-sm'>
+                                  schedule
+                                </span>
+                                <span>{doctor.experience}+ yrs</span>
+                              </div>
+                            )}
                           </div>
-                          <div className='flex items-center gap-1'>
-                            <span className='material-symbols-outlined text-sm'>
-                              schedule
-                            </span>
-                            <span>{doctor.experience || '10'}+ yrs</span>
-                          </div>
-                        </div>
+                        )}
 
                         {/* Availability badge */}
                         <Badge
