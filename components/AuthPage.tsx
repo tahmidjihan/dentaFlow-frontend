@@ -51,7 +51,6 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<string | null>(null);
 
   const signInMutation = useSignIn();
@@ -63,7 +62,6 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
     handleSubmit: handleLoginSubmit,
     formState: { errors: loginErrors, isSubmitting: isLoginSubmitting },
     reset: resetLogin,
-    setValue: setLoginValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -125,27 +123,6 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
         },
       },
     );
-  };
-
-  const handleDemoLogin = async () => {
-    setIsDemoLoading(true);
-    setLoginValue('email', 'demo@dentawave.com');
-    setLoginValue('password', 'password123');
-
-    signInMutation.mutate(
-      { email: 'demo@dentawave.com', password: 'password123' },
-      {
-        onSuccess: () => {
-          toast.success('Logged in with demo account!');
-          router.push('/dashboard');
-        },
-        onError: () => {
-          toast.error('Demo login failed. Please try manual login.');
-        },
-      },
-    );
-    // Reset loading state after a short delay
-    setTimeout(() => setIsDemoLoading(false), 2000);
   };
 
   const handleGoogleLogin = async () => {
@@ -392,26 +369,6 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
                 Create account
               </Button>
             </form>
-          )}
-
-          {/* Demo Login Button */}
-          {mode === 'login' && (
-            <div className='mt-5'>
-              <Button
-                type='button'
-                variant='secondary'
-                size='lg'
-                fullWidth
-                onClick={handleDemoLogin}
-                loading={isDemoLoading}
-                icon='person'
-              >
-                Use Demo Account
-              </Button>
-              <p className='text-xs text-on-surface-variant/60 text-center mt-2'>
-                demo@dentawave.com / password123
-              </p>
-            </div>
           )}
 
           {/* Mode Switch */}
