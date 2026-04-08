@@ -2,11 +2,13 @@ import { createAuthClient } from 'better-auth/react';
 import type { User } from '@/types/database';
 
 export const authClient = createAuthClient({
-  // Use API base URL from environment - empty string means relative paths
-  baseURL: process.env.NEXT_PUBLIC_API_URL || '',
+  baseURL:
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000',
   fetchOptions: {
-    credentials: 'include', // Always include cookies for auth
+    credentials: 'include',
   },
+  // Tell better-auth where the frontend is so redirects go there
+  plugins: [],
 });
 
 export const useSession = authClient.useSession;

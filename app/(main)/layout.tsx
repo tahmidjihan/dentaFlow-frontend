@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import Footer from '@/components/ui/Footer';
+import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
+import AIChatAssistant from '@/components/AIChatAssistant';
 
 export const metadata: Metadata = {
   title: 'dentaWave | Modern Dental Care',
@@ -18,6 +19,7 @@ export default function MainLayout({
       <Navbar />
       {children}
       <Footer />
+      <AIChatAssistant />
     </>
   );
 }

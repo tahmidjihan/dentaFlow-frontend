@@ -8,3 +8,4 @@ export * from './use-clinics';
 export * from './use-users';
 export * from './use-doctors';
 export * from './use-appointments';
+export { useDarkMode } from './use-dark-mode';

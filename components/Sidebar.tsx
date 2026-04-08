@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Button from '@/components/ui/Button';
 import { useSignOut } from '@/lib/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 type UserRole = 'DOCTOR' | 'ADMIN' | 'USER';
 
@@ -33,7 +34,7 @@ interface SidebarProps {
 }
 
 const navItems: NavItem[] = [
-  // Admin Navigation
+  // Admin Navigation (7 items)
   {
     title: 'Overview',
     href: '/dashboard/admin',
@@ -64,7 +65,19 @@ const navItems: NavItem[] = [
     icon: 'calendar_today',
     roles: ['ADMIN'],
   },
-  // Doctor Navigation
+  {
+    title: 'Reports',
+    href: '/dashboard/admin',
+    icon: 'bar_chart',
+    roles: ['ADMIN'],
+  },
+  {
+    title: 'Settings',
+    href: '/dashboard/admin',
+    icon: 'settings',
+    roles: ['ADMIN'],
+  },
+  // Doctor Navigation (5 items)
   {
     title: 'Overview',
     href: '/dashboard/doctor',
@@ -83,10 +96,22 @@ const navItems: NavItem[] = [
     icon: 'business',
     roles: ['DOCTOR'],
   },
-  // Patient Navigation
+  {
+    title: 'Patients',
+    href: '/dashboard/doctor',
+    icon: 'people',
+    roles: ['DOCTOR'],
+  },
+  {
+    title: 'Profile',
+    href: '/dashboard/profile',
+    icon: 'person',
+    roles: ['DOCTOR'],
+  },
+  // Patient Navigation (5 items)
   {
     title: 'Overview',
-    href: '/dashboard',
+    href: '/dashboard/patient',
     icon: 'dashboard',
     roles: ['USER'],
   },
@@ -102,6 +127,18 @@ const navItems: NavItem[] = [
     icon: 'calendar_add_on',
     roles: ['USER'],
   },
+  {
+    title: 'My Profile',
+    href: '/dashboard/profile',
+    icon: 'person',
+    roles: ['USER'],
+  },
+  {
+    title: 'Settings',
+    href: '/dashboard/patient',
+    icon: 'settings',
+    roles: ['USER'],
+  },
 ];
 
 export function Sidebar({
@@ -110,6 +147,7 @@ export function Sidebar({
   onClose,
 }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { signOut } = useSignOut();
 
   const filteredNavItems = navItems.filter(
@@ -118,12 +156,34 @@ export function Sidebar({
 
   const checkIsActive = (href: string) => {
     if (pathname === href) return true;
-
     return false;
   };
 
   const handleLogout = async () => {
     signOut();
+    router.push('/');
+  };
+
+  const getRoleLabel = () => {
+    switch (role) {
+      case 'ADMIN':
+        return 'Administrator';
+      case 'DOCTOR':
+        return 'Doctor';
+      default:
+        return 'Patient';
+    }
+  };
+
+  const getRoleName = () => {
+    switch (role) {
+      case 'ADMIN':
+        return 'Admin User';
+      case 'DOCTOR':
+        return 'Doctor';
+      default:
+        return 'Patient';
+    }
   };
 
   return (
@@ -211,18 +271,10 @@ export function Sidebar({
                   </span>
                   <div className='flex-1 text-left'>
                     <p className='text-sm font-semibold text-on-surface'>
-                      {role === 'ADMIN'
-                        ? 'Admin User'
-                        : role === 'DOCTOR'
-                          ? 'Doctor'
-                          : 'Patient'}
+                      {getRoleName()}
                     </p>
                     <p className='text-xs text-on-surface-variant'>
-                      {role === 'ADMIN'
-                        ? 'Administrator'
-                        : role === 'DOCTOR'
-                          ? 'Doctor'
-                          : 'Patient'}
+                      {getRoleLabel()}
                     </p>
                   </div>
                   <span className='material-symbols-outlined text-sm text-outline'>
@@ -231,9 +283,20 @@ export function Sidebar({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align='end' className='w-56'>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                  <span className='material-symbols-outlined mr-2 h-4 w-4'>person</span>
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/')}>
+                  <span className='material-symbols-outlined mr-2 h-4 w-4'>home</span>
+                  Home
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
-                  className='text-error focus:text-error focus:bg-error/10'
+                  className='text-destructive focus:text-destructive focus:bg-error/10'
                 >
                   <span className='material-symbols-outlined mr-2 h-4 w-4'>
                     logout

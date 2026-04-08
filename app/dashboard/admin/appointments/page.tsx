@@ -1,387 +1,158 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import DashboardWrapper from '@/components/DashboardWrapper';
 import AdminGuard from '@/components/AdminGuard';
-import Button from '@/components/ui/Button';
-import DeleteConfirmModal from '@/components/DeleteConfirmModal';
-import EditAppointmentModal from '@/components/EditAppointmentModal';
-import {
-  useAppointments,
-  useUpdateAppointment,
-  useDeleteAppointment,
-  useAppointment,
-} from '@/lib/hooks/use-appointments';
-import { useToast } from '@/components/ui/Toast';
+import { getAppointments } from '@/lib/APICalls/appointments.api';
 import type { Appointment } from '@/types/database';
 
-const getStatusBadgeStyles = (status: string) => {
-  switch (status) {
-    case 'BOOKED':
-      return 'bg-primary/10 text-primary';
-    case 'DONE':
-      return 'bg-secondary-container text-on-secondary-container';
-    case 'CANCELLED':
-      return 'bg-error/10 text-error';
-    default:
-      return 'bg-outline text-on-surface';
-  }
-};
+const ITEMS_PER_PAGE = 10;
+const statusOptions = [
+  { value: '', label: 'All Statuses' },
+  { value: 'BOOKED', label: 'Booked' },
+  { value: 'DONE', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+];
 
-export default function AppointmentsPage() {
-  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+export default function AdminAppointmentsPage() {
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'BOOKED' | 'DONE' | 'CANCELLED'
-  >('all');
-  const [editingAppointment, setEditingAppointment] = useState<string | null>(
-    null,
+  const [statusFilter, setStatusFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    async function fetchAppointments() {
+      try {
+        const data = await getAppointments();
+        setAppointments(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to fetch appointments:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchAppointments();
+  }, []);
+
+  const filteredAppointments = useMemo(() => {
+    let result = [...appointments];
+
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter(
+        (a: any) =>
+          a.user?.name?.toLowerCase().includes(query) ||
+          a.doctor?.name?.toLowerCase().includes(query) ||
+          a.clinic?.name?.toLowerCase().includes(query),
+      );
+    }
+
+    if (statusFilter) {
+      result = result.filter((a: any) => a.status === statusFilter);
+    }
+
+    return result;
+  }, [appointments, searchQuery, statusFilter]);
+
+  const totalPages = Math.ceil(filteredAppointments.length / ITEMS_PER_PAGE);
+  const paginatedAppointments = filteredAppointments.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
   );
-  const [deletingAppointment, setDeletingAppointment] = useState<{
-    id: string;
-    patientName: string;
-  } | null>(null);
-
-  const { data: appointmentsData, isLoading, error } = useAppointments();
-  const updateAppointmentMutation = useUpdateAppointment();
-  const deleteAppointmentMutation = useDeleteAppointment();
-  const { success, error: showError, ToastContainer } = useToast();
-
-  const appointments = (appointmentsData as any[]) || [];
-
-  // Fetch individual appointment data for editing
-  const { data: appointmentToEditData } = useAppointment(
-    editingAppointment || '',
-  );
-
-  const getUserName = (appointment: any) => {
-    return appointment.user?.name || 'Unknown';
-  };
-
-  const getDoctorName = (appointment: any) => {
-    return appointment.doctor?.name || 'Unknown Doctor';
-  };
-
-  const getClinicName = (appointment: any) => {
-    return appointment.clinic?.name || 'Unknown Clinic';
-  };
-
-  const filteredAppointments = (appointments || []).filter(
-    (appointment: any) => {
-      const patientName = getUserName(appointment);
-      const matchesSearch =
-        patientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        appointment.id?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesStatus =
-        statusFilter === 'all' || appointment.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    },
-  );
-
-  const handleStatusUpdate = (
-    appointmentId: string,
-    newStatus: 'BOOKED' | 'DONE' | 'CANCELLED',
-  ) => {
-    updateAppointmentMutation.mutate(
-      { id: appointmentId, data: { status: newStatus } },
-      {
-        onSuccess: () => {
-          success(`Appointment marked as ${newStatus.toLowerCase()}`);
-        },
-        onError: () => {
-          showError('Failed to update appointment status');
-        },
-      },
-    );
-  };
-
-  const handleDeleteAppointment = () => {
-    if (!deletingAppointment) return;
-
-    deleteAppointmentMutation.mutate(deletingAppointment.id, {
-      onSuccess: () => {
-        success('Appointment deleted successfully');
-        setDeletingAppointment(null);
-      },
-      onError: () => {
-        showError('Failed to delete appointment');
-      },
-    });
-  };
-
-  const handleEditSuccess = () => {
-    success('Appointment updated successfully');
-  };
 
   if (isLoading) {
     return (
       <DashboardWrapper role='ADMIN' mobileTitle='Appointments'>
-        <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
-          <div className='flex items-center justify-center h-64'>
-            <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
-          </div>
+        <main className='flex-1 md:ml-64 p-8 flex items-center justify-center h-64'>
+          <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-primary'></div>
         </main>
       </DashboardWrapper>
     );
   }
-
-  if (error) {
-    return (
-      <DashboardWrapper role='ADMIN' mobileTitle='Appointments'>
-        <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
-          <div className='text-center text-error'>
-            <p>Failed to load appointments. Please try again.</p>
-          </div>
-        </main>
-      </DashboardWrapper>
-    );
-  }
-
-  const appointmentToEdit = (appointmentToEditData as any) || null;
-  const appointmentToDelete = deletingAppointment;
 
   return (
     <AdminGuard>
       <DashboardWrapper role='ADMIN' mobileTitle='Appointments'>
-        <ToastContainer position='top-right' />
-
         <main className='flex-1 md:ml-64 p-4 md:p-8 lg:p-12'>
-          {/* Header */}
-          <header className='mb-12'>
-            <p className='font-label text-xs uppercase tracking-widest text-secondary mb-3'>
-              Appointment Management
-            </p>
-            <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
-              <div>
-                <h1 className='font-headline text-5xl font-extrabold tracking-tighter text-on-background max-w-2xl'>
-                  All Appointments
-                </h1>
-                <p className='text-secondary mt-2 max-w-xl'>
-                  Manage and monitor all appointments across clinics.
-                </p>
-              </div>
-              <div className='flex gap-2'>
-                <Button variant='outline' icon='download'>
-                  Export
-                </Button>
-                <Button icon='add'>New Appointment</Button>
-              </div>
-            </div>
+          <header className='mb-8'>
+            <h1 className='font-headline text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface'>
+              Appointments Management
+            </h1>
           </header>
 
-          {/* Appointments Table Container */}
-          <section className='bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden'>
-            {/* Table Header with Search and Filters */}
-            <div className='p-6 border-b border-outline-variant/10 bg-surface-container-low/30'>
-              <div className='flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between'>
-                {/* Search */}
-                <div className='relative w-full lg:w-[300px]'>
-                  <span className='material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline'>
-                    search
-                  </span>
-                  <input
-                    type='text'
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder='Search appointments...'
-                    className='w-full bg-surface-container-low/50 border-none rounded-full pl-12 pr-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-outline/60'
-                  />
-                </div>
-
-                {/* Status Filter */}
-                <div className='flex gap-2 flex-wrap'>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) =>
-                      setStatusFilter(e.target.value as typeof statusFilter)
-                    }
-                    className='px-4 py-2.5 rounded-lg bg-surface-container-low border-none text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20 cursor-pointer'
-                  >
-                    <option value='all'>All Status</option>
-                    <option value='BOOKED'>Booked</option>
-                    <option value='DONE'>Completed</option>
-                    <option value='CANCELLED'>Cancelled</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Results Count */}
-            <div className='px-6 py-3 bg-surface-container-low/10 border-b border-outline-variant/5'>
-              <span className='text-xs text-outline font-medium'>
-                Showing{' '}
-                <span className='text-on-surface font-bold'>
-                  {filteredAppointments.length}
-                </span>{' '}
-                {filteredAppointments.length === 1
-                  ? 'appointment'
-                  : 'appointments'}
-                {(searchQuery || statusFilter !== 'all') && (
-                  <span> filtered</span>
-                )}
+          {/* Filters */}
+          <div className='mb-6 flex flex-col md:flex-row gap-3'>
+            <div className='flex-1 relative'>
+              <span className='material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm'>
+                search
               </span>
+              <input
+                type='text'
+                placeholder='Search appointments...'
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className='w-full pl-10 pr-4 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface text-sm placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/20'
+              />
             </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1);
+              }}
+              className='px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant/30 text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary/20'
+            >
+              {statusOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
 
-            {/* Appointments Table */}
+          {/* Table */}
+          <div className='bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm overflow-hidden'>
             <div className='overflow-x-auto'>
-              <table className='w-full text-left border-collapse'>
+              <table className='w-full text-left'>
                 <thead>
                   <tr className='bg-surface-container-low/50'>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
-                      ID
-                    </th>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
-                      Patient
-                    </th>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
-                      Doctor
-                    </th>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
-                      Clinic
-                    </th>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
-                      Date
-                    </th>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline'>
-                      Status
-                    </th>
-                    <th className='px-8 py-5 text-[11px] font-bold uppercase tracking-widest text-outline text-right'>
-                      Actions
-                    </th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>Patient</th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>Doctor</th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>Clinic</th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>Date</th>
+                    <th className='px-6 py-4 text-[11px] font-bold uppercase tracking-widest text-outline'>Status</th>
                   </tr>
                 </thead>
                 <tbody className='divide-y divide-outline-variant/5'>
-                  {filteredAppointments.length > 0 ? (
-                    filteredAppointments.map((appointment: any) => (
-                      <tr
-                        key={appointment.id}
-                        className='hover:bg-surface-container-low/20 transition-colors group'
-                        onMouseEnter={() => setHoveredRow(appointment.id)}
-                        onMouseLeave={() => setHoveredRow(null)}
-                      >
-                        <td className='px-8 py-6'>
-                          <span className='text-sm font-mono text-outline'>
-                            {appointment.id.slice(0, 8)}...
-                          </span>
+                  {paginatedAppointments.length > 0 ? (
+                    paginatedAppointments.map((appt: any) => (
+                      <tr key={appt.id} className='hover:bg-surface-container-low/20'>
+                        <td className='px-6 py-4 text-sm text-on-surface'>{appt.user?.name || 'N/A'}</td>
+                        <td className='px-6 py-4 text-sm text-on-surface'>{appt.doctor?.name || 'N/A'}</td>
+                        <td className='px-6 py-4 text-sm text-on-surface-variant'>{appt.clinic?.name || 'N/A'}</td>
+                        <td className='px-6 py-4 text-sm text-on-surface-variant'>
+                          {new Date(appt.date).toLocaleDateString()}
                         </td>
-                        <td className='px-8 py-6'>
-                          <span className='text-sm font-semibold text-on-surface'>
-                            {getUserName(appointment)}
+                        <td className='px-6 py-4'>
+                          <span className={`text-xs font-bold uppercase px-2 py-1 rounded ${
+                            appt.status === 'BOOKED' ? 'bg-primary/10 text-primary' :
+                            appt.status === 'DONE' ? 'bg-secondary/10 text-secondary' :
+                            'bg-error/10 text-error'
+                          }`}>
+                            {appt.status}
                           </span>
-                        </td>
-                        <td className='px-8 py-6'>
-                          <span className='text-sm text-secondary'>
-                            {getDoctorName(appointment)}
-                          </span>
-                        </td>
-                        <td className='px-8 py-6'>
-                          <span className='text-sm text-outline'>
-                            {getClinicName(appointment)}
-                          </span>
-                        </td>
-                        <td className='px-8 py-6'>
-                          <span className='text-sm text-secondary'>
-                            {appointment.date
-                              ? new Date(appointment.date).toLocaleDateString()
-                              : 'N/A'}
-                          </span>
-                        </td>
-                        <td className='px-8 py-6'>
-                          <span
-                            className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getStatusBadgeStyles(appointment.status)}`}
-                          >
-                            {appointment.status}
-                          </span>
-                        </td>
-                        <td className='px-8 py-6 text-right'>
-                          <div
-                            className={`flex justify-end gap-2 transition-opacity ${
-                              hoveredRow === appointment.id
-                                ? 'opacity-100'
-                                : 'opacity-0'
-                            }`}
-                          >
-                            <button
-                              onClick={() =>
-                                setEditingAppointment(appointment.id)
-                              }
-                              className='bg-surface-container-high hover:bg-secondary-container hover:text-on-secondary-container text-outline text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                            >
-                              Edit
-                            </button>
-                            {appointment.status === 'BOOKED' && (
-                              <>
-                                <button
-                                  onClick={() =>
-                                    handleStatusUpdate(appointment.id, 'DONE')
-                                  }
-                                  className='bg-primary/10 hover:bg-primary hover:text-white text-primary text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                                >
-                                  Complete
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleStatusUpdate(
-                                      appointment.id,
-                                      'CANCELLED',
-                                    )
-                                  }
-                                  className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                                >
-                                  Cancel
-                                </button>
-                              </>
-                            )}
-                            {appointment.status === 'DONE' && (
-                              <button
-                                onClick={() =>
-                                  handleStatusUpdate(appointment.id, 'BOOKED')
-                                }
-                                className='bg-secondary-container hover:bg-secondary hover:text-white text-on-secondary-container text-[11px] font-bold px-4 py-1.5 rounded transition-all'
-                              >
-                                Reopen
-                              </button>
-                            )}
-                            {appointment.status === 'CANCELLED' && (
-                              <button
-                                onClick={() =>
-                                  setDeletingAppointment({
-                                    id: appointment.id,
-                                    patientName: getUserName(appointment),
-                                  })
-                                }
-                                disabled={deleteAppointmentMutation.isPending}
-                                className='bg-error/10 hover:bg-error hover:text-white text-error text-[11px] font-bold px-4 py-1.5 rounded transition-all disabled:opacity-50'
-                              >
-                                {deleteAppointmentMutation.isPending
-                                  ? 'Deleting...'
-                                  : 'Delete'}
-                              </button>
-                            )}
-                          </div>
                         </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className='px-8 py-16 text-center'>
-                        <div className='flex flex-col items-center justify-center'>
-                          <div className='w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-4'>
-                            <span className='material-symbols-outlined text-3xl text-outline'>
-                              event_busy
-                            </span>
-                          </div>
-                          <h3 className='font-headline text-xl font-bold text-on-surface mb-2'>
-                            No appointments found
-                          </h3>
-                          <p className='text-body-medium text-secondary max-w-md'>
-                            {searchQuery
-                              ? `No appointments match your search "${searchQuery}".`
-                              : 'No appointments match the selected filters.'}
-                          </p>
-                        </div>
+                      <td colSpan={5} className='px-6 py-16 text-center'>
+                        <span className='material-symbols-outlined text-4xl text-outline mb-3'>event_busy</span>
+                        <p className='text-sm text-secondary'>No appointments found</p>
                       </td>
                     </tr>
                   )}
@@ -389,60 +160,26 @@ export default function AppointmentsPage() {
               </table>
             </div>
 
-            {/* Pagination Footer */}
-            <div className='p-6 flex items-center justify-between bg-surface-container-low/10'>
-              <span className='text-xs text-outline font-medium'>
-                Showing{' '}
-                <span className='text-on-surface font-bold'>
-                  {filteredAppointments.length}
-                </span>{' '}
-                {filteredAppointments.length === 1
-                  ? 'appointment'
-                  : 'appointments'}
-              </span>
-              <div className='flex items-center gap-2'>
-                <button
-                  className='w-10 h-10 flex items-center justify-center rounded-lg border border-outline-variant/30 hover:bg-surface-container-high transition-all text-outline disabled:opacity-50'
-                  disabled
-                >
-                  <span className='material-symbols-outlined'>
-                    chevron_left
-                  </span>
-                </button>
-                <button className='w-10 h-10 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-xs shadow-sm shadow-primary/20'>
-                  1
-                </button>
-                <button
-                  className='w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-container-high text-on-surface font-bold text-xs transition-all disabled:opacity-50'
-                  disabled
-                >
-                  <span className='material-symbols-outlined'>
-                    chevron_right
-                  </span>
-                </button>
+            {totalPages > 1 && (
+              <div className='p-4 flex items-center justify-between border-t border-outline-variant/10'>
+                <span className='text-xs text-outline'>
+                  Showing {paginatedAppointments.length} of {filteredAppointments.length}
+                </span>
+                <div className='flex gap-1'>
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className={`w-8 h-8 rounded text-xs font-bold ${currentPage === i + 1 ? 'bg-primary text-on-primary' : 'hover:bg-surface-container-high text-on-surface'}`}
+                    >
+                      {i + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-          </section>
+            )}
+          </div>
         </main>
-
-        {/* Edit Appointment Modal */}
-        <EditAppointmentModal
-          isOpen={!!appointmentToEdit}
-          appointment={appointmentToEdit}
-          onClose={() => setEditingAppointment(null)}
-          onSuccess={handleEditSuccess}
-        />
-
-        {/* Delete Confirmation Modal */}
-        <DeleteConfirmModal
-          isOpen={!!appointmentToDelete}
-          entityName={`Appointment for ${appointmentToDelete?.patientName || ''}`}
-          entityType='Appointment'
-          onClose={() => setDeletingAppointment(null)}
-          onConfirm={handleDeleteAppointment}
-          isLoading={deleteAppointmentMutation.isPending}
-          warningMessage='This will permanently remove the appointment record. This action cannot be undone.'
-        />
       </DashboardWrapper>
     </AdminGuard>
   );

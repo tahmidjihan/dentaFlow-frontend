@@ -7,8 +7,18 @@ import RoleGuard from '@/components/RoleGuard';
 import { getUsers } from '@/lib/APICalls/users.api';
 import { getDoctors } from '@/lib/APICalls/doctors.api';
 import { getAppointments } from '@/lib/APICalls/appointments.api';
-import type { User } from '@/types/database';
-import type { Appointment } from '@/types/database';
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from 'recharts';
 
 interface AdminRoute {
   title: string;
@@ -47,6 +57,37 @@ const adminRoutes: AdminRoute[] = [
     icon: 'calendar_today',
     color: 'bg-primary/10 text-primary',
   },
+  {
+    title: 'Reports',
+    description: 'View analytics and generate reports',
+    href: '/dashboard/admin',
+    icon: 'bar_chart',
+    color: 'bg-secondary/10 text-secondary',
+  },
+  {
+    title: 'Settings',
+    description: 'Platform configuration and settings',
+    href: '/dashboard/admin',
+    icon: 'settings',
+    color: 'bg-tertiary/10 text-tertiary',
+  },
+];
+
+// Sample user growth data
+const userGrowthData = [
+  { month: 'Jan', users: 120 },
+  { month: 'Feb', users: 180 },
+  { month: 'Mar', users: 250 },
+  { month: 'Apr', users: 320 },
+  { month: 'May', users: 400 },
+  { month: 'Jun', users: 520 },
+];
+
+// Role distribution data
+const roleDistributionData = [
+  { name: 'Patients', value: 380, color: 'var(--primary)' },
+  { name: 'Doctors', value: 85, color: 'var(--secondary)' },
+  { name: 'Admins', value: 15, color: 'var(--tertiary)' },
 ];
 
 function AdminDashboardContent() {
@@ -90,11 +131,11 @@ function AdminDashboardContent() {
           </p>
           <div className='flex flex-col md:flex-row md:items-end justify-between gap-4'>
             <div>
-              <h1 className='font-headline text-5xl font-extrabold tracking-tighter text-on-background max-w-2xl'>
+              <h1 className='font-headline text-4xl md:text-5xl font-extrabold tracking-tighter text-on-surface max-w-2xl'>
                 Admin Dashboard
               </h1>
               <p className='text-secondary mt-2 max-w-xl'>
-                Manage your dentaWave platform from a centralized control panel.
+                Manage your DentaWave platform from a centralized control panel.
               </p>
             </div>
           </div>
@@ -110,7 +151,7 @@ function AdminDashboardContent() {
                 </span>
               </div>
               <div>
-                <p className='text-2xl font-headline font-bold text-on-background'>
+                <p className='text-2xl font-headline font-bold text-on-surface'>
                   {isLoading ? '-' : stats.totalUsers}
                 </p>
                 <p className='text-xs font-label uppercase tracking-widest text-secondary'>
@@ -128,7 +169,7 @@ function AdminDashboardContent() {
                 </span>
               </div>
               <div>
-                <p className='text-2xl font-headline font-bold text-on-background'>
+                <p className='text-2xl font-headline font-bold text-on-surface'>
                   {isLoading ? '-' : stats.totalDoctors}
                 </p>
                 <p className='text-xs font-label uppercase tracking-widest text-secondary'>
@@ -146,7 +187,7 @@ function AdminDashboardContent() {
                 </span>
               </div>
               <div>
-                <p className='text-2xl font-headline font-bold text-on-background'>
+                <p className='text-2xl font-headline font-bold text-on-surface'>
                   {isLoading ? '-' : stats.totalAppointments}
                 </p>
                 <p className='text-xs font-label uppercase tracking-widest text-secondary'>
@@ -157,9 +198,75 @@ function AdminDashboardContent() {
           </div>
         </section>
 
+        {/* Charts Row */}
+        <section className='grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12'>
+          {/* User Growth Chart */}
+          <div className='p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm'>
+            <h2 className='font-headline text-lg font-bold text-on-surface mb-4'>
+              User Growth
+            </h2>
+            <ResponsiveContainer width='100%' height={250}>
+              <LineChart data={userGrowthData}>
+                <CartesianGrid strokeDasharray='3 3' stroke='var(--outline-variant)' opacity={0.3} />
+                <XAxis dataKey='month' stroke='var(--on-surface-variant)' fontSize={12} />
+                <YAxis stroke='var(--on-surface-variant)' fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'var(--surface-container)',
+                    border: '1px solid var(--outline-variant)',
+                    borderRadius: '8px',
+                    color: 'var(--on-surface)',
+                  }}
+                />
+                <Line
+                  type='monotone'
+                  dataKey='users'
+                  stroke='var(--primary)'
+                  strokeWidth={2}
+                  dot={{ fill: 'var(--primary)', r: 4 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Role Distribution Chart */}
+          <div className='p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm'>
+            <h2 className='font-headline text-lg font-bold text-on-surface mb-4'>
+              Role Distribution
+            </h2>
+            <ResponsiveContainer width='100%' height={250}>
+              <PieChart>
+                <Pie
+                  data={roleDistributionData}
+                  cx='50%'
+                  cy='50%'
+                  outerRadius={80}
+                  dataKey='value'
+                  label={({ name, percent }) =>
+                    `${name} (${(percent * 100).toFixed(0)}%)`
+                  }
+                >
+                  {roleDistributionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'var(--surface-container)',
+                    border: '1px solid var(--outline-variant)',
+                    borderRadius: '8px',
+                    color: 'var(--on-surface)',
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
         {/* Navigation Cards */}
         <section>
-          <h2 className='font-headline text-xl font-bold text-on-background mb-6'>
+          <h2 className='font-headline text-xl font-bold text-on-surface mb-6'>
             Quick Access
           </h2>
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
@@ -170,7 +277,6 @@ function AdminDashboardContent() {
                 className='group p-6 bg-surface-container-lowest rounded-2xl border border-outline-variant/10 shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300'
               >
                 <div className='flex flex-col h-full'>
-                  {/* Icon */}
                   <div
                     className={`w-14 h-14 rounded-xl ${route.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}
                   >
@@ -178,18 +284,14 @@ function AdminDashboardContent() {
                       {route.icon}
                     </span>
                   </div>
-
-                  {/* Content */}
                   <div className='flex-1'>
-                    <h3 className='font-headline text-lg font-bold text-on-background group-hover:text-primary transition-colors'>
+                    <h3 className='font-headline text-lg font-bold text-on-surface group-hover:text-primary transition-colors'>
                       {route.title}
                     </h3>
                     <p className='text-sm text-secondary mt-2'>
                       {route.description}
                     </p>
                   </div>
-
-                  {/* Arrow */}
                   <div className='flex items-center gap-2 mt-4 text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity'>
                     <span>Go to {route.title.split(' ')[0]}</span>
                     <span className='material-symbols-outlined text-base'>
@@ -204,7 +306,7 @@ function AdminDashboardContent() {
 
         {/* Recent Activity Placeholder */}
         <section className='mt-12'>
-          <h2 className='font-headline text-xl font-bold text-on-background mb-6'>
+          <h2 className='font-headline text-xl font-bold text-on-surface mb-6'>
             Recent Activity
           </h2>
           <div className='p-8 bg-surface-container-lowest rounded-2xl border border-outline-variant/10'>
