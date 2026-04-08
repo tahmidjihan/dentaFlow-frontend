@@ -34,7 +34,7 @@ interface SidebarProps {
 }
 
 const navItems: NavItem[] = [
-  // Admin Navigation (7 items)
+  // Admin Navigation (5 items)
   {
     title: 'Overview',
     href: '/dashboard/admin',
@@ -65,19 +65,7 @@ const navItems: NavItem[] = [
     icon: 'calendar_today',
     roles: ['ADMIN'],
   },
-  {
-    title: 'Reports',
-    href: '/dashboard/admin',
-    icon: 'bar_chart',
-    roles: ['ADMIN'],
-  },
-  {
-    title: 'Settings',
-    href: '/dashboard/admin',
-    icon: 'settings',
-    roles: ['ADMIN'],
-  },
-  // Doctor Navigation (5 items)
+  // Doctor Navigation (4 items)
   {
     title: 'Overview',
     href: '/dashboard/doctor',
@@ -97,18 +85,12 @@ const navItems: NavItem[] = [
     roles: ['DOCTOR'],
   },
   {
-    title: 'Patients',
-    href: '/dashboard/doctor',
-    icon: 'people',
-    roles: ['DOCTOR'],
-  },
-  {
     title: 'Profile',
     href: '/dashboard/profile',
     icon: 'person',
     roles: ['DOCTOR'],
   },
-  // Patient Navigation (5 items)
+  // Patient Navigation (4 items)
   {
     title: 'Overview',
     href: '/dashboard/patient',
@@ -131,12 +113,6 @@ const navItems: NavItem[] = [
     title: 'My Profile',
     href: '/dashboard/profile',
     icon: 'person',
-    roles: ['USER'],
-  },
-  {
-    title: 'Settings',
-    href: '/dashboard/patient',
-    icon: 'settings',
     roles: ['USER'],
   },
 ];
