@@ -51,6 +51,7 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState<string | null>(null);
 
   const signInMutation = useSignIn();
@@ -62,6 +63,7 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
     handleSubmit: handleLoginSubmit,
     formState: { errors: loginErrors, isSubmitting: isLoginSubmitting },
     reset: resetLogin,
+    setValue: setLoginValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -125,17 +127,34 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
     );
   };
 
+  const handleDemoLogin = async () => {
+    setIsDemoLoading(true);
+    setLoginValue('email', 'tahmid593@proton.me');
+    setLoginValue('password', 'qwerty12Q');
+
+    signInMutation.mutate(
+      { email: 'tahmid593@proton.me', password: 'qwerty12Q' },
+      {
+        onSuccess: () => {
+          toast.success('Logged in with demo account!');
+          router.push('/dashboard');
+        },
+        onError: () => {
+          toast.error('Demo login failed. Please try manual login.');
+        },
+      },
+    );
+    setTimeout(() => setIsDemoLoading(false), 2000);
+  };
+
   const handleGoogleLogin = async () => {
     setIsSocialLoading('google');
-    const frontendUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     try {
       await authClient.signIn.social(
         {
           provider: 'google',
-          callbackURL: `${frontendUrl}/dashboard`,
-          // For better-auth v1.x, also set errorCallbackURL for failures
-          errorCallbackURL: `${frontendUrl}/auth/login?error=social_failed`,
+          callbackURL: '/dashboard',
+          errorCallbackURL: '/auth/login?error=social_failed',
         },
         {
           onError: (error) => {
@@ -369,6 +388,23 @@ export default function AuthPage({ initialMode = 'login' }: AuthPageProps) {
                 Create account
               </Button>
             </form>
+          )}
+
+          {/* Demo Login Button */}
+          {mode === 'login' && (
+            <div className='mt-5'>
+              <Button
+                type='button'
+                variant='secondary'
+                size='lg'
+                fullWidth
+                onClick={handleDemoLogin}
+                loading={isDemoLoading}
+                icon='person'
+              >
+                Use Demo Account
+              </Button>
+            </div>
           )}
 
           {/* Mode Switch */}
